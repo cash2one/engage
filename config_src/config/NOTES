@@ -1,0 +1,5 @@
+- To go into the design document
+
+To find the machine of a resource instance, we can follow the
+"inside" constraints to a resource whose "inside" constraint is None.
+This last resource is a machine.

@@ -1,0 +1,65 @@
+MINISAT_DIR=../minisat
+OCAML_LIB=$(shell sh ./ocamllibdir.sh)
+
+OCAML_INC=-I $(OCAML_LIB)
+MINISAT_INC=-I $(MINISAT_DIR)/mtl -I $(MINISAT_DIR)/core
+MINISAT_OBJ=$(MINISAT_DIR)/core/solver.or
+
+# set this based on linux vs. cygwin
+#EXE=.exe
+
+CAMLMSAT_DEPS=libcamlmsat.a camlmsat.cmi
+
+#CCOPTS=-ffloat-store -O3
+CCOPTS=-ffloat-store -g
+
+CAML_OPTS=-g
+#CAML_OPTS=-noassert
+
+# executables
+TEST_STUBS=test_stubs$(EXE)
+TEST_PREDS=test_preds$(EXE)
+
+all: $(CAMLMSAT_DEPS) $(TEST_PREDS) $(TEST_STUBS)
+
+test: $(TEST_STUBS) $(TEST_PREDS)
+	./$(TEST_STUBS)
+	./$(TEST_PREDS)
+
+# The output of this program can be piped to the Simplify theorem prover.
+# All the predicates should be valid.
+$(TEST_PREDS): test_preds.ml predicates.cmi predicates.cmo $(CAMLMSAT_DEPS)
+	ocamlc -custom  -cc g++ $(CAML_OPTS) libcamlmsat.a predicates.cmo test_preds.ml -o $(TEST_PREDS)
+
+predicates.cmo: predicates.ml predicates.cmi
+	ocamlc $(CAML_OPTS) -c predicates.ml
+
+predicates.cmi: predicates.mli camlmsat.cmi
+	ocamlc $(CAML_OPTS) -c predicates.mli
+
+predicates_top: predicates.cmi predicates.cmo
+	ocamlmktop -o predicates_top -custom  -cc g++ $(CAML_OPTS) libcamlmsat.a predicates.cmo
+
+$(TEST_STUBS): $(CAMLMSAT_DEPS) test_stubs.ml
+	ocamlc -custom  -cc g++ -o $(TEST_STUBS) libcamlmsat.a test_stubs.ml
+
+camlmsat.cmi: camlmsat.mli
+	ocamlc $(CAML_OPTS) -c camlmsat.mli
+
+libcamlmsat.a: camlmsat_stubs.o $(MINISAT_OBJ)
+	ar cr libcamlmsat.a camlmsat_stubs.o $(MINISAT_OBJ)
+
+camlmsat_stubs.o: camlmsat_stubs.C $(MINISAT_OBJ)
+	g++ -c $(CCOPTS) $(MINISAT_INC) $(OCAML_INC) camlmsat_stubs.C
+
+$(MINISAT_OBJ):
+	@echo "Making MiniSat"
+	cd $(MINISAT_DIR)/core; make rs
+
+clean:
+	rm -f *~ $(TEST_STUBS) $(TEST_PREDS) *.o *.a *.cmi *.cmo libcamlmsat.a
+
+clean-all: clean
+	cd $(MINISAT_DIR)/core; make clean
+
+.PHONY: all clean test clean-all

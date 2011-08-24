@@ -1,0 +1,6 @@
+Django-1.2.5.tar.gz optional
+South-0.7.3.tar.gz optional
+redis_package-macosx64.tar.gz optional macosx64
+redis_package.tar.gz required
+pip-1.0.tar.gz required
+gunicorn-0.12.2.tar.gz optional

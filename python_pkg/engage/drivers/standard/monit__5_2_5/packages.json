@@ -1,0 +1,14 @@
+[
+  {"type": "Archive",
+   "package_class": "GzippedTarArchive",
+   "location": "monit-5.2.5-macosx10.6-x64.tar.gz"
+  },
+  {"type": "Archive",
+   "package_class": "GzippedTarArchive",
+   "location": "monit-5.2.5-linux-x64.tar.gz"
+  },
+  {"type": "Archive",
+   "package_class": "GzippedTarArchive",
+   "location": "monit-5.2.5.tar.gz"
+  }
+]

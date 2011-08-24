@@ -1,0 +1,39 @@
+[
+    {"key" : { "name" : "gearman", "version" : "1.5" },
+      "display_name" : "Gearman",
+      "config_port": {
+      },
+      "input_ports": {
+        "host": { "genforma_home": "path", "hostname":"string" },
+        "python" : { "PYTHONPATH": "string",
+                     "home": "string" }
+      },
+      "output_ports": {
+        "gearman": {
+          "home" : {"type":"path",
+                    "fixed-value":"${input_ports.host.genforma_home}/gearman_package"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"g++", "version":"4.2"}
+          },
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          }
+        ]
+      }
+    }
+]

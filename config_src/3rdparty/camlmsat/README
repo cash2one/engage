@@ -1,0 +1,50 @@
+README file for camlmsat
+========================
+
+History
+-------
+2009-02-05 jfischer Created this readme file, added optimized build
+2007-??-?? jfischer Created camlmsat
+
+
+Description
+-----------
+Camlmsat is an Ocaml interface to the minisat SAT solver
+(http://minisat.se/MiniSat.html). It provides two APIs:
+ - camlmsat.mli is a direct interface to the minisat C++ APIs. It
+   requires that predicates be specified in Conjunctive Normal Form.
+ - predicates.mli is a higher-level interface that defines a predicate
+   type in OCaml. This arbitrary predicates are then converted to CNF
+   before being passed to the camlmsat API.
+
+This version of the code has been tested against minisat2-070721.
+
+
+Linking
+-------
+To link this library with your byte-code OCaml program, add the
+following to the command line:
+   -custom  -cc g++ libcamlmsat.a predicates.cmo
+
+To link this library with your native-code OCaml program, add the
+following to the command line:
+   -cc g++ libcamlmsat.a predicates.cmx
+
+You will also need to include this directory in the OCaml search path
+(e.g. via -I on the command line).
+
+
+Tests
+-----
+The makefile builds and runs some unit tests:
+ - test_stubs: test the low level camlmsat API
+ - test_preds: test the predicates API.
+ - test_toplevel: an OCaml toplevel with the predicate library linked in.
+
+
+ToDo
+----
+It would be nice for the predicates API to provide a "one_of"
+exclusive-or construct. This could use memoization to translate to
+more efficent CNF than an naive implementation.
+

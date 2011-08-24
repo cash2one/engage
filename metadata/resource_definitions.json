@@ -1,0 +1,3852 @@
+{ "resource_def_version": "1.0",
+  "resource_definitions": [
+    { "key": {"name":"mac-osx", "version":"10.5"},
+      "display_name": "Mac OSX 10.5 (Leopard)",
+      "config_port": {
+        "hostname" : {"type":"string", "default":"localhost"},
+        "os_user_name" : "string",
+	"sudo_password" : { "type" : "string", "default" : "fubar" },
+        "cpu_arch" : {"type":"string", "default":"x86"},
+        "private_ip": {"type":"string", "default":null},
+        "genforma_home": {"type":"path", "default":"/Users/${config_port.os_user_name}e/apps"},
+        "log_directory": {"type":"path", "default":"${config_port.genforma_home}/log"}
+       },
+      "output_ports": {
+        "host": {
+          "hostname": {"type":"string", "source":"config_port.hostname"},
+          "os_type" : {"type":"string", "fixed-value":"mac-osx"},
+          "os_user_name" : {"type": "string",
+                            "source":"config_port.os_user_name"},
+          "sudo_password" : { "type" : "password", "source" : "config_port.sudo_password" },
+          "cpu_arch" : {"type":"string", "source":"config_port.cpu_arch"},
+          "private_ip" : {"type":"string", "source":"config_port.private_ip"},
+          "genforma_home" : {"type":"path",
+                             "source":"config_port.genforma_home"},
+          "log_directory" : {"type":"path",
+                             "source":"config_port.log_directory"}
+        }
+      }
+    },
+    { "key": {"name":"mac-osx", "version":"10.6"},
+      "display_name": "Mac OSX 10.6 (Snow Leopard)",
+      "config_port": {
+        "hostname" : {"type":"string", "default":"localhost"},
+        "os_user_name" : "string",
+	"sudo_password" : { "type" : "string"},
+        "cpu_arch" : {"type":"string", "default":"x86"},
+        "private_ip": {"type":"string", "default":null},
+        "genforma_home": {"type":"path", "default":"/Users/${config_port.os_user_name}/apps"},
+        "log_directory": {"type":"path", "default":"${config_port.genforma_home}/log"}
+       },
+      "output_ports": {
+        "host": {
+          "hostname": {"type":"string", "source":"config_port.hostname"},
+          "os_type" : {"type":"string", "fixed-value":"mac-osx"},
+          "os_user_name" : {"type": "string",
+                            "source":"config_port.os_user_name"},
+          "sudo_password" : { "type" : "password", "source" : "config_port.sudo_password" },
+          "cpu_arch" : {"type":"string", "source":"config_port.cpu_arch"},
+          "private_ip" : {"type":"string", "source":"config_port.private_ip"},
+          "genforma_home" : {"type":"path",
+                             "source":"config_port.genforma_home"},
+          "log_directory" : {"type":"path",
+                             "source":"config_port.log_directory"}
+        }
+      }
+    },
+    { "key": { "name": "macports", "version": "1.9"},
+      "display_name":"Package management system for MacOSX",
+      "input_ports": {
+        "host": {
+          "hostname": {"type": "string"},
+          "os_user_name" : {"type": "string"},
+          "sudo_password" : { "type" : "password" }
+        }
+      },
+      "output_ports": {
+        "macports": {
+            "macports_exe":{"type":"path", "fixed-value":"/opt/local/bin/port"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}}
+        ]
+      }
+    },
+    { "key": { "name": "ubuntu-linux", "version": "9.10"},
+      "display_name": "Ubuntu Linux 9.10",
+      "config_port": {
+        "hostname": {"type":"hostname", "default":"localhost"},
+        "os_user_name" : "string",
+	"sudo_password" : { "type" : "string", "default" : "foo" },
+        "cpu_arch" : {"type":"string", "default":"i386"},
+        "private_ip": {"type":"string", "default":null},
+        "genforma_home": {"type":"path", "default":"/home/${config_port.os_user_name}/apps"},
+        "log_directory": {"type":"path", "default":"${config_port.genforma_home}/log"}
+      },
+      "output_ports": {
+        "host": {
+          "hostname": {"type":"hostname", "source":"config_port.hostname"},
+          "os_type" : {"type":"string", "fixed-value":"linux"},
+          "os_user_name" : {"type": "string",
+                            "source":"config_port.os_user_name"},
+          "sudo_password" : { "type" : "password", "source" : "config_port.sudo_password" },
+          "cpu_arch" : {"type":"string", "source":"config_port.cpu_arch"},
+          "private_ip" : {"type":"string", "source":"config_port.private_ip"},
+          "genforma_home" : {"type":"path",
+                             "source":"config_port.genforma_home"},
+          "log_directory" : {"type":"path",
+                             "source":"config_port.log_directory"}
+        }
+      }
+    },
+    { "key": { "name": "ubuntu-linux", "version": "10.04"},
+      "display_name": "Ubuntu Linux 10.04",
+      "config_port": {
+        "hostname": {"type":"hostname", "default":"localhost"},
+        "os_user_name" : "string",
+	"sudo_password" : { "type" : "string"},
+        "cpu_arch" : {"type":"string", "default":"i386"},
+        "private_ip": {"type":"string", "default":null},
+        "genforma_home": {"type":"path", "default":"/home/${config_port.os_user_name}/apps"},
+        "log_directory": {"type":"path", "default":"${config_port.genforma_home}/log"}
+      },
+      "output_ports": {
+        "host": {
+          "hostname": {"type":"hostname", "source":"config_port.hostname"},
+          "os_type" : {"type":"string", "fixed-value":"linux"},
+          "os_user_name" : {"type": "string",
+                            "source":"config_port.os_user_name"},
+          "sudo_password" : { "type" : "password", "source" : "config_port.sudo_password" },
+          "cpu_arch" : {"type":"string", "source":"config_port.cpu_arch"},
+          "private_ip" : {"type":"string", "source":"config_port.private_ip"},
+          "genforma_home" : {"type":"path",
+                             "source":"config_port.genforma_home"},
+          "log_directory" : {"type":"path",
+                             "source":"config_port.log_directory"}
+        }
+      }
+    },
+    { "key" : { "name": "nginx-linux", "version" : "0.8" },
+      "display_name" : "nginx (Linux)",
+      "config_port" : {
+          "conf-path" : { "type" : "string", "default" : "/set/nginx/conf/nginx.conf"}, 
+          "pid-path" : {"type" : "string" , "default" : "/var/run/nginx.pid" },
+          "lock-path" : {"type" : "string" , "default" : "/var/lock/nginx.lock" },
+          "nginx-user" : {"type" : "string" , "default" : "www-data" },
+          "http-log-path" : {"type" : "string" , "default" : "/var/log/nginx/access_log" },
+          "error-log-path" : {"type" : "string" , "default" : "/var/log/nginx/error_log" },
+          "http-proxy-temp-path" : {"type" : "string" , "default" : "/var/tmp/nginx/proxy/" },
+          "http-fastcgi-temp-path" : {"type" : "string" , "default" : "/var/tmp/nginx/fcgi/" }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+        ]
+      },
+      "output_ports" : {
+	"nginx" : {
+           "conf-path" : { "type":"string", "source":"config_port.conf-path" },
+	   "nginx-user": {"type":"string", "source":"config_port.nginx-user"},
+	   "controller_exe": {"type":"string", "fixed-value":"/etc/init.d/nginx"}
+        }
+      }
+    },
+    { "key" : { "name": "apache-linux", "version" : "2.2" },
+      "display_name" : "Apache2 (Linux)",
+      "config_port" : {
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+        ]
+      },
+      "input_ports": {
+        "host": {
+          "hostname": {"type": "string"},
+          "os_user_name" : {"type": "string"},
+          "sudo_password" : { "type" : "password" }
+        }
+      },
+      "output_ports" : {
+	"apache" : {
+           "config_file" : { "type":"string", "fixed-value":"/etc/apache2/apache2.conf" },
+           "additional_config_dir" : { "type":"string", "fixed-value":"/etc/apache2/conf.d/" },
+           "cgi_dir" : { "type":"string", "fixed-value": "/usr/lib/cgi-bin"},
+           "htpasswd_exe" : { "type":"string", "fixed-value":"/usr/bin/htpasswd"},
+	   "apache_user": {"type":"string", "fixed-value":"www-data"},
+           "apache_group": {"type":"string", "fixed-value":"www-data"},
+	   "module_lib": {"type":"string", "fixed-value":"/usr/lib/apache2/modules/mod_fastcgi.so"},
+	   "controller_exe": {"type":"string", "fixed-value":"/etc/init.d/apache2"}
+        }
+      }
+    },
+    { "key" : { "name": "apache-mac", "version" : "2.2" },
+      "display_name" : "Apache2 (Mac)",
+      "config_port" : {
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}}
+        ]
+      },
+      "output_ports" : {
+	"apache" : {
+           "config_file" : { "type":"string", "fixed-value":"/private/etc/apache2/httpd.conf" },
+           "additional_config_dir" : { "type":"string", "fixed-value":"/private/etc/apache2/other/" },
+           "cgi_dir" : { "type":"string", "fixed-value":"/Library/WebServer/CGI-Executables" },
+           "htpasswd_exe" : { "type":"string", "fixed-value":"/usr/sbin/htpasswd"},
+	   "apache_user": {"type":"string", "fixed-value":"_www"},
+	   "module_lib": {"type":"string", "fixed-value":"libexec/apache2/mod_fastcgi.so"},
+	   "controller_exe": {"type":"string", "fixed-value":"/usr/sbin/apachectl"}
+        }
+      }
+    },
+    { "key" : { "name": "apache-macports", "version" : "2.2" },
+      "display_name" : "Apache2 (MacPorts)",
+      "config_port" : {
+      },
+      "input_ports": {
+        "host": {
+          "hostname": {"type": "string"},
+          "os_user_name" : {"type": "string"},
+          "sudo_password" : { "type" : "password" }
+        },
+        "macports": {
+          "macports_exe": "path"
+        }
+      },
+      "output_ports" : {
+	"apache" : {
+           "config_file" : { "type":"path", "fixed-value":"/opt/local/apache2/conf/httpd.conf" },
+           "cgi_dir" : { "type":"string", "fixed-value": "/opt/local/apache2/cgi-bin"},
+           "htpasswd_exe" : { "type":"string", "fixed-value":"/opt/local/apache2/bin/htpasswd"},
+	   "apache_user": {"type":"string", "fixed-value":"_www"},
+           "apache_group":{"type":"string", "fixed-value":"_www"},
+	   "controller_exe": {"type":"path", "fixed-value":"/opt/local/apache2/bin/apachectl"},
+           "module_config_dir" : { "type":"string", "fixed-value":"/opt/local/apache2/conf/engage_modules" },
+           "additional_config_dir" : { "type":"string", "fixed-value":"/opt/local/apache2/conf/engage_extra" }
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}}
+        ]
+      },
+      "environment": {
+        "all-of": [
+        { "key": {"name":"macports", "version":{"greater-than-or-equal":"1.9"}},
+          "port_mapping": {"macports":"macports"}}
+        ]
+      }
+    },
+    { "key": {"name": "libapache2-mod-wsgi-linux", "version":"3.2-2"},
+      "display_name": "WSGI (Python webserver gateway) module for Apache, Linux version",
+      "input_ports": {
+        "apache": {
+        },
+        "python": {
+          "home": "string",
+          "PYTHONPATH": "string",
+          "python_bin_dir": "string"
+        },
+        "host": {
+          "sudo_password": {"type": "password"}
+        }
+      },
+      "output_ports": {
+        "apt_cfg": {
+          "package_name": {"type":"string", "fixed-value":"libapache2-mod-wsgi"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+        ]
+      },
+      "environment": {
+          "all-of": [
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.6"}},
+            "port_mapping": {"python":"python"}
+          },
+          { "key": {"name":"apache-linux",
+                    "version":{"greater-than-or-equal":"2.2"}},
+            "port_mapping": {"apache":"apache"}
+          }
+          ]
+      }
+    },
+    { "key": {"name": "apache2-mod-wsgi-macports", "version":"3.3"},
+      "display_name": "WSGI (Python webserver gateway) module for Apache, MacPorts version",
+      "input_ports": {
+        "apache": {
+          "controller_exe":"path",
+          "config_file": "path"
+        },
+        "python": {
+          "home": "string",
+          "version": "string",
+          "PYTHONPATH": "string",
+          "python_bin_dir": "string"
+        },
+        "macports": {
+          "macports_exe": "path"
+        },
+        "host": {
+          "sudo_password": {"type": "password"}
+        }
+      },
+      "output_ports": {
+        "port_cfg": {
+          "package_name": {"type":"string", "fixed-value":"mod_wsgi"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}}
+        ]
+      },
+      "environment": {
+          "all-of": [
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.5"}},
+            "port_mapping": {"python":"python"}
+          },
+          { "key": {"name":"apache-macports",
+                    "version":{"greater-than-or-equal":"2.2"}},
+            "port_mapping": {"apache":"apache"}
+          },
+          { "key": {"name":"macports", "version":{"greater-than-or-equal":"1.9"}},
+            "port_mapping": {"macports":"macports"}}
+          ]
+      }
+    },
+    { "key": {"name":"svn", "version":"1.6" },
+      "display_name": "svn",
+      "config_port": {
+          "exe":"path"
+      },
+      "input_ports": {
+        "host": { "genforma_home": "path" }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+        ]
+      },
+      "output_ports": {
+	 "repository" : { "exe" : { "type":"path", "source":"config_port.exe" } }
+      }
+    },
+    { "key": {"name":"git", "version":"1.6" },
+      "display_name": "git",
+      "config_port": {
+        "git_exe": {"type":"path", "display_name": "Git Executable Path"}
+      },
+      "input_ports": {
+        "host": { "genforma_home": "path" }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+        ]
+      },
+      "output_ports": {
+	 "repository" : { "exe": {"type": "path", "source": "config_port.git_exe" }
+         }
+      }
+    },
+    {
+      "key" : { "name" : "AccountManagerPlugin", "version" : "trunk" },
+      "display_name" : "Account Manager Plugin for trac",
+      "input_ports": {
+        "host": { "genforma_home": "path" },
+        "python" : { "PYTHONPATH" : "string" }, 
+	"setuptools" : { "easy_install" : "string" }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+        ]
+      },
+      "environment": {
+          "all-of": [
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          },
+          { "key": {"name":"setuptools",
+                    "version":{"greater-than-or-equal":"0.6"}},
+            "port_mapping": {"setuptools":"setuptools"}
+          },
+          { "key": {"name":"trac", "version":{"greater-than-or-equal":"0.11"}}
+          }
+          ]
+      },
+      "output_ports" : {
+          "config_options" : { "ini" : { 
+                                 "type": "map",  
+                                 "fixed-value" : { "components": 
+                                                     { "acct_mgr.admin.accountmanageradminpage" : "enabled",
+                               		               "acct_mgr.api.*": "enabled",
+                               		               "acct_mgr.htfile.htpasswdstore" : "enabled",
+                               		               "acct_mgr.web_ui.accountmodule" : "enabled",
+                               		               "acct_mgr.web_ui.loginmodule" : "enabled",
+                               		               "acct_mgr.web_ui.registrationmodule" : "enabled",
+                               		               "trac.web.auth.loginmodule" : "disabled"
+                                                     },
+                                                   "account-manager":
+                                                     { "password_file" : "__dummy__", 
+                                                       "password_format" : "htpasswd",
+                                                       "password_store" : "HtPasswdStore"
+                                                     } 
+                                                 } 
+                               }
+                             }
+      }
+    },
+    {
+      "key" : { "name" : "CustomFieldAdminPlugin", "version" : "0.11" },
+      "display_name" : "Custom Field Admin Plugin for trac",
+      "input_ports": {
+        "host": { "genforma_home": "path" },
+        "python" : { "PYTHONPATH" : "string" }, 
+	"setuptools" : { "easy_install" : "string" }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+        ]
+      },
+      "environment": {
+          "all-of": [
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          },
+          { "key": {"name":"setuptools",
+                    "version":{"greater-than-or-equal":"0.6"}},
+            "port_mapping": {"setuptools":"setuptools"}
+          },
+          { "key": {"name":"trac", "version":{"greater-than-or-equal":"0.11"}}
+          }
+          ]
+      },
+      "output_ports" : {
+          "config_options" : { "ini" : { 
+                                 "type": "map",  
+                                 "fixed-value" : { "components": 
+                                                     { "customfieldadmin.*" : "enabled" }
+                                                 } 
+                               }
+                             }
+      }
+    },
+    {
+      "key" : { "name" : "IniAdminPlugin", "version" : "0.11" },
+      "display_name" : "IniAdmin Plugin for trac",
+      "input_ports": {
+        "host": { "genforma_home": "path" },
+        "python" : { "PYTHONPATH" : "string" }, 
+	"setuptools" : { "easy_install" : "string" }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+        ]
+      },
+      "environment": {
+          "all-of": [
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          },
+          { "key": {"name":"setuptools",
+                    "version":{"greater-than-or-equal":"0.6"}},
+            "port_mapping": {"setuptools":"setuptools"}
+          },
+          { "key": {"name":"trac", "version":{"greater-than-or-equal":"0.11"}}
+          }
+          ]
+      },
+      "output_ports" : {
+          "config_options" : { "ini" : { "type": "map", 
+                                         "fixed-value": { "components": { 
+                               		      "iniadmin.iniadmin.iniadminplugin": "enabled"
+                                            }
+                                         }
+                                       }
+                             }
+      }
+    },
+    {
+      "key" : { "name" : "ThemeEnginePlugin", "version" : "0.11" },
+      "display_name" : "Theme Engine Plugin for trac",
+      "input_ports": {
+        "host": { "genforma_home": "path" },
+        "python" : { "PYTHONPATH" : "string" }, 
+	"setuptools" : { "easy_install" : "string" }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+        ]
+      },
+      "environment": {
+          "all-of": [
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          },
+          { "key": {"name":"setuptools",
+                    "version":{"greater-than-or-equal":"0.6"}},
+            "port_mapping": {"setuptools":"setuptools"}
+          },
+          { "key": {"name":"trac", "version":{"greater-than-or-equal":"0.11"}}
+          }
+          ]
+      },
+      "output_ports" : {
+          "config_options" : { "ini" : { "type": "map", 
+                                         "fixed-value": { "components": { 
+                               		      "themeengine.*": "enabled"
+                                            }
+                                         }
+                                       }
+                             }
+      }
+    },
+    { "key" : { "name" : "PermissionRedirectPlugin", "version" : "0.11" },
+      "display_name" : "Permission Redirect Plugin for trac",
+      "input_ports": {
+        "host": { "genforma_home": "path" },
+        "python" : { "PYTHONPATH" : "string" }, 
+	"setuptools" : { "easy_install" : "string" }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+        ]
+      },
+      "environment": {
+          "all-of": [
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          },
+          { "key": {"name":"setuptools",
+                    "version":{"greater-than-or-equal":"0.6"}},
+            "port_mapping": {"setuptools":"setuptools"}
+          },
+          { "key": {"name":"trac", "version":{"greater-than-or-equal":"0.11"}}
+          }
+          ]
+      },
+      "output_ports" : {
+          "config_options" : { "ini" : { "type": "map", 
+                                         "fixed-value": { "components": { 
+                               		      "permredirect.*": "enabled"
+                                            }
+                                         }
+                                       }
+                             }
+      }
+    },
+    { "key" : { "name" : "MenusPlugin", "version" : "0.11" },
+      "display_name" : "Hierarchical Menus Plugin for trac",
+      "input_ports": {
+        "host": { "genforma_home": "path" },
+        "python" : { "PYTHONPATH" : "string" }, 
+	"setuptools" : { "easy_install" : "string" }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+        ]
+      },
+      "environment": {
+          "all-of": [
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          },
+          { "key": {"name":"setuptools",
+                    "version":{"greater-than-or-equal":"0.6"}},
+            "port_mapping": {"setuptools":"setuptools"}
+          },
+          { "key": {"name":"trac", "version":{"greater-than-or-equal":"0.11"}}
+          }
+          ]
+      }
+    },
+    {
+      "key" : { "name" : "XMLRPCPlugin", "version" : "0.11" },
+      "display_name" : "XML-RPC Plugin for trac",
+      "input_ports": {
+        "host": { "genforma_home": "path" },
+        "python" : { "PYTHONPATH" : "string" }, 
+	"setuptools" : { "easy_install" : "string" }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+        ]
+      },
+      "environment": {
+          "all-of": [
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          },
+          { "key": {"name":"setuptools",
+                    "version":{"greater-than-or-equal":"0.6"}},
+            "port_mapping": {"setuptools":"setuptools"}
+          },
+          { "key": {"name":"trac", "version":{"greater-than-or-equal":"0.11"}}
+          }
+          ]
+      }
+    },
+    {
+      "key" : { "name" : "HttpAuthPlugin", "version" : "0.11" },
+      "display_name" : "HTTP Authentication Plugin for trac",
+      "input_ports": {
+        "host": { "genforma_home": "path" },
+        "python" : { "PYTHONPATH" : "string" }, 
+	"setuptools" : { "easy_install" : "string" }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+        ]
+      },
+      "environment": {
+          "all-of": [
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          },
+          { "key": {"name":"setuptools",
+                    "version":{"greater-than-or-equal":"0.6"}},
+            "port_mapping": {"setuptools":"setuptools"}
+          },
+          { "key": {"name":"trac", "version":{"greater-than-or-equal":"0.11"}}
+          }
+          ]
+      }
+    },
+    {
+      "key" : { "name" : "GFAppPlugin", "version" : "0.11" },
+      "display_name" : "Genforma Project Manager Plugin for trac",
+      "input_ports": {
+        "host": { "genforma_home": "path" },
+        "python" : { "PYTHONPATH" : "string" }, 
+	"setuptools" : { "easy_install" : "string" }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+        ]
+      },
+      "environment": {
+          "all-of": [
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          },
+          { "key": {"name":"setuptools",
+                    "version":{"greater-than-or-equal":"0.6"}},
+            "port_mapping": {"setuptools":"setuptools"}
+          },
+          { "key": {"name":"trac", "version":{"greater-than-or-equal":"0.11"}}
+          }
+          ]
+      },
+      "output_ports" : {
+          "config_options" : { "ini" : { "type": "map", 
+                                         "fixed-value": { "components": { 
+                               		      "gfapp.*": "enabled"
+                                            },
+                                            "gfapp" : { "tracbin" : "TODO",
+                                                        "trachome": "TODO" } 
+                                         }
+                                       }
+                             }
+      }
+    },
+    {
+      "key" : { "name" : "GFDownloadPlugin", "version" : "0.11" },
+      "display_name" : "Genforma Project Manager Code Download Plugin for trac",
+      "input_ports": {
+        "host": { "genforma_home": "path" },
+        "python" : { "PYTHONPATH" : "string" }, 
+	"setuptools" : { "easy_install" : "string" }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+        ]
+      },
+      "environment": {
+          "all-of": [
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          },
+          { "key": {"name":"setuptools",
+                    "version":{"greater-than-or-equal":"0.6"}},
+            "port_mapping": {"setuptools":"setuptools"}
+          },
+          { "key": {"name":"trac", "version":{"greater-than-or-equal":"0.11"}}
+          }
+          ]
+      },
+      "output_ports" : {
+          "config_options" : { "ini" : { "type": "map", 
+                                         "fixed-value": { "components": { 
+                               		      "gfdownloadapp.*": "enabled"
+                                            }
+                                         }
+                                       }
+                             }
+      }
+    },
+    {
+      "key" : { "name":"GitPlugin", "version":"0.11" },
+      "display_name" : "Git Plugin for trac",
+      "config_port": {
+	"repo" : { "type" : "string", "default": "${input_ports.host.genforma_home}/git" }
+      },
+      "input_ports": {
+        "host": { "genforma_home": "path" },
+        "python" : { "PYTHONPATH" : "string" }, 
+	"gitsource" : { "exe": "path" }
+      },
+      "output_ports": {
+	 "repository" : { "repo" : { "type":"string", "source":"config_port.repo" },
+                          "git_exe": {"type":"path", "source":"input_ports.gitsource.exe"}
+         },
+         "config_options" : { "ini" : 
+                              { "type" : "map", 
+                                "fixed-value": { 
+                                  "components" : { "tracext.git.*":"enabled" },
+                                  "git" : { "cached_repository": "true",
+                                            "persistent_cache": "true"
+                                   }
+                                }
+                              }
+                            }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+        ]
+      },
+      "environment": {
+          "all-of": [
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          },
+          { "key": {"name":"git", "version":"1.6"},
+            "port_mapping": {"gitsource":"repository"}
+          },
+          { "key": {"name":"trac", "version":{"greater-than-or-equal":"0.11"}}
+          }
+          ]
+      } 
+    },
+    { "key": {"name":"sqlite", "version":"3.6.18"},
+      "display_name": "SQLite 3.6.18",
+      "config_port": {
+        "install_dir": {"type":"string", "default":"/usr/bin/"}
+      },
+      "input_ports": { 
+        "host" : {
+          "hostname": "string",
+          "os_type": "string",
+          "os_user_name": "string",
+          "cpu_arch": "string",
+          "genforma_home": "path"
+        }
+      },
+      "output_ports": {     
+        "sqlite3" : {
+          "install_dir": {"type":"string",
+                          "source":"config_port.install_dir"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+        ]
+      }
+    },
+    { "key": {"name":"mysql", "version":"5.1.39"},
+      "display_name": "MySQL 5.1.39",
+      "config_port": {
+        "install_dir": {"type":"string", "default":"${input_ports.host.genforma_home}/mysql"},
+        "port": {"type":"tcp_port", "default":3306},
+        "admin_password": {"type":"password", "default":"admin"}
+      },
+      "input_ports": { 
+        "host" : {
+          "hostname": "string",
+          "os_type": "string",
+          "os_user_name": "string",
+          "cpu_arch": "string",
+          "genforma_home": "path"
+        }
+      },
+      "output_ports": {     
+        "mysql" : {
+          "host": {"type":"string", "source":"input_ports.host.hostname"},
+          "port": {"type":"tcp_port", "source":"config_port.port"}
+        },
+        "mysql_admin" : {
+          "root_password": {"type":"password",
+                            "source":"config_port.admin_password"},
+          "install_dir": {"type":"string",
+                          "source":"config_port.install_dir"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+        ]
+      }
+    },
+    { "key": {"name":"java-virtual-machine", "version":"1.6"},
+      "display_name":"JDK 1.6",
+      "config_port": {
+        "JAVA_HOME": "string"
+      },
+      "input_ports": {
+        "host" : {
+          "hostname": "hostname",
+          "os_type": "string",
+          "os_user_name": "string",
+          "cpu_arch": "string"
+        }
+      },
+      "output_ports": {
+        "jvm": {
+          "type": {"type":"string", "fixed-value":"jvm"},
+          "home": {"type":"string", "source":"config_port.JAVA_HOME"}
+        }
+      }, 
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+        ]
+      }
+    },
+    { "key": {"name": "apache-tomcat", "version": "6.0.24"},
+      "display_name": "Apache Tomcat 6.0.24",
+      "config_port": {
+        "admin_user": {"type":"username", "default":"admin",
+                       "display_name":"Adminstration user"},
+        "admin_password": {"type":"password", "default": "admin",
+                           "display_name":"Adminstrator's password"},
+        "manager_port": {"type":"tcp_port", "default":8080,
+                         "display_name":"TCP/IP Port"},
+        "home" : {"type":"path",
+                  "display_name": "Install directory",
+                  "default":"${input_ports.host.genforma_home}/tomcat-6.0.24"}
+      },
+      "input_ports": {
+        "host" : {
+          "hostname": "hostname",
+          "os_type": "string",
+          "os_user_name": "string",
+          "cpu_arch": "string",
+          "genforma_home": "path"
+        },
+        "java": {
+          "type": "string",
+          "home": "string"
+        }
+      },
+      "output_ports": {
+        "tomcat": {
+          "admin_user": {"type":"username", "source":"config_port.admin_user"},
+          "admin_password": {"type":"password",
+                             "source":"config_port.admin_password"},
+          "hostname": {"type":"hostname", "source":"input_ports.host.hostname"},
+          "os_user_name": {"type":"string", "source":"input_ports.host.os_user_name"},
+          "manager_port": {"type":"tcp_port",
+                           "source":"config_port.manager_port"},
+          "home": {"type":"path", "source":"config_port.home"},
+          "environment_vars": {"type":[{"name":"string", "value":"string"}]},
+          "genforma_home": {"type":"path", "source":"input_ports.host.genforma_home"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+        ]
+      },
+      "environment": {
+          "key": {"name":"java-virtual-machine",
+                    "version":{"greater-than-or-equal":"1.5"}},
+          "port_mapping": {"java":"jvm"}
+      }
+    },
+    { "key": {"name":"python", "version":"2.7"},
+      "display_name":"Python 2.7",
+      "config_port": {
+        "PYTHON_HOME": { "type": "string",
+                         "default": "${input_ports.host.genforma_home}/python/bin/python" },
+        "PYTHONPATH": { "type": "string", "default" : "${input_ports.host.genforma_home}/python/lib/python2.7/site-packages/" },
+        "PYTHON_BIN_DIR": { "type": "string",
+                            "default": "${input_ports.host.genforma_home}/python/bin" }
+      },
+      "input_ports": {
+        "host" : {
+          "hostname": "string",
+          "os_type": "string",
+          "os_user_name": "string",
+          "cpu_arch": "string",
+          "genforma_home": "path"
+        }
+      },
+      "output_ports": {
+        "python": {
+          "type": {"type":"string", "fixed-value":"python"},
+          "version": {"type":"string", "fixed-value":"2.7"},
+          "home": {"type":"string", "source":"config_port.PYTHON_HOME"},
+          "PYTHONPATH": {"type":"string", "source":"config_port.PYTHONPATH"},
+          "python_bin_dir":{"type":"string", "source":"config_port.PYTHON_BIN_DIR"}
+        }
+      }, 
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+        ]
+      }
+    },
+    { "key": {"name":"python", "version":"2.6"},
+      "display_name":"Python 2.6",
+      "config_port": {
+        "PYTHON_HOME": { "type": "string",
+                         "default": "${input_ports.host.genforma_home}/python/bin/python" },
+        "PYTHON_BIN_DIR": { "type": "string",
+                            "default": "${input_ports.host.genforma_home}/python/bin" },
+        "PYTHONPATH": { "type": "string", "default" : "${input_ports.host.genforma_home}/python/lib/python2.6/site-packages/" }
+      },
+      "input_ports": {
+        "host" : {
+          "hostname": "string",
+          "os_type": "string",
+          "os_user_name": "string",
+          "cpu_arch": "string",
+          "genforma_home": "path"
+        }
+      },
+      "output_ports": {
+        "python": {
+          "type": {"type":"string", "fixed-value":"python"},
+          "version": {"type":"string", "fixed-value":"2.6"},
+          "home": {"type":"string", "source":"config_port.PYTHON_HOME"},
+          "PYTHONPATH": {"type":"string", "source":"config_port.PYTHONPATH"},
+          "python_bin_dir":{"type":"string", "source":"config_port.PYTHON_BIN_DIR"}
+        }
+      }, 
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+        ]
+      }
+    },
+    { "key": {"name":"python", "version":"2.5"},
+      "display_name":"Python 2.5",
+      "config_port": {
+        "PYTHON_HOME": { "type": "string",
+                         "default": "${input_ports.host.genforma_home}/python/bin/python" },
+        "PYTHONPATH": { "type": "string", "default" : "${input_ports.host.genforma_home}/python/lib/python2.5/site-packages/" },
+        "PYTHON_BIN_DIR": { "type": "string",
+                            "default": "${input_ports.host.genforma_home}/python/bin" }
+      },
+      "input_ports": {
+        "host" : {
+          "hostname": "string",
+          "os_type": "string",
+          "os_user_name": "string",
+          "cpu_arch": "string",
+          "genforma_home": "path"
+        }
+      },
+      "output_ports": {
+        "python": {
+          "type": {"type":"string", "fixed-value":"python"},
+          "version": {"type":"string", "fixed-value":"2.5"},
+          "home": {"type":"string", "source":"config_port.PYTHON_HOME"},
+          "PYTHONPATH": {"type":"string", "source":"config_port.PYTHONPATH"},
+          "python_bin_dir":{"type":"string", "source":"config_port.PYTHON_BIN_DIR"}
+        }
+      }, 
+      "inside": {
+        "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.6"}},
+        "port_mapping": {"host":"host"}
+      }
+    },
+    { "key": {"name":"setuptools", "version":"0.6"},
+      "display_name":"setuptools",
+      "input_ports": { 
+         "python": {
+              "type" : "string",
+              "home" : "string"
+            }, 
+        "host" : {
+          "hostname": "string",
+          "os_type": "string",
+          "os_user_name": "string",
+          "cpu_arch": "string",
+          "genforma_home": "path"
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+        ] 
+      },
+      "environment": {
+         "one-of": [
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          }
+          ]
+      },
+      "output_ports" : {
+         "setuptools" : {
+            "easy_install" : { "type":"string", "fixed-value" : "${input_ports.host.genforma_home}/python/bin/easy_install"}
+         }
+      }
+    },
+    { "key" : {"name": "genshi", "version" : "0.5"},
+      "display_name" : "Genshi-0.5",
+      "input_ports" : {
+         "python": {
+              "home" : "string"
+            }, 
+         "setuptools" : {
+            "easy_install" : "string"
+         },
+        "host": { "genforma_home": "path" }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"setuptools", "version":"0.6"},
+            "port_mapping": { "setuptools": "setuptools" }
+          },
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          }
+        ]
+      }
+    },
+    { "key" : {"name": "pygments", "version":"any"},
+      "display_name" : "Pygments",
+      "config_port" : {
+	"script_dir": {"type":"string", "default":"${input_ports.host.genforma_home}/trac/bin"}
+      },
+      "input_ports" : {
+         "python": {
+              "home" : "string"
+            }, 
+         "setuptools" : {
+            "easy_install" : "string"
+         },
+         "host": {"genforma_home": "path"}
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"setuptools", "version":"0.6"},
+            "port_mapping": { "setuptools": "setuptools" }
+          },
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          }
+        ]
+      },
+      "output_ports": {
+        "pygments_dir" : { "type":"string", "source":"config_port.script_dir" }
+      }
+    },
+    { "key": {"name": "trac", "version": "0.11.6"},
+      "display_name": "trac 0.11.6",
+      "config_port": {
+        "home" : {"type":"string", "default":"${input_ports.host.genforma_home}/trac"}
+      },
+      "input_ports": {
+        "host": {
+          "hostname": "string",
+          "os_type": "string",
+          "os_user_name": "string",
+          "cpu_arch": "string",
+          "genforma_home": "path"
+         },
+        "python": {
+          "home": "string" ,
+          "PYTHONPATH" : "string"
+        },
+        "setuptools" : {
+          "easy_install" : "string"
+        },
+        "repository" : { 
+          "exe" : "path"
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+        ]
+      },
+      "environment": {
+          "all-of": [
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          },
+          { "key": {"name":"setuptools",
+                    "version":{"greater-than-or-equal":"0.6"}},
+            "port_mapping": {"setuptools":"setuptools"}
+          },
+          { "key": {"name":"genshi",
+                    "version":{"greater-than-or-equal":"0.5"}}
+          },
+	  { "one-of": [
+            { "key": {"name":"svn", "version":"1.6"},
+              "port_mapping": {"repository":"repository"}
+            },
+            { "key": {"name":"git", "version":"1.6"},
+              "port_mapping": {"repository":"repository"}
+            }
+          ] }
+          ] } ,
+      "output_ports" : {
+         "trachome" : {
+            "trachome" : { "type" : "string" , "source" : "config_port.home" },
+            "python_exe" : {"type": "string", "source":"input_ports.python.home"}
+         }
+      }
+    },
+    { "key" : { "name": "trac-project", "version": "*" },
+      "display_name" : "Install and deploy a trac project",
+      "config_port" : {
+        "projecthome" : {"type":"string", "default":"${input_ports.host.genforma_home}/tracproject"},
+        "projectname" : { "type" : "string", "default" : "GF" },
+        "projectdb" : { "type":"string", "default":"sqlite:db/trac.db" },
+        "version_control" : { "type": "string", "default" : "git" },
+        "password_file" : { "type" : "string", "default" : "${input_ports.host.genforma_home}/tracproject/trac.auth" },
+        "administrator" : { "type" : "string", "default" : "admin" },
+        "admin_password" : { "type" : "password"},
+        "smtp_user" : { "type" : "string", "default" : "rupak.majumdar@gmail.com" },
+        "smtp_password" : { "type" : "password"},
+	"smtp_server" : { "type":"string", "default": "smtp.gmail.com" },
+	"smtp_server_port" : { "type":"string", "default": "25" },
+        "host" : { "type":"string", "default": "${input_ports.host.hostname}"},
+        "port" : { "type":"tcp_port", "default": "443"},
+        "protocol" : { "type": {"enum": ["http", "https"] }, "default": "https"}
+      },
+      "input_ports" : {
+        "trachome" : { "trachome" :  "string", "python_exe": "string" },
+        "host": {"genforma_home": "path",
+          "hostname": {"type": "string"},
+          "os_user_name" : {"type": "string"},
+          "sudo_password" : { "type" : "password" }
+        },
+        "webserver" : {
+           "config_file" : "string", 
+           "additional_config_dir" : { "type":"string" },
+           "cgi_dir" : { "type":"string" },
+           "htpasswd_exe": { "type":"string"},
+           "apache_user": {"type":"string"},
+           "module_lib": {"type": "string"},
+           "controller_exe": {"type": "string"}
+        },
+        "repository" : { "repo" : "path", "git_exe":"path"  },
+
+        "gitpluginconf" : { "ini" : "map" },
+        "acctmgrconf" : { "ini" : "map" },
+        "iniadminconf" : { "ini" : "map" },
+        "themeengineconf" : { "ini" : "map" },
+        "permredirectconf": { "ini" : "map" }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+        ]
+      },
+      "environment": {
+        "all-of": [
+           { "key" : { "name":"trac", "version":{"greater-than-or-equal":"0.11"} },
+             "port_mapping" : { "trachome" : "trachome" }
+           },
+           { "one-of": [
+             { "key" : { "name" : "apache-mac", "version": {"greater-than":"2.1"}},
+               "port_mapping" : { "webserver" : "apache" }
+             },
+             { "key" : { "name" : "apache-linux", "version": {"greater-than":"2.1"}},
+               "port_mapping" : { "webserver" : "apache" }
+             }
+           ]},
+           { "key" : { "name":"GitPlugin", "version": "0.11" },
+             "port_mapping" : { "repository" : "repository", "gitpluginconf" : "config_options" }
+           },
+           { "key" : { "name" : "AccountManagerPlugin", "version" : "trunk" },
+             "port_mapping" : { "acctmgrconf" : "config_options" }
+           },
+           { "key" : { "name" : "IniAdminPlugin", "version" : "0.11" },
+             "port_mapping" : { "iniadminconf" : "config_options" }
+           },
+           { "key" : { "name" : "ThemeEnginePlugin", "version" : "0.11" },
+             "port_mapping" : { "themeengineconf" : "config_options" }
+           },
+           { "key" : { "name" : "PermissionRedirectPlugin", "version" : "0.11" },
+             "port_mapping" : { "permredirectconf" : "config_options" }
+           }
+        ]
+      },
+      "output_ports" : {
+        "trac_project" : {
+          "projecthome" : { "type" : "string", "source" : "config_port.projecthome" },
+          "configfile"  : { "type" : "string", "fixed-value" : "${config_port.projecthome}/conf/trac.ini" }
+        }
+      }
+    },
+    { "key" : { "name": "trac-pm", "version": "0.1" },
+      "display_name" : "Install and deploy a trac project",
+      "config_port" : {
+        "projecthome" : {"type":"string", "default":"${input_ports.host.genforma_home}/tracproject"},
+        "projectname" : { "type" : "string", "default" : "GF" },
+        "projectdb" : { "type":"string", "default":"sqlite:db/trac.db" },
+        "version_control" : { "type": "string", "default" : "git" },
+        "repository" : { "type": "string", "default" : "${input_ports.repository.repo}" },
+        "password_file" : { "type" : "string", "default" : "${input_ports.host.genforma_home}/tracproject/trac.auth" },
+        "administrator" : { "type" : "string", "default" : "admin" },
+        "admin_password" : { "type" : "password"},
+        "smtp_user" : { "type" : "string", "default" : "rupak.majumdar@gmail.com" },
+        "smtp_password" : { "type" : "password"},
+	"smtp_server" : { "type":"string", "default": "smtp.gmail.com" },
+	"smtp_server_port" : { "type":"string", "default": "25" },
+        "host" : { "type":"string", "default": "${input_ports.host.hostname}"},
+        "port" : { "type":"tcp_port", "default": "443"},
+        "protocol" : { "type": {"enum": ["http", "https"] }, "default": "https"}
+      },
+      "input_ports" : {
+        "trachome" : { "trachome" :  "string", "python_exe": "string" },
+        "host": {"genforma_home": "path", 
+          "hostname": {"type": "string"},
+          "os_user_name" : {"type": "string"},
+          "sudo_password" : { "type" : "password" }
+        },
+        "webserver" : {
+           "config_file" : "string", 
+           "additional_config_dir" : { "type":"string" },
+           "cgi_dir" : { "type":"string" },
+           "htpasswd_exe": { "type":"string"},
+           "apache_user": {"type":"string"},
+           "module_lib": {"type": "string"},
+           "controller_exe": {"type": "string"}
+        },
+        "repository" : { "repo" : "path", "git_exe":"path"  },
+
+        "gitpluginconf" : { "ini" : "map" },
+        "acctmgrconf" : { "ini" : "map" },
+        "iniadminconf" : { "ini" : "map" },
+        "themeengineconf" : { "ini" : "map" },
+        "gfappconf" : { "ini" : "map" },
+        "gfdownloadconf" : { "ini" : "map" },
+        "permredirectconf": { "ini" : "map" }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+        ]
+      },
+      "environment": {
+        "all-of": [
+           { "key" : { "name":"trac", "version":{"greater-than-or-equal":"0.11"} },
+             "port_mapping" : { "trachome" : "trachome" }
+           },
+           { "one-of": [
+             { "key" : { "name" : "apache-mac", "version": {"greater-than":"2.1"}},
+               "port_mapping" : { "webserver" : "apache" }
+             },
+             { "key" : { "name" : "apache-linux", "version": {"greater-than":"2.1"}},
+               "port_mapping" : { "webserver" : "apache" }
+             }
+           ]},
+           { "key" : { "name":"GitPlugin", "version": "0.11" },
+             "port_mapping" : { "repository" : "repository", "gitpluginconf" : "config_options" }
+           },
+           { "key" : { "name" : "AccountManagerPlugin", "version" : "trunk" },
+             "port_mapping" : { "acctmgrconf" : "config_options" }
+           },
+           { "key" : { "name" : "IniAdminPlugin", "version" : "0.11" },
+             "port_mapping" : { "iniadminconf" : "config_options" }
+           },
+           { "key" : { "name" : "MenusPlugin", "version" : "0.11" }
+           },
+           { "key" : { "name" : "GFAppPlugin", "version" : "0.11" },
+             "port_mapping" : { "gfappconf" : "config_options" }
+           },
+           { "key" : { "name" : "GFDownloadPlugin", "version" : "0.11" },
+             "port_mapping" : { "gfdownloadconf" : "config_options" }
+           },
+           { "key" : { "name" : "ThemeEnginePlugin", "version" : "0.11" },
+             "port_mapping" : { "themeengineconf" : "config_options" }
+           },
+           { "key" : { "name" : "PermissionRedirectPlugin", "version" : "0.11" },
+             "port_mapping" : { "permredirectconf" : "config_options" }
+           }
+        ]
+      },
+      "output_ports" : {
+        "trac_project" : {
+          "projecthome" : { "type" : "string", "source" : "config_port.projecthome" },
+          "configfile"  : { "type" : "string", "fixed-value" : "${config_port.projecthome}/conf/trac.ini" }
+        }
+      }
+    },
+    { "key" : { "name" : "Solr", "version" : "3.3" },
+      "display_name" : "Solr 3.3",
+      "config_port" : {
+          "hostname" : { "type" : "string", "default" : "localhost" },
+          "port" : { "type" : "tcp_port", "default" : 8983 }
+      },
+      "input_ports": {
+        "java": {
+          "type": "string",
+          "home": "string"
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+        ]
+      },
+      "output_ports": {
+        "solr" : {
+            "host" : { "type" : "string", "source" : "config_port.hostname" },
+            "port" : { "type" : "string", "source" : "config_port.port" }
+        }
+      },
+      "environment": {
+          "key": {"name":"java-virtual-machine",
+                    "version":{"greater-than-or-equal":"1.5"}},
+          "port_mapping": {"java":"jvm"}
+      }
+    },
+    { "key" : { "name" : "agilefant", "version" : "2.0.1"},
+      "display_name" : "Agilefant 2.0.1",
+      "config_port": {
+        "database_user": {"type":"username", "default":"agilefant",
+                          "display_name":"Database user"},
+        "database_password": {"type":"password", "default": "agilefant",
+                              "display_name":"Database user's password"},
+        "home" : {"type":"path",
+                  "display_name":"Install directory",
+                  "default":"${input_ports.tomcat.genforma_home}/agilefant2"}
+      },   
+      "input_ports": { 
+        "java": {
+          "type": "string",
+          "home": "string"
+        },
+        "tomcat": {
+          "admin_user": "username",
+          "admin_password": {"type":"password"},
+          "hostname": "hostname",
+          "os_user_name": {"type":"string"},
+          "manager_port": {"type":"tcp_port"},
+          "home": {"type":"path"},
+          "genforma_home": "path",
+          "environment_vars": {
+            "type":[{"name":"string", "value":"string"}],
+            "includes":[{"name":"RUNTIME_PROPERTIES_FILE",
+                        "value":"${config_port.home}/runtime.properties"}]
+          }
+        },
+        "mysql": {
+          "host": "hostname",
+          "port": "tcp_port"
+        },
+        "mysql_admin": {
+         "root_password": "password",
+         "install_dir": "path"
+        }
+      },
+      "output_ports": {
+        "url" : {
+          "application_url": {"type":"string",
+                              "fixed-value":"http://${input_ports.tomcat.hostname}:${input_ports.tomcat.manager_port}/agilefant/"}
+        }
+      },
+      "inside": {
+        "key": {"name": "apache-tomcat", "version": "6.0.24"},
+        "port_mapping": {"tomcat": "tomcat"}
+      },
+      "environment": {
+          "key": {"name":"java-virtual-machine",
+                    "version":{"greater-than-or-equal":"1.5"}},
+          "port_mapping": {"java":"jvm"}
+      },
+      "peers":
+        { "key": {"name":"mysql",
+                  "version":{"greater-than-or-equal":"5.1",
+                             "less-than":"6.0"}},
+          "port_mapping": {"mysql":"mysql", "mysql_admin":"mysql_admin"}
+        }
+    },
+    { "key": {"name": "Wordpress", "version": "2.6"},
+      "display_name": "Wordpress 2.6",
+      "config_port": {
+	"database_table_prefix" : { "type" : "string", "default" : "wp_" },
+	"database_name" : { "type" : "string", "default" : "wordpressblog" },
+        "database_user": {"type":"username", "default":"wpuser",
+                          "display_name":"Wordpress user"},
+        "database_password": {"type":"password", "default" : "wppass",
+                              "display_name":"Wordpress user's password"},
+        "database_user_host" : { "type": "string", "default" : "localhost" },
+        "home" : {"type":"path", "display_name":"Install directory", "default" : "/Users/rupak/tmp/" },
+        "url" : { "type" : "string", "default" : "UNUSED" }
+      },
+      "input_ports": {
+        "mysql": {
+          "host": "hostname",
+          "port": "tcp_port"
+        },
+        "mysql_admin": {
+         "root_password": "password",
+         "install_dir": "path"
+        },
+        "webserver" : {
+           "config_file" : "string", 
+           "additional_config_dir" : { "type":"string" },
+           "cgi_dir" : { "type":"string" },
+           "doc_dir" : { "type":"string" }
+        }
+      },
+      "output_ports": {
+        "url" : {
+          "application_url": {"type":"string", "source" : "config_port.url" }
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than":"10.5.0",
+                                                 "less-than":"10.6"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.0.4"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+        ]
+      },
+      "environment" : {
+        "one-of": [
+          { "key" : { "name" : "apache-mac", "version": {"greater-than":"2.1"}},
+             "port_mapping" : { "webserver" : "apache" }
+           },
+           { "key" : { "name" : "apache-linux", "version": {"greater-than":"2.1"}},
+             "port_mapping" : { "webserver" : "apache" }
+           }
+       ]},
+      "peers":
+        { "key": {"name":"mysql",
+                  "version":{"greater-than-or-equal":"5.1",
+                             "less-than":"6.0"}},
+          "port_mapping": {"mysql":"mysql", "mysql_admin":"mysql_admin"}
+        }
+    },
+    { "key" : { "name" : "Django", "version" : "1.2" },
+      "display_name" : "Django Web Framework",
+      "input_ports": {
+        "host": { "genforma_home": "path" },
+        "python" : { "PYTHONPATH" : "string" }, 
+	"setuptools" : { "easy_install" : "string" }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+        ]
+      },
+      "environment": {
+          "all-of": [
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          },
+          { "key": {"name":"setuptools",
+                    "version":{"greater-than-or-equal":"0.6"}},
+            "port_mapping": {"setuptools":"setuptools"}
+          }
+          ]
+      }
+    },
+    {"key" : { "name" : "Django-App", "version" : "1.0" },
+      "display_name" : "Django Application",
+      "config_port": {
+        "home" : {"type":"path",
+                  "display_name":"Install directory",
+                  "default":"${input_ports.host.genforma_home}/django_app"},
+        "websvr_hostname": {"type": "string",
+                            "default":"${input_ports.host.hostname}",
+                            "display_name": "Webserver hostname"},
+        "websvr_listen_host": {"type":"string",
+                            "default":"${input_ports.host.hostname}",
+                            "display_name": "Webserver listener hostname/IP"},
+        "admin_name": {"type":"string", "default":"Admin",
+                       "display_name":"Administrator's name"},
+        "admin_email": {"type":"string", "default":"",
+                       "display_name":"Administrator's email address"},
+        "email_host": {"type":"string", "default":"Not_used",
+                       "display_name":"Email server hostname"},
+        "email_host_user": {"type":"string", "default":"Not_used",
+                            "display_name":"Email host username"},
+        "email_from": {"type":"string", "default":"Not_used",
+                       "display_name":"Email from address"},
+        "email_password": {"type":"string", "default":"Not_used",
+                           "display_name":"Email account password"},
+        "email_port": {"type": "tcp_port", "default":25,
+                       "display_name": "Email server port"},
+        "time_zone": {"type": "string", "default":"America/Los_Angeles",
+                      "display_name": "Time Zone"},
+        "log_directory": {"type":"path",
+                          "default":"${input_ports.host.log_directory}/django",
+                          "display_name": "Log Directory"},
+        "app_admin_password": {"type":"string",
+                               "display_name": "Application Administrator's Password"},
+        "application_archive": {"type":"path",
+                                "display_name": "Application Archive File"}
+      },
+      "input_ports": {
+        "host": { "genforma_home": "path", "hostname":"string",
+                  "log_directory":"path" },
+        "python" : { "PYTHONPATH": "string",
+                     "home": "string" },
+        "django_db": {
+          "ENGINE": "string",
+          "NAME": "string",
+          "USER": "string",
+          "PASSWORD": "password",
+          "HOST": "string",
+          "PORT": "tcp_port"
+        },
+        "pip": {
+          "pipbin": "path"
+        },
+        "webserver_config": {
+          "port": "tcp_port",
+          "webserver_type": "string",
+          "controller_exe": "string"
+        },
+        "ocache" : {
+          "provider" : "string",
+          "port"     : "tcp_port",
+          "host"     : "string",
+          "home"     : "string"
+        },
+        "celery" : {
+          "provider" : "string",
+          "broker" : "string" ,
+          "BROKER_HOST" : "string",
+          "BROKER_PORT" : "tcp_port",
+          "BROKER_USER" : "string", 
+          "BROKER_PASSWORD" : "string", 
+          "BROKER_VHOST" : "string" 
+        }
+      },
+      "output_ports": {
+        "django": {
+          "home": { "type":"path", "source":"config_port.home" },
+          "log_directory": {"type":"path", "source":"config_port.log_directory"},
+          "layout_cfg_file": { "type":"path", "fixed-value":"${config_port.home}/file_layout.json"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+        ]
+      },
+      "environment": {
+          "all-of": [
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          },
+          { "key":{"name":"pip", "version":"any"},
+            "port_mapping":{"pip": "pip"}
+          },
+          { "key": {"name":"gunicorn",
+                    "version":{"greater-than-or-equal":"0.12"}}
+          },
+          { "key": {"name":"Django",
+                    "version":{"greater-than-or-equal":"1.2"}}
+          },
+          {"key":{"name":"Django-South", "version":"0.7.3"}},
+          { "one-of": [
+            { "key": {"name": "postgresql-connector-for-django", "version": "8.4"},
+              "port_mapping": {"django_db":"django_db"}},
+            { "key": {"name": "mysql-connector-for-django", "version": "5.1"},
+              "port_mapping": {"django_db":"django_db"}},
+            { "key": {"name": "sqlite-connector-for-django", "version": "1.0"},
+              "port_mapping": {"django_db":"django_db"}}
+            ]
+          },
+          { "one-of": [
+            { "key": {"name": "celery-django-adapter", "version": "any"},
+              "port_mapping": {"celery":"celery"}},
+            { "key": {"name": "django-dummy-celery-adapter", "version": "any"},
+              "port_mapping": {"celery":"celery"}}
+            ]
+          },
+          { "one-of": [
+            { "key": {"name": "memcached-django-adapter", "version": "any"},
+              "port_mapping": {"ocache":"ocache"}},
+            { "key": {"name": "django-dummy-cache-adapter", "version": "any"},
+              "port_mapping": {"ocache":"ocache"}}
+            ]
+          },
+          { "one-of": [
+            { "key":{"name":"django-development-webserver", "version":"1.0"},
+              "port_mapping":{"webserver_config": "webserver_config"}},
+            { "key":{"name":"django-apache-webserver", "version":"1.0"},
+              "port_mapping":{"webserver_config": "webserver_config"}}
+            ]
+          }
+          ]
+      }
+    },
+    { "key" : { "name" : "Pylons", "version" : "1.0" },
+      "display_name" : "Pylons Web Framework",
+      "input_ports": {
+        "host": { "genforma_home": "path" },
+        "python" : { "PYTHONPATH" : "string" }, 
+	"setuptools" : { "easy_install" : "string" }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+        ]
+      },
+      "environment": {
+          "all-of": [
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          },
+          { "key": {"name":"setuptools",
+                    "version":{"greater-than-or-equal":"0.6"}},
+            "port_mapping": {"setuptools":"setuptools"}
+          }
+          ]
+      }
+    },
+    { "key" : {"name": "python-httplib2", "version":"0.6"},
+      "display_name" : "Python HTTP client library",
+      "input_ports" : {
+         "python": {
+              "home" : "string"
+            }, 
+         "setuptools" : {
+            "easy_install" : "string"
+         },
+         "host": {"genforma_home": "path"}
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"setuptools", "version":"0.6"},
+            "port_mapping": { "setuptools": "setuptools" }
+          },
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          }
+        ]
+      }
+    },
+    { "key" : {"name": "python-oauth2", "version":"1.2"},
+      "display_name" : "Oauth2 Python Client",
+      "input_ports" : {
+         "python": {
+              "home" : "string"
+            }, 
+         "setuptools" : {
+            "easy_install" : "string"
+         },
+         "host": {"genforma_home": "path"}
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"setuptools", "version":"0.6"},
+            "port_mapping": { "setuptools": "setuptools" }
+          },
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          },
+          { "key": {"name":"python-httplib2", "version":"0.6"}}
+        ]
+      }
+    },
+    { "key": {"name": "postgresql-connector-for-django", "version": "8.4"},
+      "display_name": "PostgreSQL connector for Django",
+      "config_port": {
+        "NAME": "string",
+        "USER": "string",
+        "PASSWORD": "password",
+        "HOST": "string",
+        "PORT": {"type":"tcp_port", "default":5432}
+      },
+      "output_ports": {
+        "django_db": {
+          "ENGINE": {"type":"string", "fixed-value":"django.db.backends.postgresql_psycopg2"},
+          "NAME": {"type":"string", "source":"config_port.NAME"},
+          "USER": {"type":"string", "source":"config_port.USER"},
+          "PASSWORD": {"type":"password", "source":"config_port.PASSWORD"},
+          "HOST": {"type":"string", "source":"config_port.HOST"},
+          "PORT": {"type":"tcp_port", "source":"config_port.PORT"}
+        }
+      },
+      "input_ports": {
+        "host": { "genforma_home": "path", "hostname":"string" }
+      },
+      "environment": {
+          "all-of": [
+          { "key": {"name":"psycopg2",
+                    "version":{"greater-than-or-equal":"2.4"}}
+          }]
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+        ]
+      }
+    },
+    { "key": {"name": "mysql-connector-for-django", "version": "5.1"},
+      "display_name": "MySQL connector for Django",
+      "config_port": {
+        "NAME": {"type":"string", "default":"django"},
+        "USER": {"type":"string", "default": "django"},
+        "PASSWORD": {"type":"password"}
+      },
+      "input_ports": {
+        "host": { "genforma_home": "path", "hostname":"string",
+                  "log_directory": "path" },
+        "mysql": {
+          "host": "string",
+          "port": "tcp_port"
+        },
+        "mysql_admin": {
+          "admin_password": "password",
+          "mysqladmin_exe": "path",
+          "mysql_client_exe": "path",
+          "mysql_config_exe": "path",
+          "mysqldump_exe": "path",
+          "mysql_server_script": "path",
+          "mysql_startup_logfile":"path",
+          "mysql_server_cwd":"path",
+          "mysql_user":"string",
+          "pid_file_template":"string"
+        }
+      },
+      "output_ports": {
+        "django_db": {
+          "ENGINE": {"type":"string", "fixed-value":"django.db.backends.mysql"},
+          "NAME": {"type":"string", "source":"config_port.NAME"},
+          "USER": {"type":"string", "source":"config_port.USER"},
+          "PASSWORD": {"type":"password", "source":"config_port.PASSWORD"},
+          "HOST": {"type":"string", "fixed-value":""},
+          "PORT": {"type":"tcp_port", "source":"input_ports.mysql.port"}
+        }
+      },
+      "environment": {
+          "all-of": [
+          { "key": {"name":"mysql-macports",
+                    "version":{"greater-than-or-equal":"5.1"}},
+            "port_mapping": {"mysql":"mysql", "mysql_admin":"mysql_admin"}},
+          { "key": {"name":"mysql-python",
+                    "version":{"greater-than-or-equal":"1.2"}}}
+          ]
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+        ]
+      }
+    },
+    { "key": {"name": "sqlite-connector-for-django", "version": "1.0"},
+      "display_name": "SQLite connector for Django",
+      "config_port": {
+        "database_file_name": {"type":"string", "default":"${input_ports.host.genforma_home}/database/django.db"}
+      },
+      "output_ports": {
+        "django_db": {
+          "ENGINE": {"type":"string", "fixed-value":"django.db.backends.sqlite3"},
+          "NAME": {"type":"string", "source":"config_port.database_file_name"},
+          "USER": {"type":"string", "fixed-value":""},
+          "PASSWORD": {"type":"password", "fixed-value":null},
+          "HOST": {"type":"string", "fixed-value":""},
+          "PORT": {"type":"tcp_port", "fixed-value":null}
+        }
+      },
+      "input_ports": {
+        "host": { "genforma_home": "path", "hostname":"string" }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+        ]
+      }
+    },
+    {"key" : { "name" : "psycopg2", "version" : "2.4" },
+      "display_name" : "psycopg2 PostgreSQL connector for Python",
+      "input_ports": {
+        "python": { "PYTHONPATH": "string",
+                     "home": "string" }
+      },
+      "environment": {
+          "all-of": [
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          }]
+       },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+        ]
+      }
+    },
+    { "key": {"name": "django-apache-webserver", "version": "1.0"},
+      "display_name": "Apache webserver config for Django apps",
+      "config_port": {
+        "port": {"type":"tcp_port", "default":80}
+      },
+      "input_ports": {
+        "apache": {
+          "controller_exe": {"type":"string"}
+        }
+      },
+      "output_ports": {
+        "webserver_config": {
+          "webserver_type":{"type": "string", "fixed-value": "apache"},
+          "port": {"type": "tcp_port",
+                   "fixed-value": "${config_port.port}"},
+          "controller_exe": {"type":"string",
+                             "fixed-value":"${input_ports.apache.controller_exe}"}
+        }
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name": "libapache2-mod-wsgi-linux", "version":"3.2-2"}},
+          { "key": {"name":"apache-linux", "version": "2.2"},
+            "port_mapping": {"apache":"apache"}}
+        ]
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      }
+    },
+    { "key": {"name": "django-development-webserver", "version": "1.0"},
+      "display_name": "Development webserver config for Django apps",
+      "config_port": {
+        "port": {"type":"tcp_port", "default":8000}
+      },
+      "output_ports": {
+        "webserver_config": {
+          "webserver_type": {"type":"string", "fixed-value": "development"},
+          "port": {"type": "tcp_port",
+                   "fixed-value": "${config_port.port}"},
+          "controller_exe": {"type":"string", "fixed-value":""}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      }
+    },
+    { "key" : {"name": "mercurial", "version":"any"},
+      "display_name" : "Mercurial",
+      "input_ports" : {
+         "python": {
+              "home" : "string"
+            }, 
+         "setuptools" : {
+            "easy_install" : "string"
+         },
+         "host": {"genforma_home": "path"}
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"setuptools", "version":"0.6"},
+            "port_mapping": { "setuptools": "setuptools" }
+          },
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          }
+        ]
+      }
+    },
+    { "key": {"name":"g++", "version":"4.2"},
+      "display_name":"GNU g++",
+      "input_ports": {
+        "host" : {
+          "hostname": "string",
+          "os_type": "string",
+          "os_user_name": "string",
+          "cpu_arch": "string",
+          "genforma_home": "path"
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+        ]
+      }
+    },
+    {"key" : { "name" : "redis", "version" : "2.2" },
+      "display_name" : "Redis (version 2.2)",
+      "config_port": {
+      },
+      "input_ports": {
+        "host": { "genforma_home": "path", "os_type":"string", "hostname":"string" },
+        "python" : { "PYTHONPATH": "string",
+                     "home": "string" }
+      },
+      "output_ports": {
+        "redis": {
+          "home" : {"type":"path",
+                    "fixed-value":"${input_ports.host.genforma_home}/redis_package"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"g++", "version":"4.2"}
+          },
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          }
+        ]
+      }
+    },
+    { "key" : {"name": "redis-py", "version" : ""},
+      "display_name" : "Redis python client",
+      "input_ports" : {
+         "python": {
+              "home" : "string"
+            }, 
+         "setuptools" : {
+            "easy_install" : "string"
+         },
+        "host": { "genforma_home": "path" }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"setuptools", "version":"0.6"},
+            "port_mapping": { "setuptools": "setuptools" }
+          },
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          }
+        ]
+      }
+    },
+    {"key" : { "name" : "celery-django-worker", "version" : "1.0" },
+      "display_name" : "Celery worker for Django Apps (start celeryd from manage.py)",
+      "config_port": {
+      },
+      "input_ports": {
+        "django": { "home": "path",
+                    "log_directory": "path",
+                    "layout_cfg_file": "path"},
+        "python" : { "PYTHONPATH": "string",
+                     "home": "string" }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "environment": {
+          "all-of": [
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          },
+          { "key": { "name" : "Django-App", "version" : {"greater-than-or-equal":"1.0" } },
+            "port_mapping": {"django":"django"}
+          }
+          ]
+      }
+    },
+    {"key" : { "name" : "celerybeat-django-worker", "version" : "1.0" },
+      "display_name" : "Celerybeat worker for Django Apps (start celeryd from manage.py)",
+      "config_port": {
+      },
+      "input_ports": {
+        "django": { "home": "path",
+                    "log_directory": "path",
+                    "layout_cfg_file": "path"},
+        "python" : { "PYTHONPATH": "string",
+                     "home": "string" }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "environment": {
+          "all-of": [
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          },
+          { "key": { "name" : "Django-App", "version" : {"greater-than-or-equal":"1.0" } },
+            "port_mapping": {"django":"django"}
+          }
+          ]
+      }
+    },
+    {"key" : { "name" : "gearman-django-adapter", "version" : "1.0" },
+      "display_name" : "Gearman-Django Adapter",
+      "config_port": {
+      },
+      "input_ports": {
+        "django": { "home": "path",
+                    "log_directory": "path",
+                    "layout_cfg_file": "path"},
+        "python" : { "PYTHONPATH": "string",
+                     "home": "string" }
+      },
+      "inside": {
+        "one-of": [
+          { "key": { "name" : "genForma-Website", "version" : {"greater-than-or-equal":"1.0" } },
+            "port_mapping": {"django":"django"}}
+        ]
+      },
+      "environment": {
+          "all-of": [
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          },
+          { "key": {"name":"gearman", "version":{"greater-than-or-equal":"1.5"}}}
+          ]
+      }
+    },
+    { "key" : { "name" : "PIL", "version" : "1.1.7" },
+      "display_name" : "PIL: Python Imaging Library",
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "input_ports" : {
+         "python": {
+              "home" : "string",
+              "PYTHONPATH" : "string"
+            }, 
+         "host": {"genforma_home": "path"}
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          }
+        ]
+      }
+    },
+    { "key" : {"name": "pip", "version":"any"},
+      "display_name" : "Pip",
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+        ]
+      },
+      "input_ports" : {
+         "python": {
+              "home" : "string",
+              "python_bin_dir": "path"
+            }, 
+         "setuptools" : {
+            "easy_install" : "string"
+         },
+         "host": {"genforma_home": "path"}
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"setuptools", "version":"0.6"},
+            "port_mapping": { "setuptools": "setuptools" }
+          },
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          }
+        ]
+      },
+      "output_ports" : {
+         "pip" : {
+            "pipbin" : { "type":"path", "fixed-value" : "${input_ports.python.python_bin_dir}/pip"}
+         }
+      }
+    },
+    { "key" : {"name": "docutils", "version":"any"},
+      "display_name" : "docutils",
+      "input_ports" : {
+         "python": {
+              "home" : "string"
+            }, 
+         "setuptools" : {
+            "easy_install" : "string"
+         },
+         "host": {"genforma_home": "path"}
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"setuptools", "version":"0.6"},
+            "port_mapping": { "setuptools": "setuptools" }
+          },
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          }
+        ]
+      }
+    },
+    { "key" : {"name": "Django-South", "version":"0.7.3"},
+      "display_name" : "South (upgrade manager for Django)",
+      "input_ports" : {
+         "python": {
+              "home" : "string"
+            }, 
+         "setuptools" : {
+            "easy_install" : "string"
+         },
+         "host": {"genforma_home": "path"}
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"setuptools", "version":"0.6"},
+            "port_mapping": { "setuptools": "setuptools" }
+          },
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          },
+          { "key" : { "name" : "Django", "version" : { "greater-than-or-equal" : "1.2"} }
+          }
+        ]
+      }
+    },
+    { "key" : {"name": "Sphinx", "version":"any"},
+      "display_name" : "Sphinx",
+      "input_ports" : {
+         "python": {
+              "home" : "string"
+            }, 
+         "setuptools" : {
+            "easy_install" : "string"
+         },
+         "host": {"genforma_home": "path"}
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"setuptools", "version":"0.6"},
+            "port_mapping": { "setuptools": "setuptools" }
+          },
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          }
+        ]
+      }
+    },
+    { "key" : {"name": "sorl-thumbnail", "version":"any"},
+      "display_name" : "sorl-thumbnail",
+      "input_ports" : {
+         "python": {
+              "home" : "string"
+            }, 
+         "setuptools" : {
+            "easy_install" : "string"
+         },
+         "host": {"genforma_home": "path"}
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"setuptools", "version":"0.6"},
+            "port_mapping": { "setuptools": "setuptools" }
+          },
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          }
+        ]
+      }
+    },
+    { "key" : {"name": "reportlab", "version":"any"},
+      "display_name" : "reportlab",
+      "input_ports" : {
+         "python": {
+              "home" : "string"
+            }, 
+         "setuptools" : {
+            "easy_install" : "string"
+         },
+         "host": {"genforma_home": "path"}
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"setuptools", "version":"0.6"},
+            "port_mapping": { "setuptools": "setuptools" }
+          },
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          }
+        ]
+      }
+    },
+    { "key" : {"name": "trml2pdf", "version":"any"},
+      "display_name" : "trml2pdf",
+      "input_ports" : {
+         "python": {
+              "home" : "string"
+            }, 
+         "setuptools" : {
+            "easy_install" : "string"
+         },
+         "host": {"genforma_home": "path"}
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"setuptools", "version":"0.6"},
+            "port_mapping": { "setuptools": "setuptools" }
+          },
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          }
+        ]
+      }
+    },
+    { "key" : {"name": "PyYAML", "version":"any"},
+      "display_name" : "PyYAML",
+      "input_ports" : {
+         "python": {
+              "home" : "string"
+            }, 
+         "setuptools" : {
+            "easy_install" : "string"
+         },
+         "host": {"genforma_home": "path"}
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"setuptools", "version":"0.6"},
+            "port_mapping": { "setuptools": "setuptools" }
+          },
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          }
+        ]
+      }
+    },
+    { "key" : {"name": "django-registration", "version":"any"},
+      "display_name" : "Django-Registration",
+      "input_ports" : {
+         "python": {
+              "home" : "string"
+            }, 
+         "setuptools" : {
+            "easy_install" : "string"
+         },
+         "host": {"genforma_home": "path"}
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"setuptools", "version":"0.6"},
+            "port_mapping": { "setuptools": "setuptools" }
+          },
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          }
+        ]
+      }
+    },
+    { "key" : {"name": "django-threaded-multihost", "version":"any"},
+      "display_name" : "Django-threaded-multihost",
+      "input_ports" : {
+         "python": {
+              "home" : "string"
+            }, 
+         "setuptools" : {
+            "easy_install" : "string"
+         },
+         "pip" : {
+            "pipbin" : "string"
+         },
+         "host": {"genforma_home": "path"}
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"setuptools", "version":"0.6"},
+            "port_mapping": { "setuptools": "setuptools" }
+          },
+          { "key": {"name":"pip", "version":"any"},
+            "port_mapping": { "pip": "pip" }
+          },
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          }
+        ]
+      }
+    },
+    { "key" : {"name": "django-caching-app-plugins", "version":"any"},
+      "display_name" : "Django-caching-app-plugins",
+      "input_ports" : {
+         "python": {
+              "home" : "string"
+            }, 
+         "setuptools" : {
+            "easy_install" : "string"
+         },
+         "pip" : {
+            "pipbin" : "string"
+         },
+         "host": {"genforma_home": "path"}
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"setuptools", "version":"0.6"},
+            "port_mapping": { "setuptools": "setuptools" }
+          },
+          { "key": {"name":"pip", "version":"any"},
+            "port_mapping": { "pip": "pip" }
+          },
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          }
+        ]
+      }
+    },
+    { "key" : {"name": "django-signals-ahoy", "version":"any"},
+      "display_name" : "Django-signals-ahoy",
+      "input_ports" : {
+         "python": {
+              "home" : "string"
+            }, 
+         "setuptools" : {
+            "easy_install" : "string"
+         },
+         "pip" : {
+            "pipbin" : "string"
+         },
+         "host": {"genforma_home": "path"}
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"setuptools", "version":"0.6"},
+            "port_mapping": { "setuptools": "setuptools" }
+          },
+          { "key": {"name":"pip", "version":"any"},
+            "port_mapping": { "pip": "pip" }
+          },
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          }
+        ]
+      }
+    },
+    { "key" : {"name": "django-livesettings", "version":"any"},
+      "display_name" : "Django-livesettings",
+      "input_ports" : {
+         "python": {
+              "home" : "string"
+            }, 
+         "setuptools" : {
+            "easy_install" : "string"
+         },
+         "pip" : {
+            "pipbin" : "string"
+         },
+         "host": {"genforma_home": "path"}
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"setuptools", "version":"0.6"},
+            "port_mapping": { "setuptools": "setuptools" }
+          },
+          { "key": {"name":"pip", "version":"any"},
+            "port_mapping": { "pip": "pip" }
+          },
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          }
+        ]
+      }
+    },
+    { "key" : {"name": "django-keyedcache", "version":"any"},
+      "display_name" : "Django-keyedcache",
+      "input_ports" : {
+         "python": {
+              "home" : "string"
+            }, 
+         "setuptools" : {
+            "easy_install" : "string"
+         },
+         "pip" : {
+            "pipbin" : "string"
+         },
+         "host": {"genforma_home": "path"}
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"setuptools", "version":"0.6"},
+            "port_mapping": { "setuptools": "setuptools" }
+          },
+          { "key": {"name":"pip", "version":"any"},
+            "port_mapping": { "pip": "pip" }
+          },
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          }
+        ]
+      }
+    },
+    { "key" : { "name" : "memcached", "version" : "1.4" },
+      "display_name" : "memcached",
+      "input_ports" : { 
+        "host": { "genforma_home": "path", "os_type":"string",
+                  "hostname":"string", "log_directory":"path" }
+      }, 
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "config_port" : { 
+          "port" : { "type" : "tcp_port", "default" : 11211 },
+          "host" : { "type" : "string"  , "default" : "localhost" }
+      },
+      "output_ports" : {
+          "cache": {
+            "host" : { "type" : "string", "source" : "config_port.host" },
+            "port" : { "type" : "tcp_port", "source" : "config_port.port" },
+            "provider" : { "type" : "string", "fixed-value" : "memcached" },
+            "home" : { "type":"path", "fixed-value":"${input_ports.host.genforma_home}/memcached-1.4.5"}
+          }
+      }
+    },
+    { "key" : { "name" : "python-memcached", "version" : "any" },
+      "display_name" : "python-memcached interface",
+      "input_ports" : {
+         "python": {
+              "home" : "string"
+            },
+         "setuptools" : {
+            "easy_install" : "string"
+         },
+         "pip" : {
+            "pipbin" : "string"
+         }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "environment": {
+          "all-of" : [
+             { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.6"}},
+               "port_mapping": {"python":"python"}
+             },
+             { "key" : { "name" : "pip", "version" : "any"},
+               "port_mapping" : { "pip" : "pip" }
+             }
+          ]
+      }
+    },
+    { "key" : { "name" : "memcached-django-adapter", "version" : "any" },
+      "display_name" : "memcached adapter for django",
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "input_ports" : {
+          "cache": {
+            "host" : { "type" : "string" },
+            "port" : { "type" : "tcp_port" },
+            "provider" : { "type" : "string" },
+            "home" : { "type":"path" }
+          }
+      },
+      "output_ports" : {
+          "ocache": {
+            "host" : { "type" : "string", "source" : "input_ports.cache.host" },
+            "port" : { "type" : "tcp_port", "source" : "input_ports.cache.port" },
+            "provider" : { "type" : "string", "source" : "input_ports.cache.provider" },
+            "home" : { "type":"path", "source":"input_ports.cache.home"}
+          }
+      },
+      "environment" : {
+          "all-of" : [
+             { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.6"}},
+               "port_mapping": {"python":"python"}
+             },
+             { "key" : { "name" : "setuptools", "version" : "0.6"},
+               "port_mapping" : { "setuptools" : "setuptools" }
+             },
+             { "key" : { "name" : "pip", "version" : "any"},
+               "port_mapping" : { "pip" : "pip" }
+             },
+             { "key" : { "name" : "memcached", "version" : "1.4"},
+               "port_mapping" : { "cache": "cache" }
+             },
+             { "key" : { "name" : "python-memcached", "version" : "any"}
+             }
+          ]
+      }
+    },
+    { "key" : { "name" : "django-dummy-cache-adapter", "version" : "any" },
+      "display_name" : "dummy cache resource",
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "output_ports" : {
+          "ocache": {
+            "host" : { "type" : "string", "fixed-value" : "dummy.host" },
+            "port" : { "type" : "tcp_port", "fixed_value" : 0 },
+            "provider" : { "type" : "string", "fixed-value" : "dummy" },
+            "home" : { "type":"path", "fixed-value":"__dummy__"}
+          }
+      }
+    },
+    { "key" : { "name" : "Satchmo", "version" : "0.9.2" },
+      "display_name" : "Satchmo",
+      "input_ports"  : {
+      }, 
+      "inside" : {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "environment" : {
+          "all-of" : [
+             { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.6"}},
+               "port_mapping": {"python":"python"}
+             },
+             { "key" : { "name" : "setuptools", "version" : "0.6"},
+               "port_mapping" : { "setuptools" : "setuptools" }
+             },
+             { "key" : { "name" : "pip", "version" : "any"},
+               "port_mapping" : { "pip" : "pip" }
+             },
+             { "key" : { "name" : "PIL", "version" : "1.1.7" }
+             },
+             { "key" : { "name" : "Django", "version" : { "greater-than-or-equal" : "1.2"} }
+             },
+             { "key" : { "name" : "pycrypto", "version" : "2.3" }
+             },
+             { "key" : { "name" : "trml2pdf", "version" : "any" }
+             },
+             { "key" : { "name" : "PyYAML", "version" : "any" }
+             },
+             { "key" : { "name" : "reportlab", "version" : "any" }
+             },
+             { "key" : { "name" : "sorl-thumbnail", "version" : "any" }
+             },
+             { "key" : { "name" : "django-registration", "version" : "any"}
+             },
+             { "key" : { "name" : "django-threaded-multihost", "version" : "any"}
+             },
+             { "key" : { "name" : "django-caching-app-plugins", "version" : "any"}
+             },
+             { "key" : { "name" : "django-signals-ahoy", "version" : "any"}
+             },
+             { "key" : { "name" : "django-keyedcache", "version" : "any"}
+             },
+             { "key" : { "name" : "django-livesettings", "version" : "any"}
+             },
+             { "key" : { "name" : "Sphinx", "version" : "any"}
+             },
+             { "key" : { "name" : "Django-South", "version" : "0.7.3"}
+             }
+          ]
+      }
+    },
+    { "key" : {"name": "argparse", "version":"1.1"},
+      "display_name" : "Improved version of Python argument parsing",
+      "input_ports" : {
+         "python": {
+              "home" : "string"
+            }, 
+         "setuptools" : {
+            "easy_install" : "string"
+         },
+         "host": {"genforma_home": "path"}
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"setuptools", "version":"0.6"},
+            "port_mapping": { "setuptools": "setuptools" }
+          },
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          }
+        ]
+      }
+    },
+    { "key" : {"name": "cloudfiles", "version":"1.7"},
+      "display_name" : "Rackspace Cloudfiles API for Python",
+      "input_ports" : {
+         "python": {
+              "home" : "string"
+            }, 
+         "setuptools" : {
+            "easy_install" : "string"
+         },
+         "host": {"genforma_home": "path"}
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"setuptools", "version":"0.6"},
+            "port_mapping": { "setuptools": "setuptools" }
+          },
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          }
+        ]
+      }
+    },
+    { "key" : {"name": "gunicorn", "version":"0.12"},
+      "display_name" : "Green Unicorn: Python WSGI HTTP Server",
+      "input_ports" : {
+         "python": {
+              "home" : "string"
+            }, 
+         "setuptools" : {
+            "easy_install" : "string"
+         },
+         "host": {"genforma_home": "path"}
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"setuptools", "version":"0.6"},
+            "port_mapping": { "setuptools": "setuptools" }
+          },
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          }
+        ]
+      }
+    },
+    { "key" : {"name": "apache-libcloud", "version":"0.4"},
+      "display_name" : "Provider-independent Python API for cloud provisioning",
+      "input_ports" : {
+         "python": {
+              "home" : "string"
+            }, 
+         "setuptools" : {
+            "easy_install" : "string"
+         },
+         "host": {"genforma_home": "path"}
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"setuptools", "version":"0.6"},
+            "port_mapping": { "setuptools": "setuptools" }
+          },
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          }
+        ]
+      }
+    },
+    { "key" : {"name": "pycrypto", "version":"2.3"},
+      "display_name" : "Cryptographic modules for Python",
+      "input_ports" : {
+         "python": {
+              "home" : "string"
+            }, 
+         "setuptools" : {
+            "easy_install" : "string"
+         },
+         "host": {"genforma_home": "path"}
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "output_ports" : {
+        "pkg_info": {
+          "provides_pkg": { "type": "string", "fixed-value": "Crypto"},
+          "test_module": { "type": "string", "fixed-value": "Crypto.Cipher.AES" }
+        }
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"setuptools", "version":"0.6"},
+            "port_mapping": { "setuptools": "setuptools" }
+          },
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          },
+          {"key": {"name":"g++", "version":{"greater-than-or-equal":"4.2"}}}
+        ]
+      }
+    },
+    { "key" : {"name": "paramiko", "version":"1.7"},
+      "display_name" : "SSH2 Protocol Library",
+      "input_ports" : {
+         "python": {
+              "home" : "string"
+            }, 
+         "setuptools" : {
+            "easy_install" : "string"
+         },
+         "host": {"genforma_home": "path"}
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"setuptools", "version":"0.6"},
+            "port_mapping": { "setuptools": "setuptools" }
+          },
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          },
+          {"key": {"name":"pycrypto", "version":{"greater-than-or-equal":"2.3"}}}
+        ]
+      }
+    },
+    { "key" : {"name": "provision", "version":"0.9"},
+      "display_name" : "genForma cloud provisioning engine",
+      "input_ports" : {
+         "python": {
+              "home" : "string",
+              "python_bin_dir": "path"
+            }, 
+         "setuptools" : {
+            "easy_install" : "string"
+         },
+         "host": {"genforma_home": "path"}
+      },
+      "output_ports": {
+        "provision": {
+          "deploy_script_path": {"type":"path", "fixed-value":"${input_ports.python.python_bin_dir}/deploy-node"},
+          "destroy_script_path": {"type":"path", "fixed-value":"${input_ports.python.python_bin_dir}/destroy-node"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"setuptools", "version":"0.6"},
+            "port_mapping": { "setuptools": "setuptools" }
+          },
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          },
+          {"key": {"name":"argparse", "version":{"greater-than-or-equal":"1.1"}}},
+          {"key": {"name":"cloudfiles", "version":{"greater-than-or-equal":"1.7"}}},
+          {"key": {"name":"apache-libcloud", "version":{"greater-than-or-equal":"0.4",
+                                                        "less-than":"0.5"}}},
+          {"key": {"name":"paramiko", "version":{"greater-than-or-equal":"1.7"}}}
+        ]
+      }
+    },
+    { "key" : {"name": "provision-secrets", "version":"1.0"},
+      "display_name" : "keys and other secrect data for genForma cloud provisioning engine",
+      "output_ports": {
+        "archive_info": {
+          "extract_path": {"type":"path", "fixed-value":"~/.provision/secrets"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      }
+    },
+    { "key" : {"name": "rabbitmq", "version":"2.4"},
+      "display_name" : "Rabbitmq 2.4",
+      "config_port" : {
+       "host" : { "type" : "string", "default" : "127.0.0.1" },
+       "port" : { "type" : "tcp_port", "default" : "5672" }
+      },
+      "input_ports" : {
+         "host": {
+             "hostname" : "string",
+             "genforma_home": "path"
+         }
+      },
+      "output_ports" : {
+         "broker": { 
+             "broker": { "type" : "string", "fixed-value" : "rabbitmqctl" },
+             "BROKER_HOST" : { "type" : "string", "fixed-value" : "${config_port.host}" },
+             "BROKER_PORT" : { "type" : "tcp_port", "fixed-value" : "${config_port.port}" }
+         }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      }
+    },
+    { "key" : {"name": "Celery", "version":"2.3"},
+      "display_name" : "Celery 2.3",
+      "config_port" : {
+       "username" : { "type" : "string", "default" : "engage_celery" },
+       "password" : { "type" : "password", "default" : "engage_129" },
+       "vhost"    : { "type" : "string", "default" : "engage_celery_vhost" }
+      },
+      "input_ports" : {
+         "python": {
+              "home" : "string"
+            }, 
+         "setuptools" : {
+            "easy_install" : "string"
+         },
+         "pip" : {
+            "pipbin" : "string"
+         },
+         "host": {"genforma_home": "path"},
+         "broker": { 
+             "broker" : "string", 
+             "BROKER_HOST" : "string", 
+             "BROKER_PORT" : "tcp_port" 
+         }
+      },
+      "output_ports": { 
+         "celery" : { 
+             "broker" : { "type" : "string", "fixed-value" : "${input_ports.broker.broker}" },
+             "username" : { "type" : "string", "fixed-value" : "${config_port.username}" },
+             "password" : { "type" : "password", "source" : "config_port.password" },
+             "vhost"    : { "type" : "string", "source" : "config_port.vhost" }
+         }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"setuptools", "version":"0.6"},
+            "port_mapping": { "setuptools": "setuptools" }
+          },
+          { "key": {"name":"pip", "version":"any"},
+            "port_mapping": { "pip": "pip" }
+          },
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          },
+          { "key": {"name":"rabbitmq",
+                    "version":"2.4"},
+            "port_mapping": {"broker":"broker"}
+          }
+        ]
+      }
+    },
+    { "key" : {"name": "django-celery", "version":"any"},
+      "display_name" : "Django-celery",
+      "input_ports" : {
+         "python": {
+              "home" : "string"
+            }, 
+         "setuptools" : {
+            "easy_install" : "string"
+         },
+         "pip" : {
+            "pipbin" : "string"
+         },
+         "broker" : { "broker" : { "type" : "string" } },
+         "host": {"genforma_home": "path"}
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"Celery", "version":"2.3"}
+          },
+          { "key": {"name":"rabbitmq", "version":"2.4"},
+            "port_mapping" : { "broker" : "broker" }
+          },
+          { "key": {"name":"setuptools", "version":"0.6"},
+            "port_mapping": { "setuptools": "setuptools" }
+          },
+          { "key": {"name":"pip", "version":"any"},
+            "port_mapping": { "pip": "pip" }
+          },
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          }
+        ]
+      }
+    },
+    { "key": {"name":"celery-django-adapter", "version": "any"},
+      "display_name": "Django celery adapter",
+      "config_port" : {
+        "BROKER_HOST" : { "type" : "string", "default" : "${input_ports.broker.BROKER_HOST}" },
+        "BROKER_PORT" : { "type" : "tcp_port", "default" : "${input_ports.broker.BROKER_PORT}" },
+        "BROKER_USER" : { "type" : "string", "default" : "${input_ports.celery_conn.username}" },
+        "BROKER_PASSWORD" : { "type" : "string", "default" : "${input_ports.celery_conn.password}" },
+        "BROKER_VHOST" : { "type" : "string", "default" : "${input_ports.celery_conn.vhost}" }
+      },
+      "input_ports" : {
+        "broker" : { 
+            "broker" : "string",
+            "BROKER_HOST" : "string",
+            "BROKER_PORT" : "tcp_port"
+        },
+        "celery_conn" : {
+            "broker" : "string",
+            "username" : "string", 
+            "password" : "password",
+            "vhost"    : "string"
+        }
+      },
+      "output_ports" : {
+         "celery" : { 
+           "provider" : {"type": "string", "fixed-value": "celery" },
+           "broker" : {"type" : "string", "fixed-value":"rabbitmq" },
+           "BROKER_HOST" : {"type": "string", "source": "config_port.BROKER_HOST" },
+           "BROKER_PORT" : {"type": "tcp_port", "source": "config_port.BROKER_PORT" },
+           "BROKER_USER" : {"type": "string"  , "source" : "config_port.BROKER_USER" },
+           "BROKER_PASSWORD" : {"type": "string"  , "source" : "config_port.BROKER_PASSWORD" },
+           "BROKER_VHOST" : {"type": "string"  , "source": "config_port.BROKER_VHOST" }
+         }
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"rabbitmq", "version":"2.4"},
+            "port_mapping" : { "broker" : "broker" }
+          },
+          { "key": {"name":"Celery", "version":"2.3"},
+            "port_mapping" : { "celery_conn" : "celery" }
+          },
+          { "key": {"name":"django-celery", "version":"any"}
+          }
+        ]
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      }
+    },
+    { "key": {"name":"django-dummy-celery-adapter", "version": "any"},
+      "display_name": "Dummy celery adapter for django",
+      "config_port" : {
+        "BROKER_HOST" : { "type" : "string", "default" : "localhost" },
+        "BROKER_PORT" : { "type" : "tcp_port", "default" : 0 },
+        "BROKER_USER" : { "type" : "string", "default" : "" },
+        "BROKER_PASSWORD" : { "type" : "string", "default" : "" },
+        "BROKER_VHOST" : { "type" : "string", "default" : "" }
+      },
+      "input_ports" : {
+        "broker" : { "broker" : "string" }
+      },
+      "output_ports" : {
+         "celery" : { 
+           "provider" : { "type" : "string", "fixed-value" : "dummy" },
+           "broker" : {"type" : "string", "fixed-value" : "dummy" },
+           "BROKER_HOST" : {"type": "tcp_port", "source": "config_port.BROKER_HOST" },
+           "BROKER_PORT" : {"type": "tcp_port", "source": "config_port.BROKER_PORT" },
+           "BROKER_USER" : {"type": "string"  , "source" : "config_port.BROKER_USER" },
+           "BROKER_PASSWORD" : {"type": "string"  , "source" : "config_port.BROKER_PASSWORD" },
+           "BROKER_VHOST" : {"type": "string"  , "source": "config_port.BROKER_VHOST" }
+         }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      }
+    },
+    { "key": {"name":"MoinMoin-apache-adapter", "version":"2.2"},
+      "display_name": "MoinMoin wiki adapter to Apache webserver",
+      "input_ports": {
+        "apache": {
+          "config_file": "path",
+          "additional_config_dir": "path",
+          "apache_group": "string",
+          "controller_exe":"path",
+          "htpasswd_exe": "path"
+        }
+      },
+      "output_ports": {
+        "webserver_adapter": {
+          "type": {"type":"string", "fixed-value":"apache"},
+          "config_file": {"type":"path", "source":"input_ports.apache.config_file"},
+          "additional_config_dir": {"type":"path",
+                                    "source":"input_ports.apache.additional_config_dir"},
+          "group": {"type":"string", "source":"input_ports.apache.apache_group"},
+          "controller_exe":{"type":"path", "source":"input_ports.apache.controller_exe"},
+          "htpasswd_exe":{"type":"path", "source":"input_ports.apache.htpasswd_exe"}
+        }
+      },
+      "environment": {
+        "all-of": [
+          {"one-of": [
+            { "key": {"name":"apache-linux",
+                      "version":{"greater-than-or-equal":"2.2"}},
+              "port_mapping": {"apache":"apache"}},
+            { "key": {"name":"apache-macports",
+                      "version":{"greater-than-or-equal":"2.2"}},
+              "port_mapping": {"apache":"apache"}}
+          ]},
+          {"one-of": [
+            { "key": {"name": "apache2-mod-wsgi-macports",
+                      "version":{"greater-than-or-equal":"3.3"}}},
+            { "key": {"name": "libapache2-mod-wsgi-linux",
+                      "version":{"greater-than-or-equal":"3.2-2"}}}
+          ]}
+        ]
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      }
+    },
+    { "key": {"name":"MoinMoin-localserver-adapter", "version":"1.0"},
+      "display_name": "MoinMoin wiki adapter to local webserver",
+      "output_ports": {
+        "webserver_adapter": {
+          "type": {"type":"string", "fixed-value":"local-server"},
+          "config_file": {"type":"path", "fixed-value": ""},
+          "additional_config_dir": {"type":"path", "fixed-value":""},
+          "group": {"type":"string", "fixed-value":""},
+          "controller_exe":{"type":"path", "fixed-value":""},
+          "htpasswd_exe":{"type":"path", "fixed-value":""}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      }
+    },
+    { "key" : {"name": "MoinMoin", "version" : "1.9"},
+      "display_name" : "MoinMoin wiki",
+      "config_port": {
+        "home": {"type":"path", "default":"${input_ports.host.genforma_home}/moin-1.9"},
+        "superuser_name": {"type":"string", "default":"root"},
+        "front_page": {"type":"string", "default":"FrontPage"},
+        "use_apache_authentication": {
+          "type":"string",
+          "default":"no"
+        }
+      },
+      "input_ports" : {
+         "python": {
+              "home" : "string"
+         },
+        "webserver_adapter": {
+          "type": "string",
+          "config_file": "path",
+          "additional_config_dir": "path",
+          "group": "string",
+          "controller_exe": "path",
+          "htpasswd_exe":"path"
+        },
+        "host": { "genforma_home": "path",
+                  "log_directory": "path"
+        }
+      },
+      "output_ports": {
+        "moinmoin": {
+          "log_directory": {"type":"path", "fixed-value":"${input_ports.host.log_directory}/moin"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          },
+          {"one-of": [
+          { "key": {"name":"MoinMoin-localserver-adapter", "version":"1.0"},
+            "port_mapping": {"webserver_adapter":"webserver_adapter"}},
+          { "key": {"name":"MoinMoin-apache-adapter", "version":"2.2"},
+            "port_mapping": {"webserver_adapter":"webserver_adapter"}}
+          ]}
+        ]
+      }
+    },
+    { "key": {"name":"mysql-macports", "version":"5.1"},
+      "display_name": "MySQL server (MacPorts version)",
+      "config_port": {
+        "mysql_admin_password": {"type":"password"},
+        "startup_on_boot": {"type":"string", "default":"no"}
+      },
+      "input_ports": { 
+        "host" : {
+          "hostname": "string",
+          "os_type": "string",
+          "os_user_name": "string",
+          "cpu_arch": "string",
+          "genforma_home": "path",
+          "sudo_password": "password",
+          "log_directory": "path"
+        },
+        "macports": {
+          "macports_exe": "path"
+        }
+      },
+      "output_ports": {     
+        "mysql" : {
+          "host": {"type":"string", "source":"input_ports.host.hostname"},
+          "port": {"type":"tcp_port", "fixed-value":3306}
+        },
+        "mysql_admin" : {
+          "admin_password": {"type":"password",
+                             "source":"config_port.mysql_admin_password"},
+          "mysqladmin_exe": {"type":"path",
+                             "fixed-value":"/opt/local/bin/mysqladmin5"},
+          "mysql_client_exe": {"type":"path",
+                             "fixed-value":"/opt/local/bin/mysql5"},
+          "mysql_config_exe": {"type":"path",
+                               "fixed-value": "/opt/local/lib/mysql5/bin/mysql_config"},
+          "mysqldump_exe": {"type":"path",
+                            "fixed-value": "/opt/local/bin/mysqldump5"},
+          "mysql_server_script": {"type":"path",
+                                  "fixed-value":"/opt/local/lib/mysql5/bin/mysqld_safe"},
+          "mysql_startup_logfile":{"type":"path",
+                                   "fixed-value":"${input_ports.host.log_directory}/mysql_startup.log"},
+          "mysql_server_cwd": {"type":"path",
+                               "fixed-value":"/opt/local"},
+          "mysql_user": {"type":"string", "fixed-value":"_mysql"},
+          "pid_file_template":{"type":"string",
+                               "fixed-value":"/opt/local/var/db/mysql5/%(hostname)s.pid"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}}
+        ]
+      },
+      "environment": {
+        "all-of": [
+        { "key": {"name":"macports", "version":{"greater-than-or-equal":"1.9"}},
+          "port_mapping": {"macports":"macports"}}
+        ]
+      }
+    },
+    { "key" : {"name": "mysql-python", "version":"1.2"},
+      "display_name" : "MySQL Adapter for Python",
+      "input_ports" : {
+         "python": {
+              "home" : "string"
+            }, 
+         "setuptools" : {
+            "easy_install" : "string"
+         },
+         "mysql_admin": {
+           "mysql_config_exe": "path"
+         },
+         "host": {"genforma_home": "path"}
+      },
+      "output_ports" : {
+        "pkg_info": {
+          "provides_pkg": { "type": "string", "fixed-value": "MySQLdb"},
+          "test_module": { "type": "string", "fixed-value": "MySQLdb" }
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"setuptools", "version":"0.6"},
+            "port_mapping": { "setuptools": "setuptools" }
+          },
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          },
+          {"one-of": [
+            { "key": {"name":"mysql-macports",
+                      "version":{"greater-than-or-equal":"5.1"}},
+              "port_mapping": {"mysql":"mysql", "mysql_admin":"mysql_admin"}}
+          ]}
+        ]
+      }
+    }
+  ]
+}

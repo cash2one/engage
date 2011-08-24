@@ -1,0 +1,747 @@
+{
+  "module_search_path": [],
+  "cache_directory": "../sw_packages",
+  "package_properties": {
+      "default_package_container": "installer_packages"
+  },
+  "entries": [
+    { "key":{"name":"genshi", "version":"0.5"},
+      "mgr_module_name":"engage.drivers.genforma.easy_install",
+      "packages": [
+        { "type": "Reference",
+          "package_class": "EasyInstallLink",
+          "location": "Genshi"
+        }
+      ]
+    },
+    { "key":{"name":"pygments", "version":"any"},
+      "mgr_module_name":"engage.drivers.genforma.easy_install",
+      "packages": [
+        { "type": "Reference",
+          "package_class": "EasyInstallLink",
+          "location": "Pygments"
+        }
+      ]
+    },
+    { "key":{"name":"trac", "version":"0.11.6"},
+      "mgr_module_name":"trac.trac",
+      "packages": [
+        { "type": "Reference",
+          "package_class": "EasyInstallLink",
+          "location":"http://svn.edgewall.org/repos/trac/tags/trac-0.11.6"
+        }
+      ]
+    },
+    { "key": { "name": "trac-patch", "version": "0.11.6" },
+      "mgr_module_name": "engage.drivers.genforma.dummy_resource_manager",
+      "packages": [
+        { "type": "Archive",
+          "package_class": "GzippedTarArchive",
+          "location": "Trac-0.11.6-py2.6.egg-patch.tar.gz"
+        }
+      ]
+    },
+    { "key": { "name": "AccountManagerPlugin", "version": "trunk" },
+      "mgr_module_name": "trac.trac_plugins.accountManagerPlugin" ,
+      "packages": [
+        { "type": "Reference",
+          "package_class": "EasyInstallLink",
+          "location": "http://trac-hacks.org/svn/accountmanagerplugin/trunk"
+        }
+      ]
+    },
+    { "key": { "name": "CustomFieldAdminPlugin", "version": "0.11" },
+      "mgr_module_name": "trac.trac_plugins.customFieldAdminPlugin" ,
+      "packages": [
+        { "type": "Reference",
+          "package_class": "EasyInstallLink",
+          "location": "http://trac-hacks.org/svn/customfieldadminplugin/0.11"
+        }
+      ]
+    },
+    { "key": { "name": "IniAdminPlugin", "version": "0.11" },
+      "mgr_module_name": "trac.trac_plugins.iniAdminPlugin" ,
+      "packages": [
+        { "type": "Archive",
+          "package_class": "ZipArchive",
+          "location": "iniadminplugin.zip"
+        }
+      ]
+    },
+    { "key": { "name": "ThemeEnginePlugin", "version": "0.11" },
+      "mgr_module_name": "trac.trac_plugins.themeenginePlugin" ,
+      "packages": [
+        { "type": "Archive",
+          "package_class": "ZipArchive",
+          "location": "themeengineplugin.zip"
+        }
+      ]
+    },
+    { "key": { "name": "GFDownloadPlugin", "version": "0.11" },
+      "mgr_module_name": "trac.trac_plugins.gfdownloadPlugin" ,
+      "packages": [
+        { "type": "Archive",
+          "package_class": "GzippedTarArchive",
+          "location": "gfdownloadplugin.tar.gz"
+        }
+      ]
+    },
+    { "key": { "name": "GFAppPlugin", "version": "0.11" },
+      "mgr_module_name": "trac.trac_plugins.gfappPlugin" ,
+      "packages": [
+        { "type": "Archive",
+          "package_class": "GzippedTarArchive",
+          "location": "gfappplugin.tar.gz"
+        }
+      ]
+    },
+    { "key": { "name": "GitPlugin", "version": "0.11" },
+      "mgr_module_name": "trac.gitplugin" ,
+      "packages": [
+        { "type": "Archive",
+          "package_class": "ZipArchive",
+          "location": "gitplugin.zip"
+        }
+      ]
+    },
+    { "key": { "name": "MenusPlugin", "version": "0.11" },
+      "mgr_module_name": "trac.trac_plugins.menusPlugin" ,
+      "packages": [
+        { "type": "Archive",
+          "package_class": "ZipArchive",
+          "location": "menusplugin.zip"
+        }
+      ]
+    },
+    { "key": { "name": "PermissionRedirectPlugin", "version": "0.11" },
+      "mgr_module_name": "trac.trac_plugins.perm_redirect_plugin" ,
+      "packages": [
+        { "type": "Archive",
+          "package_class": "ZipArchive",
+          "location": "permredirectplugin.zip"
+        }
+      ]
+    },
+    { "key": { "name": "PermissionRedirectPlugin-patch", "version": "0.11" },
+      "mgr_module_name": "engage.drivers.genforma.dummy_resource_manager",
+      "packages": [
+        { "type": "Archive",
+          "package_class": "GzippedTarArchive",
+          "location": "permredirectplugin-r7481-patch.tar.gz"
+        }
+      ]
+    },
+    { "key" : { "name" : "trac-pm", "version" : "0.1" },
+      "mgr_module_name" : "trac.trac_pm",
+      "packages": [
+        { "package_class": "DummyPackage",
+          "location":"..",
+          "type": "Reference"
+        }
+      ]
+    },
+    { "key" : { "name" : "trac-project", "version" : "*" },
+      "mgr_module_name" : "trac.trac_project",
+      "packages": [
+        { "package_class": "DummyPackage",
+          "location":"..",
+          "type": "Reference"
+        }
+      ]
+    },
+    { "key": { "name": "mac-osx", "version": "10.5"},
+      "mgr_module_name": "engage.drivers.install_target_resource"
+    },
+    { "key": { "name": "mac-osx", "version": "10.6"},
+      "mgr_module_name": "engage.drivers.install_target_resource"
+    },
+    { "key": { "name": "ubuntu-linux", "version": "9.10"},
+      "mgr_module_name": "engage.drivers.install_target_resource"
+    },
+    { "key": { "name": "ubuntu-linux", "version": "10.04"},
+      "mgr_module_name": "engage.drivers.install_target_resource"
+    },
+    { "key": { "name": "apache-mac", "version": "2.2"},
+      "mgr_module_name": "engage.drivers.genforma.dummy_service_manager"
+    },
+    { "key": { "name": "apache-linux", "version": "2.2"},
+      "mgr_module_name": "engage.drivers.genforma.apache_linux",
+      "packages": [
+        { "type": "Reference",
+          "package_class": "DummyPackage",
+          "location":"apache2-mpm-prefork"
+        }
+      ]
+    },
+    { "key": { "name": "libapache2-mod-wsgi-linux", "version": "3.2-2"},
+      "mgr_module_name": "engage.drivers.genforma.aptget",
+      "packages": [
+        { "type": "Reference",
+          "package_class": "DummyPackage",
+          "location":"libapache2-mod-wsgi"
+        }
+      ]
+    },
+    { "key": { "name": "django-apache-webserver", "version": "1.0"},
+      "mgr_module_name": "engage.drivers.genforma.dummy_resource_manager",
+      "packages": [
+        { "type": "Reference",
+          "package_class": "DummyPackage",
+          "location": "Dummy"
+        }
+      ]
+    },
+    { "key": { "name": "django-development-webserver", "version": "1.0"},
+      "mgr_module_name": "engage.drivers.genforma.dummy_resource_manager",
+      "packages": [
+        { "type": "Reference",
+          "package_class": "DummyPackage",
+          "location":""
+        }
+      ]
+    },
+    { "key": { "name": "setuptools", "version": "0.6"},
+      "mgr_module_name": "engage.drivers.genforma.dummy_resource_manager"
+    },
+    { "key": { "name": "python", "version": "2.5"},
+      "mgr_module_name": "engage.drivers.genforma.python"
+    },
+    { "key": { "name": "python", "version": "2.6"},
+      "mgr_module_name": "engage.drivers.genforma.python"
+    },
+    { "key": { "name": "python", "version": "2.7"},
+      "mgr_module_name": "engage.drivers.genforma.python"
+    },
+    { "key": { "name": "git", "version": "1.6"},
+      "mgr_module_name": "engage.drivers.genforma.git"
+    },
+    { "key": { "name": "XMLRPCPlugin", "version": "0.11"},
+      "mgr_module_name": "trac.trac_plugins.xmlrpcPlugin",
+      "packages": [
+        { "type": "Reference",
+          "package_class": "EasyInstallLink",
+          "location": "http://trac-hacks.org/svn/xmlrpcplugin/trunk/"
+        }
+      ]
+    },
+    { "key": { "name": "HttpAuthPlugin", "version": "0.11"},
+      "mgr_module_name": "trac.trac_plugins.httpauthPlugin",
+      "packages": [
+        { "type": "Reference",
+          "package_class": "EasyInstallLink",
+          "location": "http://trac-hacks.org/svn/httpauthplugin"
+        }
+      ]
+    },
+    { "key": { "name": "java-virtual-machine", "version":"1.6"},
+      "mgr_module_name": "engage.drivers.genforma.dummy_resource_manager"
+    },
+    { "key":{"name":"nginx", "version":"0.8"},
+      "mgr_module_name":"engage.drivers.genforma.nginx",
+      "packages": [
+        { "type": "Archive",
+          "package_class": "GzippedTarArchive",
+          "location": "nginx-0.8.5.tar.gz"
+        }
+      ]
+    },
+    { "key":{"name":"apache-tomcat", "version":"6.0.24"},
+      "mgr_module_name":"engage.drivers.genforma.tomcat",
+      "packages": [
+        { "type": "Archive",
+          "package_class": "GzippedTarArchive",
+          "location": "apache-tomcat-6.0.24.tar.gz"
+        }
+      ]
+    },
+    { "key":{"name":"agilefant", "version":"2.0.1"},
+      "mgr_module_name":"agilefant.agilefant",
+      "packages": [
+        { "type": "Archive",
+          "package_class": "ZipArchive",
+          "location":"agilefant2_0_1.zip"
+        }
+      ]
+    },
+    { "key":{"name":"mysql", "version":"5.1.39"},
+      "mgr_module_name":"engage.drivers.genforma.mysql_5_1_39",
+      "packages": [
+        { "type": "Archive",
+          "package_class": "GzippedTarArchive",
+          "location":"mysql-5.1.39.tar.gz"
+        }
+      ]
+    },
+    { "key":{"name":"Wordpress", "version":"2.6"},
+      "mgr_module_name":"engage.drivers.genforma.wordpress",
+      "packages": [
+        { "type": "Archive",
+          "package_class": "GzippedTarArchive",
+          "location":"wordpress.tgz"
+        }
+      ]
+    },
+    { "key": { "name": "pip", "version": "any" },
+      "mgr_module_name": "engage.drivers.genforma.easy_install" ,
+      "packages": [
+        { "type": "Archive",
+          "package_class": "GzippedTarArchive",
+          "location": "http://pypi.python.org/packages/source/p/pip/pip-1.0.tar.gz#md5=327fc4a03df189506966e15021730550",
+          "filename": "pip-1.0.tar.gz",
+          "downloader": "HTTPDownloader"
+        },
+        { "type": "Reference",
+          "package_class": "EasyInstallLink",
+          "location": "pip"
+        }
+      ]
+    },
+    { "key": { "name": "trml2pdf", "version": "any" },
+      "mgr_module_name": "engage.drivers.genforma.easy_install" ,
+      "packages": [
+        { "type": "Reference",
+          "package_class": "EasyInstallLink",
+          "location": "http://www.satchmoproject.com/snapshots/trml2pdf-1.2.tar.gz"
+        }
+      ]
+    },
+    { "key": { "name": "PyYAML", "version": "any" },
+      "mgr_module_name": "engage.drivers.genforma.easy_install" ,
+      "packages": [
+        { "type": "Reference",
+          "package_class": "EasyInstallLink",
+          "location": "PyYAML"
+        }
+      ]
+    },
+    { "key": { "name": "reportlab", "version": "any" },
+      "mgr_module_name": "engage.drivers.genforma.easy_install" ,
+      "packages": [
+        { "type": "Reference",
+          "package_class": "EasyInstallLink",
+          "location": "reportlab"
+        }
+      ]
+    },
+    { "key": { "name": "sorl-thumbnail", "version": "any" },
+      "mgr_module_name": "engage.drivers.genforma.easy_install" ,
+      "packages": [
+        { "type": "Reference",
+          "package_class": "EasyInstallLink",
+          "location": "sorl-thumbnail"
+        }
+      ]
+    },
+    { "key": { "name": "Sphinx", "version": "any" },
+      "mgr_module_name": "engage.drivers.genforma.easy_install" ,
+      "packages": [
+        { "type": "Reference",
+          "package_class": "EasyInstallLink",
+          "location": "Sphinx"
+        }
+      ]
+    },
+    { "key": { "name": "docutils", "version": "any" },
+      "mgr_module_name": "engage.drivers.genforma.easy_install" ,
+      "packages": [
+        { "type": "Reference",
+          "package_class": "EasyInstallLink",
+          "location": "docutils"
+        }
+      ]
+    },
+    { "key": { "name": "Django", "version": "1.2" },
+      "mgr_module_name": "engage.drivers.genforma.easy_install" ,
+      "packages": [
+        { "type": "Archive",
+          "package_class": "GzippedTarArchive",
+          "location": "Django-1.2.5.tar.gz"
+        },
+        { "type": "Reference",
+          "package_class": "EasyInstallLink",
+          "location": "Django"
+        }
+      ]
+    },
+    { "key": { "name": "Pylons", "version": "1.0" },
+      "mgr_module_name": "engage.drivers.genforma.easy_install" ,
+      "packages": [
+        { "type": "Archive",
+          "package_class": "GzippedTarArchive",
+          "location": "Pylons-1.0.tar.gz",
+          "filename": "Pylons-1.0.tar.gz",
+          "downloader": "CloudfilesDownloader"
+        },
+        { "type": "Reference",
+          "package_class": "EasyInstallLink",
+          "location": "Pylons==1.0"
+        }
+      ]
+    },
+    { "key": { "name": "django-registration", "version": "any" },
+      "mgr_module_name": "engage.drivers.genforma.easy_install" ,
+      "packages": [
+        { "type": "Reference",
+          "package_class": "EasyInstallLink",
+          "location": "django-registration"
+        }
+      ]
+    },
+    { "key": { "name": "django-threaded-multihost", "version": "any" },
+      "mgr_module_name": "engage.drivers.genforma.pip" ,
+      "packages": [
+        { "type": "Reference",
+          "package_class": "PipLink",
+          "location": "hg+http://bitbucket.org/bkroeze/django-threaded-multihost/#egg=django-threaded-multihost"
+        }
+      ]
+    },
+    { "key": { "name": "django-caching-app-plugins", "version": "any" },
+      "mgr_module_name": "engage.drivers.genforma.pip" ,
+      "packages": [
+        { "type": "Reference",
+          "package_class": "PipLink",
+          "location": "hg+http://bitbucket.org/bkroeze/django-caching-app-plugins/#egg=django-caching-app-plugins"
+        }
+      ]
+    },
+    { "key": { "name": "django-signals-ahoy", "version": "any" },
+      "mgr_module_name": "engage.drivers.genforma.pip" ,
+      "packages": [
+        { "type": "Reference",
+          "package_class": "PipLink",
+          "location": "hg+http://bitbucket.org/bkroeze/django-signals-ahoy/#egg=django-signals-ahoy"
+        }
+      ]
+    },
+    { "key": { "name": "django-keyedcache", "version": "any" },
+      "mgr_module_name": "engage.drivers.genforma.pip" ,
+      "packages": [
+        { "type": "Reference",
+          "package_class": "PipLink",
+          "location": "hg+http://bitbucket.org/bkroeze/django-keyedcache/#egg=django-keyedcache"
+        }
+      ]
+    },
+    { "key": { "name": "django-livesettings", "version": "any" },
+      "mgr_module_name": "engage.drivers.genforma.pip" ,
+      "packages": [
+        { "type": "Reference",
+          "package_class": "PipLink",
+          "location": "hg+http://bitbucket.org/bkroeze/django-livesettings/#egg=django-livesettings"
+        }
+      ]
+    },
+    { "key": { "name": "Satchmo", "version": "0.9.2" },
+      "mgr_module_name": "engage.drivers.genforma.pip" ,
+      "packages": [
+        { "type": "Reference",
+          "package_class": "PipLink",
+          "location": "hg+http://bitbucket.org/chris1610/satchmo/#egg=satchmo"
+        }
+      ]
+    },
+    { "key": { "name": "Celery", "version": "2.3" },
+      "mgr_module_name": "engage.drivers.genforma.celery" ,
+      "packages": [
+        { "type": "Reference",
+          "package_class": "EasyInstallLink",
+          "location": "Celery"
+        }
+      ]
+    },
+    { "key": { "name": "django-celery", "version": "any" },
+      "mgr_module_name": "engage.drivers.genforma.easy_install" ,
+      "packages": [
+        { "type": "Reference",
+          "package_class": "EasyInstallLink",
+          "location": "django-celery"
+        }
+      ]
+    },
+    { "key": { "name": "celery-django-worker", "version": "1.0" },
+      "mgr_module_name": "engage.drivers.genforma.celery_django_worker" ,
+      "packages": [
+        { "type": "Reference",
+          "package_class": "DummyPackage",
+          "location": ""
+        }
+      ]
+    },
+    { "key": { "name": "celerybeat-django-worker", "version": "1.0" },
+      "mgr_module_name": "engage.drivers.genforma.celerybeat_django_worker" ,
+      "packages": [
+        { "type": "Reference",
+          "package_class": "DummyPackage",
+          "location": ""
+        }
+      ]
+    },
+    { "key": { "name": "celery-pylons", "version": "any" },
+      "mgr_module_name": "engage.drivers.genforma.easy_install" ,
+      "packages": [
+        { "type": "Reference",
+          "package_class": "EasyInstallLink",
+          "location": "celery-pylons"
+        }
+      ]
+    },
+   { "key": { "name": "celery-django-adapter", "version": "any" },
+      "mgr_module_name": "engage.drivers.genforma.dummy_resource_manager",
+      "packages": [
+        { "type": "Reference",
+          "package_class": "DummyPackage",
+          "location": ""
+        }
+      ]
+    },
+   { "key": { "name": "django-dummy-celery-adapter", "version": "any" },
+      "mgr_module_name": "engage.drivers.genforma.dummy_resource_manager",
+      "packages": [
+        { "type": "Reference",
+          "package_class": "DummyPackage",
+          "location": ""
+        }
+      ]
+    },
+    { "key": { "name": "Feature-Collector", "version": "1.0"},
+      "mgr_module_name": "engage.drivers.genforma.django",
+      "packages": [
+        { "type": "Archive",
+          "package_class": "GzippedTarArchive",
+          "location":"fc-1.0.tar.gz",
+          "filename":"fc-1.0.tar.gz",
+          "downloader": "CloudfilesDownloader"
+        }
+      ]
+    },
+    {"key" : {"name": "python-oauth2", "version":"1.2"},
+      "mgr_module_name":"engage.drivers.genforma.easy_install",
+      "packages": [
+        { "type": "Archive",
+          "package_class": "GzippedTarArchive",
+          "location": "http://github.com/simplegeo/python-oauth2/tarball/1.2.1",
+          "filename": "python-oauth2-1.2.1.tar.gz",
+          "downloader": "HTTPDownloader"
+        }
+      ]
+    },
+    {"key" : {"name": "python-httplib2", "version":"0.6"},
+      "mgr_module_name":"engage.drivers.genforma.easy_install",
+      "packages": [
+        { "type": "Archive",
+          "package_class": "ZipArchive",
+          "filename": "httplib2-0.6.0.zip",
+          "location": "http://httplib2.googlecode.com/files/httplib2-0.6.0.zip",
+          "downloader": "HTTPDownloader"
+        }
+      ]
+    },
+    { "key": { "name": "Django-App", "version": "1.0"},
+      "mgr_module_name": "engage.drivers.genforma.django",
+      "packages": [
+        { "type": "Reference",
+          "package_class": "DummyPackage",
+          "location":""
+        }
+      ]
+    },
+    { "key": { "name": "PIL", "version": "1.1.7"},
+      "mgr_module_name": "engage.drivers.genforma.pil",
+      "packages": [
+        { "type": "Archive",
+          "package_class": "GzippedTarArchive",
+          "location":"Imaging-1.1.7.tar.gz"
+        }
+      ]
+    },
+    { "key": { "name": "g++", "version": "4.2"},
+      "mgr_module_name": "engage.drivers.genforma.gplusplus",
+      "packages": [
+        { "package_class": "DummyPackage",
+          "location":"g++",
+          "type": "Reference"
+        }
+      ]
+    },
+    { "key": { "name": "python-memcached", "version": "any" },
+      "mgr_module_name": "engage.drivers.genforma.pip" ,
+      "packages": [
+        { "type": "Reference",
+          "package_class": "PipLink",
+          "location": "python-memcached"
+        }
+      ]
+    },
+    { "key": {"name": "memcached-django-adapter", "version": "any"},
+      "mgr_module_name": "engage.drivers.genforma.dummy_resource_manager",
+      "packages": [
+        { "type": "Reference",
+          "package_class": "DummyPackage",
+          "location":""
+        }
+      ]
+    },
+    { "key": {"name": "django-dummy-cache-adapter", "version": "any"},
+      "mgr_module_name": "engage.drivers.genforma.dummy_resource_manager",
+      "packages": [
+        { "type": "Reference",
+          "package_class": "DummyPackage",
+          "location":""
+        }
+      ]
+    },
+    { "key":{"name":"redis-py", "version":""},
+      "mgr_module_name":"engage.drivers.genforma.easy_install",
+      "packages": [
+        { "type": "Reference",
+          "package_class": "EasyInstallLink",
+          "location": "redis"
+        }
+      ]
+    },
+   {
+       "key": {"name": "Django-South", "version":"0.7.3"},
+       "mgr_module_name": "engage.drivers.genforma.easy_install",
+       "packages": [
+           { "type": "Archive",
+             "package_class": "GzippedTarArchive",
+             "filename": "South-0.7.3.tar.gz",
+             "location": "http://pypi.python.org/packages/source/S/South/South-0.7.3.tar.gz#md5=32bd32fd98a912547976c2434703109e",
+             "downloader": "HTTPDownloader"
+           },
+           { "type": "Reference",
+             "package_class": "EasyInstallLink",
+             "location": "South"
+           }
+       ]
+   },
+   {
+       "key": {"name": "argparse", "version":"1.1"},
+       "mgr_module_name": "engage.drivers.genforma.easy_install",
+       "packages": [
+           { "type": "Reference",
+             "package_class": "EasyInstallLink",
+             "location": "argparse"
+           }
+       ]
+   },
+   {
+       "key": {"name": "gunicorn", "version":"0.12"},
+       "mgr_module_name": "engage.drivers.genforma.easy_install",
+       "packages": [
+           { "type": "Archive",
+             "package_class": "GzippedTarArchive",
+             "filename": "gunicorn-0.12.2.tar.gz",
+             "location": "http://pypi.python.org/packages/source/g/gunicorn/gunicorn-0.12.2.tar.gz#md5=acf40832274b01a92a13a20a5c6bdfb2",
+             "downloader": "HTTPDownloader"
+           },
+           { "type": "Reference",
+             "package_class": "EasyInstallLink",
+             "location": "gunicorn"
+           }
+       ]
+   },
+   {
+       "key": {"name": "cloudfiles", "version":"1.7"},
+       "mgr_module_name": "engage.drivers.genforma.easy_install",
+       "packages": [
+           { "type": "Reference",
+             "package_class": "EasyInstallLink",
+             "location": "python-cloudfiles"
+           }
+       ]
+   },
+   {
+       "key": {"name": "apache-libcloud", "version":"0.4"},
+       "mgr_module_name": "engage.drivers.genforma.easy_install",
+       "packages": [
+           { "type": "File",
+             "package_class":"FilePackage",
+             "location":"apache-libcloud-0.4.2.tar.bz2",
+             "filename":"apache-libcloud-0.4.2.tar.bz2"
+           }
+       ]
+   },
+   {
+       "key": {"name": "paramiko", "version":"1.7"},
+       "mgr_module_name": "engage.drivers.genforma.easy_install",
+       "packages": [
+           { "type": "Reference",
+             "package_class": "EasyInstallLink",
+             "location": "paramiko"
+           }
+       ]
+   },
+   {
+       "key": {"name": "pycrypto", "version":"2.3"},
+       "mgr_module_name": "engage.drivers.genforma.easy_install",
+       "packages": [
+            { "type": "Archive",
+              "package_class": "GzippedTarArchive",
+              "location": "http://www.pycrypto.org/files/pycrypto-2.3.tar.gz",
+              "filename": "pycrypto-2.3.tar.gz",
+              "downloader": "HTTPDownloader"
+           }
+       ]
+   },
+   {"key": {"name": "provision", "version": "0.9"},
+    "mgr_module_name": "engage.drivers.genforma.easy_install",
+    "packages": [
+        { "type": "File",
+          "package_class": "FilePackage",
+          "location":"provision-0.9.2.tar.gz"
+        }
+     ]
+   },
+   {"key": {"name": "provision-secrets", "version": "1.0"},
+    "mgr_module_name": "engage.drivers.genforma.extract_archive",
+    "packages": [
+        { "type": "Archive",
+          "package_class": "GzippedTarArchive",
+          "location":"provision_secrets.tar.gz"
+        }
+     ]
+   },
+   { "key": { "name": "psycopg2", "version": "2.4"},
+      "mgr_module_name": "engage.drivers.genforma.easy_install",
+      "packages": [
+           { "type": "Archive",
+              "package_class": "GzippedTarArchive",
+              "location": "psycopg2-2.4-macosx64.tar.gz"
+            },
+           { "type": "Archive",
+              "package_class": "GzippedTarArchive",
+              "location": "psycopg2-2.4-linux64.tar.gz"
+            }
+       ]
+    },
+    { "key": {"name": "postgresql-connector-for-django", "version": "8.4"},
+      "mgr_module_name": "engage.drivers.genforma.dummy_resource_manager",
+      "packages": [
+        { "type": "Reference",
+          "package_class": "DummyPackage",
+          "location":""
+        }
+      ]
+   },
+   { "key": { "name": "MoinMoin-apache-adapter", "version": "2.2" },
+      "mgr_module_name": "engage.drivers.genforma.dummy_resource_manager",
+      "packages": [
+        { "type": "Reference",
+          "package_class": "DummyPackage",
+          "location": ""
+        }
+      ]
+    },
+    { "key": { "name": "MoinMoin-localserver-adapter", "version": "1.0" },
+      "mgr_module_name": "engage.drivers.genforma.dummy_resource_manager",
+      "packages": [
+        { "type": "Reference",
+          "package_class": "DummyPackage",
+          "location": ""
+        }
+      ]
+    }
+  ]
+}

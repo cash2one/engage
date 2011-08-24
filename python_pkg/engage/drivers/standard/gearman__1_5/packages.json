@@ -1,0 +1,14 @@
+[
+  { "type": "Archive",
+    "package_class": "GzippedTarArchive",
+    "location":"gearman_package-macosx.tar.gz"
+  },
+  { "type": "Archive",
+    "package_class": "GzippedTarArchive",
+    "location":"gearman_package-macosx64.tar.gz"
+  },
+  { "type": "Archive",
+    "package_class": "GzippedTarArchive",
+    "location":"gearman_package.tar.gz"
+  }
+]

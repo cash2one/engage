@@ -1,0 +1,11 @@
+[
+  { "type": "Reference",
+    "package_class": "MacPorts",
+    "location":"memcached"
+  },
+  { "type": "Reference",
+    "package_class": "AptGet",
+    "location":"memcached"
+  }
+]
+

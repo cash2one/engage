@@ -1,0 +1,93 @@
+#!/bin/bash
+# startup/shutdown/status script for gearmand
+logdir=${log_dir}
+mkdir -p $$logdir
+logfile=$$logdir/gearman.log
+pidfile=${pid_file}
+sbin_dir=${gearman_home}/sbin
+
+
+function verifynotrunning {
+  # first, we verify that the process isn't already started.
+  if [[ -a $$pidfile ]]; then
+    pid=`cat $$pidfile`
+    cnt=`ps -ef | grep $$pid | grep -v grep | wc -l`
+    if [[ $$cnt -eq 1 ]]; then
+      echo "gearman has a process already running: $$pid"
+      exit 1
+    fi
+  fi
+}
+
+# exit 1 if not running; exit 2 if problem, returns to caller if running.
+function checkstatus {
+  if [[ ! -a $$pidfile ]]; then
+    echo "gearman not running"
+    exit 1
+  else
+    pid=`cat $$pidfile`
+    cnt=`ps -ef | grep $$pid | grep -v grep | wc -l`
+    if [[ $$cnt -eq 1 ]]; then
+      echo "gearman $$pid running"
+    else
+      if [[ $$cnt -eq 0 ]]; then
+        echo "gearman $$pid not running"
+        exit 1
+      else
+        echo "error in locating process $$pid, cnt was:\"$$cnt\""
+        exit 2
+      fi
+    fi
+  fi
+}
+
+if [[ "$$1" == "start" ]]; then
+  # first, we verify that the process isn't already started.
+  verifynotrunning
+  # now do the actual startup
+  echo "Starting gearman"
+  cd $$sbin_dir
+  if [[ $$EUID -eq 0 ]]; then
+      ./gearmand -d -vvv --log-file=$$logfile -u root -P $$pidfile
+  else
+      ./gearmand -d -vvv --log-file=$$logfile -P $$pidfile
+  fi
+  echo "gearman started, pid is" `cat $$pidfile`
+  exit 0
+else
+  if [[ "$$1" == "stop" ]]; then
+    checkstatus
+    pid=`cat $$pidfile`
+    echo "Stopping gearman process $$pid"
+    kill -TERM $$pid
+    echo `date` " Shutdown" >>$$logfile
+    exit 0
+  else
+    if [[ "$$1" == "status" ]]; then
+      echo "Checking gearman status..."
+      checkstatus
+      exit 0
+    else
+      if [[ "$$1" == "runfg" ]]; then
+        # first, we verify that the process isn't already started.
+        verifynotrunning
+        # now do the actual startup
+        echo "Starting gearman"
+        set -m # enable job control
+        cd $$sbin_dir
+        if [[ $$EUID -eq 0 ]]; then
+            ./gearmand -vvv -u root -P $$pidfile &
+        else
+            ./gearmand -vvv -P $$pidfile &
+        fi
+        pid=`cat $$pidfile`
+        echo "gearman started, pid is" `cat $$pidfile`
+        fg
+        exit 0
+      else
+        echo "$$0 start|stop|status|runfg"
+        exit 1
+      fi
+    fi
+  fi
+fi

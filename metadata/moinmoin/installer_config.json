@@ -1,0 +1,50 @@
+{
+  "resource_def_file_name": "resource_definitions.json",
+  "software_library_file_name": "resource_library.json",
+  "log_level": "Debug",
+  "application_name": "MoinMoin",
+  "install_spec_options": [
+  {
+    "choice_name":"Local Webserver", "file_name": "moin_localsvr_inst_spec.json",
+    "password_required": false,
+    "config_properties": [
+      { "resource": "moinmoin",
+        "name": "superuser_name",
+        "type": "string",
+        "default": "root",
+        "description":"Wiki user account for superuser access"
+      },
+      { "resource": "moinmoin",
+        "name": "front_page",
+        "type": "string",
+        "default": "FrontPage",
+        "description":"Page name for wiki front page"
+      }
+    ]
+   },
+  {
+    "choice_name":"Apache Server", "file_name": "moin_apache_inst_spec.json",
+    "password_required": true,
+    "config_properties": [
+      { "resource": "moinmoin",
+        "name": "use_apache_authentication",
+        "type": "yes-or-no",
+        "default": "yes",
+        "description":"If 'yes', use Apache's digest authentication for all wiki users"
+      },
+      { "resource": "moinmoin",
+        "name": "superuser_name",
+        "type": "string",
+        "default": "root",
+        "description":"Wiki user account for superuser access"
+      },
+      { "resource": "moinmoin",
+        "name": "front_page",
+        "type": "string",
+        "default": "FrontPage",
+        "description":"Page name for wiki front page"
+      }
+    ]
+   }
+  ] 
+}

@@ -1,0 +1,112 @@
+#!/bin/bash
+# Shell script to start/stop/check status of a Django development web server 
+# Copyright 2010 genForma Corp.
+#
+# This has three commands: start, stop, and status. Start and stop return 0 if successful.
+# Status returns 0 if the server is up, 1 if the server is down, and 2 if there was a problem.
+#
+# Substitution values (for the template version):
+# $${app_short_name} - short name for application (used for pid file and user messages)
+# $${install_dir} - install directory for application
+# $${settings_file_dir} - directory containing the settings file(s)
+# $${python_path} - value for PYTHONPATH environment variable
+# $${django_settings_module} - name of django settings module
+# $${python_bin_dir} - python binary directory containing python executable and django-admin.py
+# $${websvr_hostname} - hostname to use for listening (could also be an ip)
+# $${port} - tcp port to use for listening
+# $${log_directory} - directory for logfiles
+
+# enable ps -ef for mac-osx 10.5
+export COMMAND_MODE=unix2003
+
+logfile=${log_directory}/${app_short_name}.log
+pidfile=${install_dir}/${app_short_name}.pid
+
+function verifynotrunning {
+  # first, we verify that the process isn't already started.
+  if [[ -a $$pidfile ]]; then
+    pid=`cat $$pidfile`
+    cnt=`ps -ef | grep $$pid | grep -v grep | wc -l`
+    if [[ $$cnt -eq 1 ]]; then
+      echo "${app_short_name} has a process already running: $$pid"
+      exit 1
+    fi
+  fi
+}
+
+
+# exit 1 if not running; exit 2 if problem, returns to caller if running.
+function checkstatus {
+  if [[ ! -a $$pidfile ]]; then
+    echo "${app_short_name} not running"
+    exit 1
+  else
+    pid=`cat $$pidfile`
+    cnt=`ps -ef | grep $$pid | grep -v grep | wc -l`
+    if [[ $$cnt -ge 1 ]]; then
+      echo "${app_short_name} $$pid running"
+    else
+      if [[ $$cnt -eq 0 ]]; then
+        echo "${app_short_name} $$pid not running"
+        exit 1
+      else # unreachable
+        echo "error in locating process $$pid, cnt was:\"$$cnt\""
+        exit 2
+      fi
+    fi
+  fi
+}
+
+
+
+# the main code
+if [[ "$$1" == "start" ]]; then
+  # first, we verify that the process isn't already started.
+  verifynotrunning
+  # now do the actual startup
+  echo "Starting ${app_short_name} on ${websvr_hostname}:${port}"
+  echo `date` " Startup" >$$logfile
+  # serve using gunicorn
+  cd ${settings_file_dir}; export PYTHONPATH=${python_path};export DJANGO_SETTINGS_MODULE="${django_settings_module}";${python_bin_dir}/gunicorn_django ${settings_file_dir}/deployed_settings.py -b ${websvr_hostname}:${port} -w 2 >>$$logfile 2>&1 &
+  #original: django dev server
+  #cd ${settings_file_dir}; export PYTHONPATH=${python_path};export DJANGO_SETTINGS_MODULE="${django_settings_module}";${python_bin_dir}/python ${python_bin_dir}/django-admin.py runserver ${websvr_hostname}:${port} --noreload >>$$logfile 2>&1 &
+  pid=$$!
+  echo $$pid >$$pidfile
+  echo "${app_short_name} started, pid is" `cat $$pidfile`
+  exit 0
+else
+  if [[ "$$1" == "stop" ]]; then
+    checkstatus
+    pid=`cat $$pidfile`
+    echo "Stopping ${app_short_name} process $$pid"
+    kill $$pid
+    rm $$pidfile
+    echo `date` " Shutdown" >>$$logfile
+    exit 0
+  else
+    if [[ "$$1" == "status" ]]; then
+      echo "Checking ${app_short_name} status..."
+      checkstatus
+      exit 0
+    else
+      if [[ "$$1" == "runfg" ]]; then
+        # first, we verify that the process isn't already started.
+        verifynotrunning
+        # now do the actual startup
+        echo "Starting ${app_short_name} on ${websvr_hostname}:${port}"
+        set -m # enable job control
+        cd ${settings_file_dir}; export PYTHONPATH=${python_path};export DJANGO_SETTINGS_MODULE="${django_settings_module}";${python_bin_dir}/gunicorn_django ${settings_file_dir}/deployed_settings.py -b ${websvr_hostname}:${port} -w 2 --log-file $$logfile --log-level debug  &
+        #original: django dev server
+        #cd ${settings_file_dir}; export PYTHONPATH=${python_path};export DJANGO_SETTINGS_MODULE="${django_settings_module}";${python_bin_dir}/python ${python_bin_dir}/django-admin.py runserver ${websvr_hostname}:${port} --noreload 2>&1 &
+        pid=$$!
+        echo $$pid >$$pidfile
+        echo "${app_short_name} started, pid is" `cat $$pidfile`
+        fg
+        exit 0
+      else
+        echo "$$0 start|stop|status|runfg"
+        exit 1
+      fi
+    fi
+  fi
+fi

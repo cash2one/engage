@@ -1,0 +1,10 @@
+[
+        { "type": "Archive",
+          "package_class": "GzippedTarArchive",
+          "location":"redis_package-macosx64.tar.gz"
+        },
+        { "type": "Archive",
+          "package_class": "GzippedTarArchive",
+          "location":"redis_package.tar.gz"
+        }
+]

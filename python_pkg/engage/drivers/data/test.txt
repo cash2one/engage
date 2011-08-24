@@ -1,0 +1,10 @@
+This is just test data for action.py
+
+The following value should be /foo/bar:
+  ${config_port.prop1}
+
+The following value should be 34:
+  ${config_port.prop2}
+
+The following value should be /foo/bar/test:
+  ${prop3}

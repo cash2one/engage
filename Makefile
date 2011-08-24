@@ -1,0 +1,34 @@
+# main makefile for engage
+
+ifndef ENGAGE_CODE_HOME
+ENGAGE_CODE_HOME=$(shell pwd)
+export ENGAGE_CODE_HOME
+endif
+all: config-engine download-packages
+
+help:
+	@echo "targets are all config-engine download-packages test clean clean-all"
+
+config-engine:
+	cd $(ENGAGE_CODE_HOME)/config_src; make all
+
+
+download-packages:
+	mkdir -p $(ENGAGE_CODE_HOME)/sw_packages
+	$(ENGAGE_CODE_HOME)/buildutils/pkgmgr.py -t $(ENGAGE_CODE_HOME)/sw_packages -p $(ENGAGE_CODE_HOME)/buildutils/packages.json group Engage Engage-public Django
+
+test: config-engine download-packages
+	rm -rf $(ENGAGE_CODE_HOME)/test_output
+	mkdir $(ENGAGE_CODE_HOME)/test_output
+	cd $(ENGAGE_CODE_HOME)/buildutils; python test_engage.py
+
+clean:
+	cd $(ENGAGE_CODE_HOME)/config_src; make clean
+	rm -rf $(ENGAGE_CODE_HOME)/test_output
+
+
+# The clean-all target also deletes the downloaded packages
+clean-all: clean
+	rm -rf $(ENGAGE_CODE_HOME)/sw_packages
+
+.PHONY: all config-engine clean clean-all download-packages help test

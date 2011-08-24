@@ -1,0 +1,19 @@
+-- HOW TO USE THIS FILE (with a MacPorts installation):
+-- $ sudo /opt/local/etc/LaunchDaemons/org.macports.mysql5/mysql5.wrapper stop
+-- $ sudo mysqld_safe5 --init-file=mysql_security.sql &
+-- The init will terminate if there are any errors in the init file.
+-- Wait a bit to be sure the server is running.
+-- If it's running, then shutdown the server (root password required):
+-- $ /opt/local/bin/mysqladmin5 -u root -p shutdown
+-- Check that everything worked.  There may be an ERROR if the test database
+-- doesn't exist.  Otherwise there should be no errors in the file reported by
+-- 'mysqld_safe Logging to ..." during the mysql_safe5 startup from above:
+-- $ sudo tail -n 20 /opt/local/var/db/mysql5/*.err 
+
+UPDATE mysql.user SET Password=PASSWORD('${mysql_admin_password_value}') WHERE User='root';
+DELETE FROM mysql.user WHERE User='root' AND Host!='localhost';
+DELETE FROM mysql.user WHERE User='';
+FLUSH PRIVILEGES;
+DROP DATABASE test;
+DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';
+

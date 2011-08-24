@@ -1,0 +1,84 @@
+{
+  "resource_def_file_name": "resource_definitions.json",
+  "software_library_file_name": "resource_library.json",
+  "log_level": "Debug",
+  "application_name": "Django Application",
+  "application_archive": {
+    "resource": "django-1",
+    "name": "application_archive",
+    "description": "Application Archive",
+    "archive_type": "django-archive"
+  },
+  "install_spec_options": [{
+    "choice_name":"Use Gunicorn Webserver", "file_name": "django_inst_spec.json",
+    "password_required": false,
+    "config_properties": [
+      { "resource": "django-1",
+        "name": "home",
+        "type": "install-subdir",
+        "description": "Install directory for Django application",
+        "default": "django_app"
+      },
+      { "resource": "django-1",
+        "name": "app_admin_password",
+        "type": "string",
+        "description": "Application Administrator's Password",
+        "default":"test"
+      },
+      { "resource": "django-1",
+        "name": "admin_email",
+        "type": "string",
+        "description": "Application Administrator's Email Address",
+        "default":"admin@example.com"
+      },
+      { "resource": "django-1",
+        "name": "websvr_hostname",
+        "type": "string",
+        "description": "Webserver hostname",
+        "optional": true
+      },
+      { "resource": "django-1",
+        "name": "websvr_listen_host",
+        "type": "string",
+        "description": "Webserver listen host",
+        "optional": true
+      },
+      { "resource": "django-webserver-config",
+        "name": "port",
+        "type": "int",
+        "description": "Webserver listen port",
+        "default": 8000
+      },
+      { "resource": "django-1",
+        "name": "log_directory",
+        "type": "path-to-be-created",
+        "description": "Directory for logfiles",
+        "optional": true
+      }]},
+    { "choice_name":"Use Apache Webserver (server only)", "file_name": "django_apache_inst_spec.json",
+      "password_required": true,
+      "config_properties": [
+      { "resource": "django-1",
+        "name": "home",
+        "type": "install-subdir",
+        "description": "Install directory for Django application",
+        "default": "django_app"
+      },
+      { "resource": "django-1",
+        "name": "app_admin_password",
+        "type": "string",
+        "description": "Application Administrator's Password"
+      },
+      { "resource": "django-1",
+        "name": "admin_email",
+        "type": "string",
+        "description": "Application Administrator's Email Address"
+      },
+      { "resource": "django-1",
+        "name": "log_directory",
+        "type": "path-to-be-created",
+        "description": "Directory for logfiles",
+        "optional": true
+      }]}
+  ] 
+}

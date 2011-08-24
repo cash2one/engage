@@ -1,0 +1,173 @@
+[
+  {
+    "id": "machine-1",
+    "key": { "name": "mac-osx", "version": "10.5.6"},
+    "properties": {
+      "installed":true
+    },
+    "config_port": {
+      "hostname": "jfischer.local",
+      "os_user_name" : "jfischer",
+      "cpu_arch": "x86"
+    },
+    "output_ports": {     
+      "host": {
+        "hostname": "jfischer.local",
+        "os_type": "mac-osx",
+        "os_user_name": "jfischer",
+        "cpu_arch": "x86"
+      }
+    }
+  },
+  {
+    "id": "tomcat-1",
+    "key": {"name": "apache-tomcat", "version": "6.0.18"},
+    "config_port": {
+      "admin_user": "admin",
+      "admin_password": "test",
+      "manager_port": 8081,
+      "home" : "/Users/jfischer/projects/genforma/test/tomcat"
+     },
+    "input_ports": {
+      "host": { 
+        "hostname": "jfischer.local",
+        "os_type": "mac-osx",
+        "os_user_name": "jfischer"
+      },
+      "java": {
+        "type": "jdk",
+        "home": "/System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK/Home"
+      }
+    },
+    "output_ports": {
+      "tomcat": {
+        "admin_user": "admin",
+        "admin_password": "test",
+        "manager_port": 8081,
+        "home": "/Users/jfischer/projects/genforma/test/tomcat",
+        "environment_vars": [{"name":"OPENMRS_RUNTIME_PROPERTIES_FILE",
+                              "value":"/Users/jfischer/projects/genforma/test/openmrs-1.3.4/runtime.properties"}]
+      }
+    },
+    "inside": {
+       "id": "machine-1",
+       "key": {"name":"mac-osx", "version":"10.5.6"},
+       "port_mapping": {"host": "host"}
+     },
+    "environment": [
+      { "id": "jdk-1",
+        "key": {"name":"java-developer-kit", "version":"1.5.0_16-133"},
+        "port_mapping": {"java":"jdk"}
+      }
+    ]
+  },
+  {
+    "id": "jdk-1",
+    "key": {"name":"java-developer-kit", "version":"1.5.0_16-133"},
+    "properties": {
+      "installed":true
+    },
+    "config_port": {
+      "JAVA_HOME": "/System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK/Home"
+    },
+    "input_ports": {
+      "host": { 
+        "hostname": "jfischer.local",
+        "os_type": "mac-osx",
+        "os_user_name": "jfischer"
+      }
+    },
+    "output_ports": {
+      "jdk": {
+          "type": "jdk",
+          "home": "/System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK/Home"
+        }
+      }, 
+      "inside": {
+       "id": "machine-1",
+       "key": {"name":"mac-osx", "version":"10.5.6"},
+       "port_mapping": {"host": "host"}
+      }
+  },
+  {
+    "id": "mysql-1",
+    "key": {"name":"mysql", "version":"5.1.31"},
+    "config_port": {
+      "install_dir": "/Users/jfischer/projects/genforma/test/mysql",
+      "port": 3306,
+      "admin_password": "test"
+    },
+    "input_ports": {
+      "host": { 
+        "hostname": "jfischer.local",
+        "os_type": "mac-osx",
+        "os_user_name": "jfischer",
+        "cpu_arch": "x86"
+      }
+    },
+    "output_ports": {
+      "mysql": {
+        "host": "jfischer.local",
+        "port": 3306
+      },
+      "mysql_admin": {
+       "root_password": "test",
+       "install_dir": "/Users/jfischer/projects/genforma/test/mysql"
+      }
+    },
+    "inside": {
+       "id": "machine-1",
+       "key": {"name":"mac-osx", "version":"10.5.6"},
+       "port_mapping": {"host": "host"}
+    }
+  },
+  {
+    "id": "openmrs-1",
+    "key": {"name": "OpenMRS", "version": "1.3.4"},
+    "config_port": {
+      "database_user": "openmrs",
+      "database_password": "openmrs",
+      "home" : "/Users/jfischer/projects/genforma/test/openmrs-1.3.4"
+     },
+    "input_ports": {
+      "java": {
+        "type": "jdk",
+        "home": "/System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK/Home"
+      },
+      "tomcat": {
+        "admin_user": "admin",
+        "admin_password": "test",
+        "hostname":"jfischer.local",
+        "manager_port": 8081,
+        "home": "/Users/jfischer/projects/genforma/test/tomcat",
+        "environment_vars": [{"name":"OPENMRS_RUNTIME_PROPERTIES_FILE",
+                              "value":"/Users/jfischer/projects/genforma/test/openmrs-1.3.4/runtime.properties"}]
+      },
+      "mysql": {
+        "host": "jfischer.local",
+        "port": 3306
+      },
+      "mysql_admin": {
+       "root_password": "test",
+       "install_dir": "/Users/jfischer/projects/genforma/test/mysql"
+      }
+    },
+    "inside": {
+       "id": "tomcat-1",
+       "key": {"name": "apache-tomcat", "version": "6.0.18"},
+       "port_mapping": {"tomcat": "tomcat"}
+     },
+    "environment": [
+      { "id": "jdk-1",
+        "key": {"name":"java-developer-kit", "version":"1.5.0_16-133"},
+        "port_mapping": {"java":"jdk"}
+      }
+    ],
+    "peers": [
+      { "id": "mysql-1",
+        "key": {"name":"mysql", "version":"5.1.31"},
+        "port_mapping": {"mysql":"mysql", "mysql_admin":"mysql_admin"}
+      }
+    ]
+  }
+ ]

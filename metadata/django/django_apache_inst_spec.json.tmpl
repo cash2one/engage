@@ -1,0 +1,56 @@
+[
+  $targetMachineResource,
+
+  {
+    "id": "python-1",
+    "key": {"name":"python", "version":"$pythonVersion"},
+    "properties": {
+      "installed":true
+    },
+    "config_port": {
+    },
+    "inside": {
+      "id": "$hostname",
+      "key": $targetMachineKey,
+      "port_mapping": {"host": "host"}
+    }
+  },
+  {
+    "id": "setuptools-1",
+    "key" : { "name":"setuptools", "version":"0.6"},
+    "properties": {
+      "installed":true
+    },
+    "inside": {
+      "id": "$hostname",
+      "key": $targetMachineKey,
+      "port_mapping": {"host": "host"}
+    },
+    "environment": [
+      { "id" : "python-1",
+        "key": {"name":"python", "version":"$pythonVersion"},
+        "port_mapping":{"python":"python"}
+      }
+    ]
+  },
+  { "id": "django-webserver-config",
+    "key": {"name": "django-apache-webserver", "version": "1.0"},
+    "inside": {
+      "id": "$hostname",
+      "key": $targetMachineKey,
+      "port_mapping": {"host": "host"}
+    }
+  },
+  {
+    "id": "django-1",
+    "key": {"name": "Django-App", "version": "1.0"},
+    "inside": {
+      "id": "$hostname",
+      "key": $targetMachineKey,
+      "port_mapping": {"host": "host"}
+    },
+    "properties": {
+      "app_short_name": "django"
+    }
+  }
+]

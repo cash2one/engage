@@ -1,0 +1,7 @@
+
+[
+  { "type": "Reference",
+    "package_class": "EasyInstallLink",
+    "location":"MySQL-python"
+  }
+]

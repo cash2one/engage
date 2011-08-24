@@ -1,0 +1,35 @@
+[
+  $targetMachineResource,
+
+  {
+    "id": "python-1",
+    "key": {"name":"python", "version":"$pythonVersion"},
+    "properties": {
+      "installed":true
+    },
+    "config_port": {
+    },
+    "inside": {
+      "id": "$hostname",
+      "key": $targetMachineKey,
+      "port_mapping": {"host": "host"}
+    }
+  },
+  { "id": "moinmoin-webserver-adapter",
+    "key": {"name":"MoinMoin-apache-adapter", "version":"2.2"},
+    "inside": {
+      "id": "$hostname",
+      "key": $targetMachineKey,
+      "port_mapping": {"host": "host"}
+    }
+  },
+  {
+    "id": "moinmoin",
+    "key": {"name": "MoinMoin", "version": "1.9"},
+    "inside": {
+      "id": "$hostname",
+      "key": $targetMachineKey,
+      "port_mapping": {"host": "host"}
+    }
+  }
+]

@@ -1,0 +1,4 @@
+sw_packages
+test_output
+*.pyc
+*~

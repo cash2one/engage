@@ -1,0 +1,8 @@
+[
+        { "type": "Archive",
+          "package_class": "GzippedTarArchive",
+          "location": "http://static.moinmo.in/files/moin-1.9.3.tar.gz",
+          "filename": "moin-1.9.3.tar.gz",
+          "downloader": "HTTPDownloader"
+        }
+]
