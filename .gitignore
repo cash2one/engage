@@ -1,4 +1,5 @@
 sw_packages
 test_output
 *.pyc
+docs/users_guide/_build
 *~
