@@ -7,7 +7,7 @@ endif
 all: config-engine download-packages
 
 help:
-	@echo "targets are all config-engine download-packages test clean clean-all"
+	@echo "targets are all config-engine download-packages test docs clean clean-all"
 
 config-engine:
 	cd $(ENGAGE_CODE_HOME)/config_src; make all
@@ -22,13 +22,18 @@ test: config-engine download-packages
 	mkdir $(ENGAGE_CODE_HOME)/test_output
 	cd $(ENGAGE_CODE_HOME)/buildutils; python test_engage.py
 
+docs:
+	@if [[ `which sphinx-build` == "" ]]; then echo "Need to install Sphinx before building docs"; exit 1; fi
+	cd $(ENGAGE_CODE_HOME)/docs/users_guide; make html
+
 clean:
 	cd $(ENGAGE_CODE_HOME)/config_src; make clean
 	rm -rf $(ENGAGE_CODE_HOME)/test_output
+	cd $(ENGAGE_CODE_HOME)/docs/users_guide; make clean
 
 
 # The clean-all target also deletes the downloaded packages
 clean-all: clean
 	rm -rf $(ENGAGE_CODE_HOME)/sw_packages
 
-.PHONY: all config-engine clean clean-all download-packages help test
+.PHONY: all config-engine clean clean-all download-packages docs help test

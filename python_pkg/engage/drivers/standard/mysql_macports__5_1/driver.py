@@ -81,6 +81,8 @@ def make_context(resource_json, sudo_password_fn,
                    log_directory=str)
     ctx.check_port("input_ports.macports",
                    macports_exe=str)
+    ctx.check_port("output_ports.mysql_admin",
+                   mysql_user=str)
     ctx.add("startup_on_boot",
             ctx.props.config_port.startup_on_boot.lower()=='yes')
     ctx.add("mysql_install_db_script",
@@ -91,8 +93,8 @@ def make_context(resource_json, sudo_password_fn,
 
 @make_action
 def set_mysql_file_ownership(self):
-    p = self.ctx.props
-    procutils.sudo_chown(p.mysql_user + ":" + p.mysql_user,
+    user = self.ctx.props.output_ports.mysql_admin.mysql_user
+    procutils.sudo_chown(user + ":" + user,
                          ["/opt/local/var/db/mysql5",
                           "/opt/local/var/run/mysql5",
                           "/opt/local/var/log/mysql5"],

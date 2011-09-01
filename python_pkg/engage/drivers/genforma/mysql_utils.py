@@ -283,6 +283,8 @@ def run_secure_installation_script(ctx, mysql_admin_password_value):
     ctx.checkp("mysql_secure_installation_script")
     r(check_file_exists, p.mysql_secure_installation_script)
     ctx.checkp("output_ports.mysql_admin.pid_file_template")
+    if not hasattr(ctx.props, "mysql_admin_password_value"):
+        ctx.add("mysql_admin_password_value", mysql_admin_password_value)
     script = rv(get_template_subst, "mysql_security.sql.tmpl",
                     src_dir=os.path.join(os.path.dirname(__file__), "data"))
     tn = os.path.join(os.path.dirname(admprt.mysql_startup_logfile),

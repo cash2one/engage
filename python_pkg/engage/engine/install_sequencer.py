@@ -108,7 +108,7 @@ def run_install(mgr_pkg_list, library, force_stop_on_error=False):
             else:
                 if pkg == None:
                     raise UserError(errors[ERR_NO_PACKAGE_FOR_RESOURCE_INST],
-                                    {"inst": instance_md.id, "name":mgr.metadata.key.name,
+                                    {"inst": mgr.metadata.id, "name":mgr.metadata.key.name,
                                      "ver":mgr.metadata.key.version})
                 mgr.validate_pre_install()
                 mgr.install(pkg)

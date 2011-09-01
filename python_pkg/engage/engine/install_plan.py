@@ -308,5 +308,116 @@ def get_resource_dependencies(resource_list):
         results[node.resource.id] = dependent_ids
     return results
 
+def get_transitive_dependencies_for_resource(resource_list, resource_id):
+    """Return a set of all resource ids that the specified resource transitively
+    depends upon. This is useful when starting a service. If resource_id is
+    a list of resource ids, returns the the union of dependencies for the specified
+    start nodes.
+
+    >>> # A simple doctest to validate this function, using
+    >>> # the same resources as above.
+    >>> import engage.drivers.resource_metadata as resource_metadata
+    >>> r1_key = {"name":"r1_type"}
+    >>> r2_key = {"name":"r2_type"}
+    >>> r3_key = {"name":"r3_type"}
+    >>> r4_key = {"name":"r4_type"}
+    >>> r5_key = {"name":"r5_type"}
+    >>> r1 = resource_metadata.ResourceMD("r1", r1_key)
+    >>> r2 = resource_metadata.ResourceMD("r2", r2_key,
+    ...        inside=resource_metadata.ResourceRef("r1", r1_key))
+    >>> r3 = resource_metadata.ResourceMD("r3", r3_key,
+    ...        inside=resource_metadata.ResourceRef("r1", r1_key),
+    ...        peers=[resource_metadata.ResourceRef("r2", r2_key)])
+    >>> r4 = resource_metadata.ResourceMD("r4", r4_key,
+    ...        inside=resource_metadata.ResourceRef("r1", r1_key),
+    ...        environment=[resource_metadata.ResourceRef("r3", r3_key)])
+    >>> r5 = resource_metadata.ResourceMD("r5", r5_key,
+    ...        peers=[resource_metadata.ResourceRef("r2", r2_key)])
+    >>> s = get_transitive_dependencies_for_resource([r1, r2, r3, r4, r5],
+    ...                                              "r4")
+    >>> assert s == set(["r1", "r2", "r3"]), "Invalid depends on set %s" % s
+    >>> s_set = get_transitive_dependencies_for_resource([r1, r2, r3, r4, r5],
+    ...                                                  ["r4", "r5"])
+    >>> assert s_set == set(["r1", "r2", "r3"]), "Invalid depends on set %s" % s_set
+    """
+    graph = _DepGraph()
+    for resource in resource_list:
+        graph.create_node(resource)
+    graph.add_all_dependencies()
+
+    dep_set = set()
+    if isinstance(resource_id, list):
+        work_list = resource_id
+    else:
+        work_list = [resource_id,]
+    while len(work_list)>0:
+        new_work_list = []
+        for node_id in work_list:
+            node = graph.get_node(node_id)
+            for dep_node_id in node.depends_on_set:
+                if dep_node_id not in dep_set:
+                    dep_set.add(dep_node_id)
+                    new_work_list.append(dep_node_id)
+        work_list = new_work_list
+    return dep_set
+
+
+def get_transitive_resources_depending_on_resource(resource_list, resource_id):
+    """Return a set of all resource ids that depend transitively on the specified
+    resource. This is useful when stopping a service. The resource_id parameter
+    can also be a list of resource ids.
+    
+    >>> # A simple doctest to validate this function, using
+    >>> # the same resources as above.
+    >>> import engage.drivers.resource_metadata as resource_metadata
+    >>> r1_key = {"name":"r1_type"}
+    >>> r2_key = {"name":"r2_type"}
+    >>> r3_key = {"name":"r3_type"}
+    >>> r4_key = {"name":"r4_type"}
+    >>> r5_key = {"name":"r5_type"}
+    >>> r1 = resource_metadata.ResourceMD("r1", r1_key)
+    >>> r2 = resource_metadata.ResourceMD("r2", r2_key,
+    ...        inside=resource_metadata.ResourceRef("r1", r1_key))
+    >>> r3 = resource_metadata.ResourceMD("r3", r3_key,
+    ...        inside=resource_metadata.ResourceRef("r1", r1_key),
+    ...        peers=[resource_metadata.ResourceRef("r2", r2_key)])
+    >>> r4 = resource_metadata.ResourceMD("r4", r4_key,
+    ...        inside=resource_metadata.ResourceRef("r1", r1_key),
+    ...        environment=[resource_metadata.ResourceRef("r3", r3_key)])
+    >>> r5 = resource_metadata.ResourceMD("r5", r5_key,
+    ...        peers=[resource_metadata.ResourceRef("r2", r2_key)])
+    >>> s_r2 = get_transitive_resources_depending_on_resource([r1, r2, r3, r4, r5],
+    ...                                                       "r2")
+    >>> assert s_r2 == set(["r3", "r4", "r5"]), "Invalid dependent set for r2 %s" % s_r2
+    >>> s_r3 = get_transitive_resources_depending_on_resource([r1, r2, r3, r4, r5],
+    ...                                                       "r3")
+    >>> assert s_r3 == set(["r4"]), "Invalid dependent set for r3 %s" % s_r3
+    >>> s_set = get_transitive_resources_depending_on_resource([r1, r2, r3, r4, r5],
+    ...                                                       ["r2", "r1"])
+    >>> assert s_set == set(["r2", "r3", "r4", "r5"]), \
+           "Invalid dependent set for [r2, r1]: %s" % s_set
+    """
+    graph = _DepGraph()
+    for resource in resource_list:
+        graph.create_node(resource)
+    graph.add_all_dependencies()
+
+    dep_set = set()
+    if isinstance(resource_id, list):
+        work_list = resource_id
+    else:
+        work_list = [resource_id,]
+    while len(work_list)>0:
+        new_work_list = []
+        for node_id in work_list:
+            node = graph.get_node(node_id)
+            for dep_node_id in node.dependent_set:
+                if dep_node_id not in dep_set:
+                    dep_set.add(dep_node_id)
+                    new_work_list.append(dep_node_id)
+        work_list = new_work_list
+    return dep_set
+    
+    
 
 if __name__ == "__main__": _test()

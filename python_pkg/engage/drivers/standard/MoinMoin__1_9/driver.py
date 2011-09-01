@@ -272,7 +272,7 @@ class Manager(service_manager.Manager, PasswordRepoMixin):
         if p.input_ports.webserver_adapter.type == "apache":
             r(apache_utils.stop_apache, p.input_ports.webserver_adapter)
         else:
-            pid = processutils.stop_server_process(self.pid_file, logger,
+            pid = processutils.stop_server_process(p.pid_file, logger,
                                                 self.metadata.id,
                                                 timeout_tries=5, force_stop=False)
             if pid:

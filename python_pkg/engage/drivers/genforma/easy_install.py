@@ -25,9 +25,12 @@ def define_error(error_code, msg):
 
 # error codes
 ERR_POST_INSTALL = 1
+ERR_PKG_INSTALL = 2
 
 define_error(ERR_POST_INSTALL,
              _("Ran easy_install for resource %(id)s, but Python module %(module)s was not found afterward."))
+define_error(ERR_PKG_INSTALL,
+             _("easy_install of package %(pkg)s failed for resource %(id)s"))
 
 
 class install_package(Action):
@@ -49,6 +52,10 @@ class install_package(Action):
             filepath = library_package.get_file()
             cmd.append(filepath)
         return cmd
+
+    def format_action_args(self, library_package, env_mapping={}):
+        mapping = "{}" if len(env_mapping)==0 else "{ ... }"
+        return "%s %s env_mapping=%s" % (self.NAME, library_package, mapping)
     
     def run(self, library_package, env_mapping={}):
         p = self.ctx.props
@@ -56,8 +63,9 @@ class install_package(Action):
         rc = iuproc.run_and_log_program(cmd, env_mapping, self.ctx.logger,
                                         cwd=os.path.dirname(p.input_ports.setuptools.easy_install))
 	if rc != 0:
-            raise UserError(errors[ERR_PKG], {"pkg":package.__repr__(),
-                                              "id":p.id} )
+            raise UserError(errors[ERR_PKG_INSTALL], {"pkg":package.__repr__(),
+                                                      "id":p.id},
+                            developer_msg="return code was %d" % rc)
 
     def dry_run(self, library_package, env_mapping={}):
         cmd = self._get_cmdline(library_package)

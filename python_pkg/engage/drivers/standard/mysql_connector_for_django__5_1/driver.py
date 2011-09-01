@@ -143,7 +143,7 @@ class Manager(resource_manager.Manager, PasswordRepoMixin):
         r = self.ctx.r
         logger.debug("Testing that we can login to mysql using django account")
         r(mysql_utils.run_mysql_client,
-          p.config_port.USER, p.config_port.PASSWORD,
+          p.config_port.USER, self._get_password(p.config_port.PASSWORD),
           "use %s;\nquit\n" % p.config_port.NAME)
 
     def backup(self, backup_to_directory, compress=True):

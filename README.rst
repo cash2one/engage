@@ -30,7 +30,7 @@ support additional actions including upgrades, backups, and uninstall.
 Current Status
 --------------
 See RELEASE_NOTES.rst for a listing of the currently supported applications
-and drivers.
+and drivers. Notice of release updates is posted to twitter at http://twitter.com/#!/EngagePlatform.
 
 
 Installation
@@ -68,7 +68,7 @@ C++) and download some required packages from the internet.
 Installing an Application with Engage
 --------------------------------------
 This section is just an overview, for more details, see the
-*Engage Users' Guide*.
+`Engage Users' Guide <http://beta.genforma.com/engage_users_guide/index.html>`_.
 
 To install an application, you must first create a *deployment home*. This
 is a directory under which Engage and most of the application's components
@@ -93,17 +93,30 @@ required argument, the name of the application you wish to install.
 Documentation
 =================
 The following additional documentation is available:
- * The *Engage Users' Guide* describes how to run Engage to deploy applications.
+ * The *Engage User's Guide* describes how to run Engage to deploy
+   applications. It is available online at
+   http://beta.genforma.com/engage_users_guide/index.html. It is also
+   included in source form in the Engage distribution at docs/users_guide. See below
+   for instuctions on how to build a local copy.
  * The *Engage Django SDK Reference Manual* describes how to package Django
-   application for Engage. It is available at
+   applications for Engage. It is available online at
    http://beta.genforma.com/sdk_refman/index.html. It is also available in
    source form with the engage-django-sdk.
+
+Building the User's Guide
+----------------------------------------------
+The User's Guide is generated from text files using `Sphinx <http://sphinx.pocoo.org>`_, a
+Python-based documentation tool. If you wish to build a local copy of the User's Guide, do the following:
+
+ 1. Install Sphinx from http://pypi.python.org/pypi/Sphinx/1.0.7. Alternatively, you can use the Python ``easy_install`` utility (e.g. ``easy_install Sphinx``).
+ 2. From the top level directory of the Engage source distribution, run ``make all``
+ 3. The User's Guide will be created in the directory ``docs/users_guide/_build/html``. The main page for the guide is at ``docs/users_guide/_build/html/index.html``.
 
 
 Notice
 =========
-Engage is copyright 2010, 2011 by the genForma
-Corporation. It is made available under the Apache V2.0 license.
+The Engage software distribution is copyright 2010, 2011 by the genForma
+Corporation. It is made available under the `Apache V2.0 license <http://www.apache.org/licenses/LICENSE-2.0>`_.
 
 
 Authors
