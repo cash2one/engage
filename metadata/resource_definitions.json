@@ -2000,9 +2000,14 @@
       },
       "environment": {
           "all-of": [
-          { "key": {"name":"mysql-macports",
-                    "version":{"greater-than-or-equal":"5.1"}},
-            "port_mapping": {"mysql":"mysql", "mysql_admin":"mysql_admin"}},
+          { "one-of": [
+            { "key": {"name":"mysql-macports",
+                      "version":{"greater-than-or-equal":"5.1"}},
+              "port_mapping": {"mysql":"mysql", "mysql_admin":"mysql_admin"}},
+            { "key": {"name":"mysql-apt",
+                      "version":{"greater-than-or-equal":"5.1"}},
+              "port_mapping": {"mysql":"mysql", "mysql_admin":"mysql_admin"}}
+          ]},
           { "key": {"name":"mysql-python",
                     "version":{"greater-than-or-equal":"1.2"}}}
           ]
@@ -3739,6 +3744,54 @@
         ]
       }
     },
+    { "key": {"name":"mysql-apt", "version":"5.1"},
+      "display_name": "MySQL server (Ubuntu version)",
+      "config_port": {
+        "mysql_admin_password": {"type":"password"}
+      },
+      "input_ports": { 
+        "host" : {
+          "hostname": "string",
+          "os_type": "string",
+          "os_user_name": "string",
+          "cpu_arch": "string",
+          "genforma_home": "path",
+          "sudo_password": "password",
+          "log_directory": "path"
+        }
+      },
+      "output_ports": {     
+        "mysql" : {
+          "host": {"type":"string", "source":"input_ports.host.hostname"},
+          "port": {"type":"tcp_port", "fixed-value":3306}
+        },
+        "mysql_admin" : {
+          "admin_password": {"type":"password",
+                             "source":"config_port.mysql_admin_password"},
+          "mysqladmin_exe": {"type":"path",
+                             "fixed-value":"/usr/bin/mysqladmin"},
+          "mysql_client_exe": {"type":"path",
+                             "fixed-value":"/usr/bin/mysql"},
+          "mysqldump_exe": {"type":"path",
+                            "fixed-value": "/usr/bin/mysqldump"},
+          "mysql_server_script": {"type":"path",
+                                  "fixed-value":"/usr/bin/mysqld_safe"},
+          "mysql_user": {"type":"string", "fixed-value":"mysql"},
+          "mysql_config_exe": {"type":"path",
+                               "fixed-value": "/usr/bin/mysql_config"},
+          "pid_file_template":{"type":"string",
+                               "fixed-value":"/var/lib/mysql/%(hostname)s.pid"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+        ]
+      }
+    },
     { "key": {"name":"mysql-macports", "version":"5.1"},
       "display_name": "MySQL server (MacPorts version)",
       "config_port": {
@@ -3842,6 +3895,9 @@
           },
           {"one-of": [
             { "key": {"name":"mysql-macports",
+                      "version":{"greater-than-or-equal":"5.1"}},
+              "port_mapping": {"mysql":"mysql", "mysql_admin":"mysql_admin"}},
+            { "key": {"name":"mysql-apt",
                       "version":{"greater-than-or-equal":"5.1"}},
               "port_mapping": {"mysql":"mysql", "mysql_admin":"mysql_admin"}}
           ]}

@@ -17,7 +17,7 @@ import engage.utils.process as procutils
 import engage.utils.log_setup as log_setup
 import engage.utils.file as fileutils
 import engage.utils.timeout as iutimeout
-from engage.drivers.action import Action, _check_file_exists, check_file_exists,\
+from engage.drivers.action import Action, _check_file_exists, check_file_exists, \
                                   sudo_run_program, get_template_subst, \
                                   set_file_mode_bits, ValueAction, \
                                   sudo_run_program, sudo_set_file_perms_by_name
@@ -112,10 +112,10 @@ class mysql_install_db(Action):
     def run(self):
         p = self.ctx.props
         _check_file_exists(p.mysql_install_db_script, self)
-        procutils.run_sudo_program(["-u", p.output_ports.mysql_admin.mysql_user,
-                                    p.mysql_install_db_script],
+        procutils.run_sudo_program([p.mysql_install_db_script],
                                    self.ctx._get_sudo_password(self), logger,
-                                   cwd=os.path.dirname(p.mysql_install_db_script))
+                                   cwd=os.path.dirname(p.mysql_install_db_script),
+                                   user=p.output_ports.mysql_admin.mysql_user)
 
     def dry_run(self):
         pass
@@ -271,7 +271,6 @@ class dump_database(Action):
     def dry_run(self, database, dump_file_path, admin_password):
         pass
         
-                       
 
 def run_secure_installation_script(ctx, mysql_admin_password_value):
     """Need to start server before running this
@@ -306,6 +305,7 @@ def run_secure_installation_script(ctx, mysql_admin_password_value):
         r(sudo_run_program, ["/bin/rm", tn])
 
 
+
 class run_mysql_client(Action):
     """Run the mysql client. Input arguments are the username,
     password, and the commands to be passed as standard input to the client.
@@ -314,7 +314,13 @@ class run_mysql_client(Action):
     NAME="mysql_utils.run_mysql_client"
     def __init__(self, ctx):
         super(run_mysql_client, self).__init__(ctx)
-        ctx.checkp("input_ports.mysql_admin.mysql_client_exe")
+        if ctx.substitutions.has_key("input_ports.mysql_admin.mysql_client_exe"):
+            self.mysql_client_exe = ctx.props.input_ports.mysql_admin.mysql_client_exe
+        elif ctx.substitutions.has_key("output_ports.mysql_admin.mysql_client_exe"):
+            self.mysql_client_exe = ctx.props.output_ports.mysql_admin.mysql_client_exe
+        else:
+            raise Exception("Resource %s needs to have one of the following properties: input_ports.mysql_admin.mysql_client_exe, output_ports.mysql_admin.mysql_client_exe" %
+                            self.ctx.props.id)
 
     def format_action_args(self, user, password, command_text,
                            command_text_for_logging=None):
@@ -326,9 +332,9 @@ class run_mysql_client(Action):
                    (self.NAME, user, command_text.replace("\n", "\\n"))
     def run(self, user, password, command_text, command_text_for_logging=None):
         p = self.ctx.props
-        cmd = [p.input_ports.mysql_admin.mysql_client_exe, "-u", user,
+        cmd = [self.mysql_client_exe, "-u", user,
                "--password=%s" % password]
-        self.ctx.logger.debug(' '.join([p.input_ports.mysql_admin.mysql_client_exe,
+        self.ctx.logger.debug(' '.join([self.mysql_client_exe,
                                         "-u", "root",
                                         "--password=****"]))
         rc = procutils.run_and_log_program(cmd, None, self.ctx.logger,

@@ -31,10 +31,16 @@ This manual, the *Engage User's Guide*, is intended to help you build
 and setup Engage (see :doc:`setup`),  use it to install
 applications (see :doc:`installation`), and to manage installed applications (see :doc:`management`).
 
+The *Engage Architecture Guide* describes the design of Engage and
+documents the representation used for software component
+metadata. This guide is available in the Engage distributation at
+``docs/Engage_Architecture_Guide.pdf``.
+
 The *Engage Django SDK Reference Manual* describes how to package Django
 applications for Engage. It is available online at
 http://beta.genforma.com/sdk_refman/index.html. It is also available in
 source form with the engage-django-sdk.
+
 
 Building the User's Guide
 ~~~~~~~~~~~~~~~~~~~~~~~~~~

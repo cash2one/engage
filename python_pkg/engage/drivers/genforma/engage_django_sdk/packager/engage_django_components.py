@@ -93,9 +93,16 @@ def get_resource_specs(component_list, host_id, host_key):
                       "inside":{"id":host_id, "key":host_key,
                                 "port_mapping": {"host":"host"}}})
     if u"mysql" in component_list:
-        specs.append({"id":"mysql-server", "key":{"name":"mysql-macports", "version":"5.1"},
-                      "inside":{"id":host_id, "key":host_key,
-                                "port_mapping": {"host":"host"}}})
+        if host_key['name']=='mac-osx':
+            specs.append({"id":"mysql-server", "key":{"name":"mysql-macports",
+                                                      "version":"5.1"},
+                          "inside":{"id":host_id, "key":host_key,
+                                    "port_mapping": {"host":"host"}}})
+        else:
+            specs.append({"id":"mysql-server", "key":{"name":"mysql-apt",
+                                                      "version":"5.1"},
+                          "inside":{"id":host_id, "key":host_key,
+                                    "port_mapping": {"host":"host"}}})
         specs.append({"id":"mysql-connector", "key":{"name":"mysql-connector-for-django", "version":"5.1"},
                       "inside":{"id":host_id, "key":host_key,
                                 "port_mapping": {"host":"host"}}})

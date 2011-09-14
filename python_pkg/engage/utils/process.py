@@ -199,30 +199,46 @@ class NoPasswordError(SudoError):
 
 
 def run_sudo_program(program_and_args, sudo_password,
-                     logger, cwd=None, env={}):
+                     logger, cwd=None, env={}, user="root"):
     """Wrapper over run and log program for programs running under sudo.
     It adds sudo and the -S option to the command arguments and then passes
     the password in as the standard input. The echoing of the standard input
     to the logger is supressed.
+
+    If you want to run as a different user from root, specify the user name for the
+    user keyword argument. This causes execution with the -s option.
+
+    Note that we don't run under sudo if we're already running as root and want to
+    run as root.
     """
     if is_running_as_root():
-        # if we are already root, no need to sudo
-        rc = run_and_log_program(program_and_args, env, logger, cwd,
-                                 input=None)
-        if rc != 0:
-            raise SudoBadRc(rc, program_and_args)
-        return rc
+        if user=="root":
+            # if we are already root wand want to run as root, no need to sudo
+            rc = run_and_log_program(program_and_args, env, logger, cwd,
+                                     input=None)
+            if rc != 0:
+                raise SudoBadRc(rc, program_and_args)
+            return rc
+        else:
+            # do not need to pass in a password, since already root
+            input_to_subproc = None
     elif sudo_password==None:
         raise NoPasswordError("Operation '%s' requires sudo access, but no password provided" % ' '.join(program_and_args))
+    else:
+        input_to_subproc = sudo_password + "\n"
     
     # we need to clear the sudo timestamp first so that sudo always expects a password and doesn't
     # give us a broken pipe error
     clear_sudo_timestamp(logger)
 
-    cmd = [_sudo_exe, "-p", "", "-S"] + program_and_args
+    if user=="root":
+        cmd = [_sudo_exe, "-p", "", "-S"] + program_and_args
+    else:
+        cmd = [_sudo_exe, "-u", user, "-p", "", "-S"] + program_and_args
+        
     try:
         rc =  run_and_log_program(cmd, {}, logger, cwd,
-                                  input=sudo_password + "\n",
+                                  input=input_to_subproc,
                                   hide_input=True, allow_broken_pipe=True)
         if rc != 0:
             raise SudoBadRc(rc, cmd)

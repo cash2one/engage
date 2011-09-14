@@ -53,7 +53,7 @@ lib: cfunctions.o
 	$(OCAML_MKLIB) -verbose -o config $(OCAML_LIBS) $(OCAMLENV_LIBS) $(OCAML_MSAT_DEPS)\
 		$(OPT_DEPS) cfunctions.o
 
-ifeq ($(GENFORMA_PLATFORM),linux64)
+ifeq ($(ENGAGE_PLATFORM),linux64)
   EXTRA_LINK_OPTS=-fPIC
 else
   EXTRA_LINK_OPTS=

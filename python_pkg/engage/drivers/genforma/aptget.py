@@ -12,6 +12,7 @@ import engage.utils.process as iuprocess
 import engage.utils.log_setup
 from engage.drivers.password_repo_mixin import PasswordRepoMixin
 from engage.drivers.action import Action, _check_file_exists, make_value_action, make_action
+from engage.utils.file import NamedTempFile
 logger = engage.utils.log_setup.setup_script_logger(__name__)
 
 from engage.utils.user_error import ScriptErrInf, UserError, convert_exc_to_user_error
@@ -79,6 +80,27 @@ class install(Action):
         _check_file_exists(APT_GET_PATH, self)
 
 
+class debconf_set_selections(Action):
+    """Run the debconf-set-selections utility. This can be used to set values
+    that normally are prompted interactively from the user in apt-get.
+    """
+    NAME="aptget.debconf_set_selections"
+
+    def run(self, selection_lines):
+        with NamedTempFile(selection_lines) as f:
+            iuprocess.run_sudo_program(["/usr/bin/debconf-set-selections",
+                                        f.name],
+                                       self.ctx._get_sudo_password(self),
+                                       self.ctx.logger,
+                                       cwd="/usr/bin")
+            
+    def dry_run(self, selection_lines):
+        pass
+
+    def format_action_args(self, selection_lines):
+        return "%s <selection_lines>" % self.NAME
+        
+
 def is_installed(package):
     if not os.path.exists(DPKG_QUERY_PATH):
         raise UserError(errors[ERR_DPKG_QUERY_NOT_FOUND],
@@ -103,6 +125,19 @@ def check_installed(self, package):
     if not is_installed(package):
         raise UserError(errors[ERR_PKG_NOT_INSTALLED],
                         msg_args={"pkg":package, "id":self.ctx.props.id})
+
+@make_action
+def ensure_installed(self, package):
+    """An action that checks if a single apt package is installed. If not, it
+    performs the install
+    """
+    if not is_installed(package):
+        apt_get_install([package], self.ctx._get_sudo_password(self))
+    else:
+        self.ctx.logger.debug("Skipping install of package %s - already installed" %
+                              package)
+
+
 
 _config_type = {
     "input_ports": {

@@ -48,6 +48,7 @@ In order to build engage, you need to have the following software pre-installed:
  * The GNU g++ compiler
  * Python 2.6.x or 2.7.x
  * ocaml (http://caml.inria.fr/)
+ * zlib header files
  * The following Python packages:
 
    - virtualenv (http://pypi.python.org/pypi/virtualenv)
@@ -98,6 +99,11 @@ The following additional documentation is available:
    http://beta.genforma.com/engage_users_guide/index.html. It is also
    included in source form in the Engage distribution at docs/users_guide. See below
    for instuctions on how to build a local copy.
+ * The *Engage Architecture Guide* describes the design of Engage and
+   documents the representation used for software component
+   metadata. This guide is available in the Engage distributation at
+   ``docs/Engage_Architecture_Guide.pdf``.
+                                                                                         
  * The *Engage Django SDK Reference Manual* describes how to package Django
    applications for Engage. It is available online at
    http://beta.genforma.com/sdk_refman/index.html. It is also available in
