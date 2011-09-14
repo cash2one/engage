@@ -30,6 +30,6 @@ The following drivers are supported in the current release:[1]_
 
 What's New for Each Release
 ============================
-1.0.2 - Added Architecture Guide; bug fixes in build and documentation
-1.0.1 - Added User's Guide
-1.0.0 - Initial open source release
+ * 1.0.2 - Added Architecture Guide; bug fixes in build and documentation
+ * 1.0.1 - Added User's Guide
+ * 1.0.0 - Initial open source release
