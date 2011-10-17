@@ -11,12 +11,14 @@ output property of its resource definition.
 
 import os.path
 import json
+import urlparse
 
 import fixup_python_path
 
 import engage.utils.log_setup
 logger = engage.utils.log_setup.setup_engage_logger(__name__)
 
+from engage.utils.json_utils import JsonObject
 import engage.utils.process as iuprocess
 from engage.utils.user_error import EngageErrInf, UserError
 import gettext
@@ -46,26 +48,20 @@ APP_SETTINGS_MODULE = "app_settings_module"
 SETTINGS_FILE_DIRECTORY = "settings_file_directory"
 PYTHON_PATH_DIRECTORY = "python_path_directory"
 DJANGO_ADMIN_PY = "django_admin_py"
+MEDIA_ROOT = "media_root"
+MEDIA_URL = "media_url"
+STATIC_URL = "static_url"
+STATIC_ROOT = "static_root"
 
 _json_keys = [APP_DIR_PATH, DEPLOYED_SETTINGS_MODULE, APP_SETTINGS_MODULE,
               SETTINGS_FILE_DIRECTORY, PYTHON_PATH_DIRECTORY,
-              DJANGO_ADMIN_PY]
+              DJANGO_ADMIN_PY, MEDIA_ROOT, MEDIA_URL, STATIC_URL, STATIC_ROOT]
 
 
-class DjangoFileLayout(object):
-    # create an instance from json representation
-    def create_file_layout_from_json(json_dict):
-        pass
-    
-    def __init__(self, app_dir_path, deployed_settings_module, app_settings_module,
-                 settings_file_directory, python_path_directory,
-                 django_admin_py):
-        self.app_dir_path = app_dir_path
-        self.deployed_settings_module = deployed_settings_module
-        self.app_settings_module = app_settings_module
-        self.settings_file_directory = settings_file_directory
-        self.python_path_directory = python_path_directory
-        self.django_admin_py = django_admin_py
+class DjangoFileLayout(JsonObject):
+    def __init__(self, json_props):
+        JsonObject.__init__(self, _json_keys, required_properties=_json_keys,
+                            prop_val_dict=json_props)
 
     def get_app_dir_path(self):
         """Returns full path to top level directory of the extracted app. This will
@@ -113,18 +109,22 @@ class DjangoFileLayout(object):
             "DJANGO_SETTINGS_MODULE": self.get_deployed_settings_module()
         }
 
-    def to_json(self):
-        """Return json in-memory (dict) representation.
-        """
-        return {
-            APP_DIR_PATH: self.app_dir_path,
-            DEPLOYED_SETTINGS_MODULE: self.deployed_settings_module,
-            APP_SETTINGS_MODULE: self.app_settings_module,
-            SETTINGS_FILE_DIRECTORY: self.settings_file_directory,
-            DJANGO_ADMIN_PY: self.django_admin_py,
-            PYTHON_PATH_DIRECTORY: self.python_path_directory
-        }
+    def has_media_url_mapping(self):
+        return self.media_url!=None and self.media_root!=None and \
+               self.media_root!=''
+    
+    def get_media_url_mapping(self):
+        return (self.media_url, self.media_root)
 
+    def has_static_url_mapping(self):
+        if self.static_url==None or self.static_url=='':
+            return False
+        else:
+            return True
+    
+    def get_static_url_mapping(self):
+        return (self.static_url, self.static_root)
+    
     def write_as_json_file(self, filename):
         with open(filename, "wb") as f:
             json.dump(self.to_json(), f)
@@ -165,30 +165,33 @@ class DjangoFileLayout(object):
     
 
 def create_file_layout(django_config, common_dirname,
-                       home_path, django_admin_py):
+                       home_path, django_admin_py, public_hostname,
+                       public_port):
     """Create a new file layout object, given the django_config read from
     the application package and other basic info about the install.
     """
     app_dir_path = os.path.join(home_path, common_dirname)
-    deployed_settings_module = django_config.get_deployed_settings_module()
-    app_settings_module = django_config.django_settings_module
-    settings_file_directory = django_config.get_settings_file_directory(home_path)
-    python_path_directory = django_config.get_python_path_directory(home_path)
-    return DjangoFileLayout(app_dir_path, deployed_settings_module,
-                            app_settings_module, settings_file_directory,
-                            python_path_directory, django_admin_py)
+    if public_port==80 or public_port=="80":
+        base_url = "http://%s" % public_hostname
+    else:
+        base_url = "http://%s:%s" % (public_hostname, public_port)
+    json_props = {
+        APP_DIR_PATH: app_dir_path,
+        DEPLOYED_SETTINGS_MODULE: django_config.get_deployed_settings_module(),
+        APP_SETTINGS_MODULE: django_config.django_settings_module,
+        SETTINGS_FILE_DIRECTORY: django_config.get_settings_file_directory(home_path),
+        PYTHON_PATH_DIRECTORY: django_config.get_python_path_directory(home_path),
+        DJANGO_ADMIN_PY: django_admin_py,
+        MEDIA_ROOT: os.path.join(app_dir_path, django_config.media_root_subdir) if django_config.media_root_subdir else None,
+        MEDIA_URL: urlparse.urljoin(base_url, django_config.media_url_path) if django_config.media_url_path else None,
+        STATIC_URL: urlparse.urljoin(base_url, django_config.static_url_path) if django_config.static_url_path else None,
+        STATIC_ROOT: os.path.join(app_dir_path, django_config.static_root_subdir) if django_config.static_root_subdir else None,
+    }
+    return DjangoFileLayout(json_props)
 
 
 def create_file_layout_from_json(json_dict):
-    for key in _json_keys:
-        if not json_dict.has_key(key):
-            raise Exception("Django file layout missing required key %s" % key)
-    return DjangoFileLayout(json_dict[APP_DIR_PATH],
-                            json_dict[DEPLOYED_SETTINGS_MODULE],
-                            json_dict[APP_SETTINGS_MODULE],
-                            json_dict[SETTINGS_FILE_DIRECTORY],
-                            json_dict[PYTHON_PATH_DIRECTORY],
-                            json_dict[DJANGO_ADMIN_PY])
+    return DjangoFileLayout(json_dict)
     
 
 

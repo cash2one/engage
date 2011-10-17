@@ -101,7 +101,8 @@ class SudoError(Exception):
 
 
 class SudoBadRc(SudoError):
-    """This exception is thrown the timestamp clear operation failed
+    """This exception is thrown when the sudo operation returns a non-zero
+    return code
     """
     def __init__(self, rc, program_and_args):
         self.rc = rc
@@ -113,7 +114,6 @@ class SudoBadRc(SudoError):
     def __str__(self):
         return "Sudo execution of '%s' failed, return code was %d" % (" ".join(self.program_and_args),
                                                                       self.rc)
-
     def __repr__(self):
         return "SudoBadRc(%d, %s)" % (self.rc, self.program_and_args.__repr__())
 
@@ -138,14 +138,38 @@ class SudoExcept(SudoError):
         return msg
 
     def __repr__(self):
-        return "SudoExcept(%s, %s, rc=%s)" % (self.exc_info.__repr__(), self.program_and_args.__repr__(), self.rc)
+        return "%s(%s, %s, rc=%s)" % (self.__class__.__name__, self.exc_info.__repr__(), self.program_and_args.__repr__(), self.rc)
 
+class SudoTimestampError(SudoExcept):
+    """This exception is thrown the timestamp clear operation failed
+    """
+    def __init__(self, exc_info, program_and_args, rc=None):
+        SudoExcept.__init__(self, exc_info, program_and_args, rc)
+
+
+class SudoTimestampBadRc(SudoError):
+    """This exception is thrown when the sudo operation returns a non-zero
+    return code
+    """
+    def __init__(self, rc, program_and_args):
+        self.rc = rc
+        self.program_and_args = program_and_args
+
+    def get_exc_info(self, current_exc_state):
+        return current_exc_state
+
+    def __str__(self):
+        return "Sudo execution of '%s' failed, return code was %d" % (" ".join(self.program_and_args),
+                                                                      self.rc)
+    def __repr__(self):
+        return "SudoTimestampBadRc(%d, %s)" % (self.rc, self.program_and_args.__repr__())
 
 # setup some executable paths used by some of the following utility functions
 if sys.platform=="darwin":
     _cp_exe = "/bin/cp"
     _chmod_exe = "/bin/chmod"
     _chown_exe = "/usr/sbin/chown"
+    _chgrp_exe = "/usr/bin/chgrp"
     _sudo_exe = "/usr/bin/sudo"
     _mkdir_exe = "/bin/mkdir"
     _cat_exe = "/bin/cat"
@@ -155,6 +179,7 @@ elif sys.platform=="linux2":
     _cp_exe = "/bin/cp"
     _chmod_exe = "/bin/chmod"
     _chown_exe = "/bin/chown"
+    _chgrp_exe = "/bin/chgrp"
     _sudo_exe = "/usr/bin/sudo"
     _mkdir_exe = '/bin/mkdir'
     _cat_exe = '/bin/cat'
@@ -179,9 +204,9 @@ def clear_sudo_timestamp(logger):
     except:
         exc_info = sys.exc_info()
         sys.exc_clear()
-        raise SudoExcept(exc_info, cmd)
+        raise SudoTimestampError(exc_info, cmd)
     if subproc.returncode != 0:
-        raise SudoBadRc(subproc.returncode, cmd)
+        raise SudoTimestampBadRc(subproc.returncode, cmd)
 
 
 def is_running_as_root():
@@ -218,7 +243,8 @@ def run_sudo_program(program_and_args, sudo_password,
                                      input=None)
             if rc != 0:
                 raise SudoBadRc(rc, program_and_args)
-            return rc
+            else:
+                return 0
         else:
             # do not need to pass in a password, since already root
             input_to_subproc = None
@@ -243,10 +269,8 @@ def run_sudo_program(program_and_args, sudo_password,
         if rc != 0:
             raise SudoBadRc(rc, cmd)
         return rc
-    except SudoBadRc, e:
-        exc_info = sys.exc_info()
-        sys.exc_clear()
-        raise SudoExcept(exc_info, cmd, e.rc)
+    except SudoBadRc:
+        raise
     except:
         exc_info = sys.exc_info()
         sys.exc_clear()
@@ -314,10 +338,14 @@ def _format_unix_mode_bits(mode):
     else:
         assert 0
         
-def sudo_chmod(mode, files, sudo_password, logger):
+def sudo_chmod(mode, files, sudo_password, logger, recursive=False):
     """Change file permissions (as in the chmod command) running as the superuser.
     """
-    cmd = [_chmod_exe, _format_unix_mode_bits(mode)] + files
+    if recursive:
+        cmd = [_chmod_exe, "-R", _format_unix_mode_bits(mode)]
+    else:
+        cmd = [_chmod_exe, _format_unix_mode_bits(mode)]
+    cmd.extend(files)
     run_sudo_program(cmd, sudo_password, logger)
 
 
@@ -328,6 +356,15 @@ def sudo_chown(user, targets, sudo_password, logger, recursive=False):
         cmd = [_chown_exe, "-R", user] + targets
     else:
         cmd = [_chown_exe, user] + targets
+    run_sudo_program(cmd, sudo_password, logger)
+
+def sudo_chgrp(group_name, targets, sudo_password, logger, recursive=False):
+    """Change file ownership (as in the chown command) running as the superuser.
+    """
+    if recursive:
+        cmd = [_chgrp_exe, "-R", group_name] + targets
+    else:
+        cmd = [_chgrp_exe, group_name] + targets
     run_sudo_program(cmd, sudo_password, logger)
 
 def sudo_mkdir(dir_path, sudo_password, logger, create_intermediate_dirs=False):

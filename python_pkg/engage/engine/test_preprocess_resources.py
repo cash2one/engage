@@ -8,10 +8,12 @@ import unittest
 import json
 import logging
 logger = logging.getLogger(__name__)
+import copy
 
 import fixup_python_path
 import engage_file_layout
-from engage.utils.file import mangle_resource_key, TempDir
+from engage.utils.file import mangle_resource_key, TempDir, NamedTempFile
+from engage.utils.rdef import create_resource_graph
 from preprocess_resources import *
 
 _test_resources_1 = [
@@ -71,7 +73,189 @@ class ResKeySet(object):
         return '[' + \
                ', '.join("%s %s" % (k['name'], k['version']) for k in self.all_keys()) + ']'
 
+_test_install_spec = """[
+  { "id": "master-host",
+     "key": {"name":"dynamic-host", "version":"*"}
+  },
+  { "id": "python-master",
+    "key": { "name": "python", "version": "*" },
+    "inside": {
+      "id": "master-host",
+      "key": {"name":"dynamic-host", "version":"*"}
+    }
+  },
+  { "id": "database-host",
+     "key": {"name":"dynamic-host", "version":"*"}
+  },
+ {
+    "id": "mysql-server",
+    "key": {
+      "version": "5.1",
+      "name": "mysql-macports"
+    },
+    "inside": {
+      "id": "database-host",
+      "key": {"name":"dynamic-host", "version":"*"},
+      "port_mapping": {
+        "host": "host"
+      }
+    }
+  },  
+  { "id": "django-webserver-config",
+    "key": {"name": "django-development-webserver", "version": "1.0"},
+    "inside": {
+      "id": "master-host",
+      "key": {"name":"dynamic-host", "version":"*"},
+      "port_mapping": {"host": "host"}
+    }
+  },
+  {
+    "inside": {
+      "port_mapping": {
+        "host": "host"
+      },
+      "id": "master-host",
+      "key": {"name":"dynamic-host", "version":"*"}
+    },
+    "id": "mysql-connector",
+    "key": {
+      "version": "5.1",
+      "name": "mysql-connector-for-django"
+    }
+  },  
+  {
+    "id": "django-1",
+    "key": {"name": "Django-App", "version": "1.0"},
+    "inside": {
+      "id": "master-host",
+      "key": {"name":"dynamic-host", "version":"*"},
+      "port_mapping": {"host": "host"}
+    },
+    "environment": [
+      {
+        "id": "python-master",
+        "key": { "name": "python", "version": "*" }
+      }
+    ],
+    "properties": {
+      "app_short_name": "django"
+    }
+  }
+]
+"""
 
+_expected_output_install_spec = """
+[
+  {
+    "id": "master-host", 
+    "key": {
+      "version": "10.6", 
+      "name": "mac-osx"
+    }
+  }, 
+  {
+    "inside": {
+      "id": "master-host", 
+      "key": {
+        "version": "10.6", 
+        "name": "mac-osx"
+      }
+    }, 
+    "id": "python-master", 
+    "key": {
+      "version": "2.6", 
+      "name": "python"
+    }
+  }, 
+  {
+    "id": "database-host", 
+    "key": {
+      "version": "10.6", 
+      "name": "mac-osx"
+    }
+  }, 
+  {
+    "inside": {
+      "port_mapping": {
+        "host": "host"
+      }, 
+      "id": "database-host", 
+      "key": {
+        "version": "10.6", 
+        "name": "mac-osx"
+      }
+    }, 
+    "id": "mysql-server", 
+    "key": {
+      "version": "5.1", 
+      "name": "mysql-macports"
+    }
+  }, 
+  {
+    "inside": {
+      "port_mapping": {
+        "host": "host"
+      }, 
+      "id": "master-host", 
+      "key": {
+        "version": "10.6", 
+        "name": "mac-osx"
+      }
+    }, 
+    "id": "django-webserver-config", 
+    "key": {
+      "version": "1.0", 
+      "name": "django-development-webserver"
+    }
+  }, 
+  {
+    "inside": {
+      "port_mapping": {
+        "host": "host"
+      }, 
+      "id": "master-host", 
+      "key": {
+        "version": "10.6", 
+        "name": "mac-osx"
+      }
+    }, 
+    "id": "mysql-connector", 
+    "key": {
+      "version": "5.1", 
+      "name": "mysql-connector-for-django"
+    }
+  }, 
+  {
+    "environment": [
+      {
+        "id": "python-master", 
+        "key": {
+          "version": "2.6", 
+          "name": "python"
+        }
+      }
+    ], 
+    "inside": {
+      "port_mapping": {
+        "host": "host"
+      }, 
+      "id": "master-host", 
+      "key": {
+        "version": "10.6", 
+        "name": "mac-osx"
+      }
+    }, 
+    "id": "django-1", 
+    "key": {
+      "version": "1.0", 
+      "name": "Django-App"
+    }, 
+    "properties": {
+      "app_short_name": "django"
+    }
+  }
+]
+"""
 class TestPreprocessResources(unittest.TestCase):
     def setUp(self):
         self.layout_mgr = engage_file_layout.get_engine_layout_mgr()
@@ -133,6 +317,39 @@ class TestPreprocessResources(unittest.TestCase):
             self._get_resource_keys(self.layout_mgr.get_preprocessed_resource_file())
         self.assertTrue(dups.is_empty(), "The following resources have duplicate definitions: %s" % dups.__str__())
 
+    def test_resource_validation(self):
+        """Validate the preprocessed resource definitions.
+        """
+        preprocess_resource_file(self.layout_mgr.get_resource_def_file(),
+                                 self.layout_mgr.get_extension_resource_files(),
+                                 self.layout_mgr.get_preprocessed_resource_file(),
+                                 logger)
+        with open(self.layout_mgr.get_preprocessed_resource_file(), "rb") as f:
+            (errors, warnings) = create_resource_graph(json.load(f)).validate()
+        self.assertTrue(errors==0, "%d errors in resource validation" % errors)
+
+
+    def test_install_spec_preprocessing(self):
+        with NamedTempFile(_test_install_spec) as f:
+            spec = parse_raw_install_spec_file(f.name)
+            dynamic_hosts = query_install_spec(spec, name="dynamic-host",
+                                               version='*')
+            machine_key = {"name":"mac-osx", "version":"10.6"}
+            fixup_resources = []
+            for host_inst in dynamic_hosts:
+                new_inst = copy.deepcopy(host_inst)
+                new_inst["key"] = machine_key
+                fixup_resources.append(new_inst)
+            python_resources = query_install_spec(spec, name="python")
+            python_key = {"name":"python", "version":"2.6"}
+            for py_res in python_resources:
+                new_inst = copy.deepcopy(py_res)
+                new_inst["key"] = python_key
+                fixup_resources.append(new_inst)
+            spec = fixup_installed_resources_in_install_spec(spec, fixup_resources)
+            #print json.dumps(spec, indent=2)
+            expected_output = json.loads(_expected_output_install_spec)
+            self.assertEqual(spec, expected_output)
 
 if __name__ == '__main__':
     formatter = logging.Formatter("[%(levelname)s][%(name)s] %(message)s")

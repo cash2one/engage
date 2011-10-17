@@ -1,34 +1,32 @@
 [
-  $targetMachineResource,
-
-  {
-    "id": "python-1",
-    "key": {"name":"python", "version":"$pythonVersion"},
+  {"id":"master-host",
+     "key": {"name":"dynamic-host", "version":"*"}
+  },
+  { "id":"python-master-host",
+    "key": {"name":"python", "version":"*"},
     "properties": {
-      "installed":true
-    },
-    "config_port": {
+      "installed": true
     },
     "inside": {
-      "id": "$hostname",
-      "key": $targetMachineKey,
+      "id":"master-host",
+      "key": {"name":"dynamic-host", "version":"*"},
       "port_mapping": {"host": "host"}
     }
   },
   {
-    "id": "setuptools-1",
+    "id": "setuptools-master-host",
     "key" : { "name":"setuptools", "version":"0.6"},
     "properties": {
       "installed":true
     },
     "inside": {
-      "id": "$hostname",
-      "key": $targetMachineKey,
+      "id": "master-host",
+      "key": {"name":"dynamic-host", "version":"*"},
       "port_mapping": {"host": "host"}
     },
     "environment": [
-      { "id" : "python-1",
-        "key": {"name":"python", "version":"$pythonVersion"},
+      { "id" : "python-master-host",
+        "key": {"name":"python", "version":"*"},
         "port_mapping":{"python":"python"}
       }
     ]
@@ -36,8 +34,8 @@
   { "id": "django-webserver-config",
     "key": {"name": "django-development-webserver", "version": "1.0"},
     "inside": {
-      "id": "$hostname",
-      "key": $targetMachineKey,
+      "id": "master-host",
+      "key": {"name":"dynamic-host", "version":"*"},
       "port_mapping": {"host": "host"}
     }
   },
@@ -45,10 +43,16 @@
     "id": "django-1",
     "key": {"name": "Django-App", "version": "1.0"},
     "inside": {
-      "id": "$hostname",
-      "key": $targetMachineKey,
+      "id": "master-host",
+      "key": {"name":"dynamic-host", "version":"*"}, 
       "port_mapping": {"host": "host"}
     },
+    "environment": [
+      { "id":"python-master-host",
+        "key": {"name":"python", "version":"*"},
+        "port_mapping": {"python":"python"}
+      }
+    ],
     "properties": {
       "app_short_name": "django"
     }

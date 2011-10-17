@@ -1,25 +1,41 @@
 [
-  $targetMachineResource,
-
+  {"id":"master-host",
+     "key": {"name":"dynamic-host", "version":"*"}
+  },
+  { "id":"python-master-host",
+    "key": {"name":"python", "version":"*"},
+    "properties": {
+      "installed": true
+    },
+    "inside": {
+      "id":"master-host",
+      "key": {"name":"dynamic-host", "version":"*"},
+      "port_mapping": {"host": "host"}
+    }
+  },
   {
-    "id": "python-1",
-    "key": {"name":"python", "version":"$pythonVersion"},
+    "id": "setuptools-master-host",
+    "key" : { "name":"setuptools", "version":"0.6"},
     "properties": {
       "installed":true
     },
-    "config_port": {
-    },
     "inside": {
-      "id": "$hostname",
-      "key": $targetMachineKey,
+      "id": "master-host",
+      "key": {"name":"dynamic-host", "version":"*"},
       "port_mapping": {"host": "host"}
-    }
+    },
+    "environment": [
+      { "id" : "python-master-host",
+        "key": {"name":"python", "version":"*"},
+        "port_mapping":{"python":"python"}
+      }
+    ]
   },
   { "id": "moinmoin-webserver-adapter",
     "key": {"name":"MoinMoin-apache-adapter", "version":"2.2"},
     "inside": {
-      "id": "$hostname",
-      "key": $targetMachineKey,
+      "id": "master-host",
+      "key": {"name":"dynamic-host", "version":"*"},
       "port_mapping": {"host": "host"}
     }
   },
@@ -27,8 +43,8 @@
     "id": "moinmoin",
     "key": {"name": "MoinMoin", "version": "1.9"},
     "inside": {
-      "id": "$hostname",
-      "key": $targetMachineKey,
+      "id": "master-host",
+      "key": {"name":"dynamic-host", "version":"*"},
       "port_mapping": {"host": "host"}
     }
   }

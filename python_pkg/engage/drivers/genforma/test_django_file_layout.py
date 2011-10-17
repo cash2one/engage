@@ -7,10 +7,16 @@ class TestDjangoFileLayout(unittest.TestCase):
     def setUp(self):
         from engage_django_sdk.version import VERSION
         from engage_django_sdk.packager.django_config import DjangoConfig
-        self.dc = DjangoConfig("test app", "v1", "test_app.settings",
-                               "", VERSION)
+        self.dc = DjangoConfig({"product":"test app", "product_version":"v1",
+                                "django_settings_module":"test_app.settings",
+                                "python_path_subdirectory":"",
+                                "version":VERSION,
+                                "media_root_subdir":"/media",
+                                "media_url_path":"/media",
+                                "static_url_path":"/static"})
         self.fl = create_file_layout(self.dc, "test_app", "/home/test",
-                                     "/home/python/bin/django_admin.py")
+                                     "/home/python/bin/django_admin.py",
+                                     "localhost", "8002")
 
     def test_construction(self):
         self.assertEqual(self.fl.get_app_dir_path(), "/home/test/test_app")

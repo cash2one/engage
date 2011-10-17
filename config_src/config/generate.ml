@@ -177,13 +177,13 @@ let mk_rdef_database rlist =
 
 
 let reset_id, make_id, is_tmp_id =
-  let tmp_prefix = "__GF_inst_" in
+  let tmp_prefix = "__" (*"__GF_inst_"*) in
   let id = ref (-1) in
   let _reset () = id := 0 in
   let _make = fun key ->
     incr id ;
-    (*let kstr = R_pp.string_of_key key in*)
-    tmp_prefix ^ (*kstr ^*) (string_of_int !id)
+    let kstr = R_pp.format_key_for_resource_id key in
+    tmp_prefix ^ kstr ^ "__" ^ (string_of_int !id)
   in
   let _is_tmp_id id =
     Misc.is_prefix tmp_prefix id

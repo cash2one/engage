@@ -196,7 +196,10 @@ def create_install_plan(resource_list):
     
     if graph.total_links > 0:
         raise InstallPlanError, "Install solution contains a cycle"
-
+    ## # for debugging
+    ## logger.info("Install plan:")
+    ## for res in result_list:
+    ##     logger.info("  %s [%s %s]" % (res.id, res.key["name"], res.key["version"]))
     return result_list
 
 

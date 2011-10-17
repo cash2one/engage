@@ -51,9 +51,12 @@ def define_error(error_code, msg):
 # error codes
 # FILL IN
 ERR_NOT_INSTALLED = 1
+ERR_ADMIN_PW_KEY  = 2
 
 define_error(ERR_NOT_INSTALLED,
              _("MySQL resource file %(file)s found, but associated port %(port)s not installed"))
+define_error(ERR_ADMIN_PW_KEY,
+             _("Password key property %(prop)s has invalid value %(value)s"))
 
 
 # setup logging
@@ -124,8 +127,13 @@ class Manager(service_manager.Manager, PasswordRepoMixin, SharedResourceWithPwDb
         return os.path.exists(self._get_metadata_filename())
 
     def _get_admin_password(self):
-        return self.install_context.password_repository.get_value(
-                   self.ctx.props.config_port.mysql_admin_password)
+        key = self.ctx.props.config_port.mysql_admin_password
+        if key==None or key=="<UNDEFINED>":
+            raise UserError(errors[ERR_ADMIN_PW_KEY],
+                            msg_args={"prop":"%s.config_port.mysql_admin_password" % \
+                                      self.ctx.props.id,
+                                      "value": key})
+        return self.install_context.password_repository.get_value(key)
         
     def install(self, package):
         p = self.ctx.props

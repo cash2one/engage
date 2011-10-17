@@ -196,11 +196,10 @@ def main(argv):
                           "pycrypto"))
 
     bootstrap_packages = [(["paramiko-1.7.6.zip"], "paramiko"),
-                          # we must install libcloud v 0.4.2, as 0.5.0 is broken
-                          (["apache-libcloud-0.4.2.tar.bz2"], None),
+                          (["apache-libcloud-0.5.2.tar.bz2"], None),
                           (["python-cloudfiles-1.7.9.1.tar.gz"], "python-cloudfiles"),
                           (["argparse-1.2.1.tar.gz"], "argparse"),
-                          (["provision-0.9.2.tar.gz"], None),
+                          (["provision-0.9.3-dev.tar.gz"], None),
                           (["nose-1.0.0.tar.gz"], "nose")]
     # run easy_install for all of the bootstrap packages
     for (package_file_list, alternate) in bootstrap_packages:

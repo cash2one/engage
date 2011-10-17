@@ -287,49 +287,104 @@ def has_executable_permission(path):
         return False
 
 def set_shared_file_group_and_permissions(path, group_name, logger=None,
-                                          writeable_to_group=False):
+                                          writable_to_group=False,
+                                          sudo_password=None):
     """For a file that is shared with another user (e.g. the webserver user),
     we may need to change its group to a shared group (e.g. www-data) and then
     give the file group read permissions (and execute for directories).
-    If writeable_to_group is true, we also make the file writable to the
+    If writable_to_group is true, we also make the file writable to the
     group.
+
+    If sudo_password is specified, we run this under sudo.
 
     TODO: don't system commands if file already has permissions
     """
     assert os.path.exists(path)
+    import process
     statinfo = os.stat(path)
     # grant rw for user and r for group
     permissions = stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP
     if stat.S_ISDIR(statinfo.st_mode) or (statinfo.st_mode & stat.S_IXUSR):
         # if a directory or executable, grant execute permissions
         permissions = permissions | stat.S_IXUSR | stat.S_IXGRP
-    if writeable_to_group:
+    if writable_to_group:
         permissions = permissions | stat.S_IWGRP
     gid = grp.getgrnam(group_name).gr_gid
-    if logger:
-        logger.action("chgrp %s %s" % (group_name, path))
-    os.chown(path, -1, gid)
-    if logger:
-        logger.action("chmode %o %s" % (permissions, path))
-    os.chmod(path, permissions)
+    if sudo_password:
+        process.sudo_chgrp(group_name, [path], sudo_password, logger)
+    else:
+        if logger:
+            logger.action("chgrp %s %s" % (group_name, path))
+        os.chown(path, -1, gid)
+    if sudo_password:
+        process.sudo_chmod(permissions, [path], sudo_password, logger)
+    else:
+        if logger:
+            logger.action("chmod %o %s" % (permissions, path))
+        os.chmod(path, permissions)
 
 
 def set_shared_directory_group_and_permissions(path, group_name, logger=None,
-                                               writeable_to_group=False):
+                                               writable_to_group=False):
     """Call set_shared_file_group_and_permissions() on the specified directory,
     all subdirectories, and files.
-    If writeable_to_group is true, we also make the directories/files writable to the
+    If writable_to_group is true, we also make the directories/files writable to the
     group.
     """
     assert os.path.isdir(path), "%s is not a directory" % path
     for (dirname, subdirs, files) in os.walk(path):
         set_shared_file_group_and_permissions(dirname, group_name, logger,
-                                              writeable_to_group=writeable_to_group)
+                                              writable_to_group=writable_to_group)
         for file in files:
             set_shared_file_group_and_permissions(os.path.join(dirname, file), group_name, logger,
-                                                  writeable_to_group=writeable_to_group)
+                                                  writable_to_group=writable_to_group)
 
-        
+
+def sudo_set_shared_directory_group_and_permissions(path, group_name, logger,
+                                                    sudo_password,
+                                                    writable_to_group=False):
+    assert os.path.isdir(path), "%s is not a directory" % path
+    import process
+    statinfo = os.stat(path)
+    # grant rw for user and r for group
+    permissions = stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP
+    if stat.S_ISDIR(statinfo.st_mode) or (statinfo.st_mode & stat.S_IXUSR):
+        # if a directory or executable, grant execute permissions
+        permissions = permissions | stat.S_IXUSR | stat.S_IXGRP
+    if writable_to_group:
+        permissions = permissions | stat.S_IWGRP
+    process.sudo_chgrp(group_name, [path], sudo_password, logger, recursive=True)
+    process.sudo_chmod(permissions, [path], sudo_password, logger, recursive=True)
+
+def sudo_ensure_directory_group_reachable(path, group_name, logger,
+                                          sudo_password):
+    """This ensures that the specified directory can be reached by members of
+    the specified group. If a parent directory does not have the necessary execute
+    permissions, this won't be the case. We work up the directory hierarchy, and if a
+    directory is not viewable by the group, we add execute permissions to either
+    group or other depending on whether the directory is in the specified group.
+
+    TODO: this is not going to work if the current user cannot read the directory.
+    To get around this, we would need to run the entire function as root or grab the
+    permissions using sudo in a subprocess.
+    """
+    import process
+    pdir = os.path.dirname(path)
+    gid = grp.getgrnam(group_name).gr_gid
+    while pdir != '/':
+        statinfo = os.stat(pdir)
+        if statinfo.st_gid == gid:
+            if (stinfo.st_mode & stat.S_IXGRP) == 0:
+                permissions = statinfo.st_mode | stat.S_IXGRP
+                process.sudo_chmod(permissions, [pdir], sudo_password, logger,
+                                   recursive=False)
+        elif (statinfo.st_mode & stat.S_IXOTH) == 0:
+            permissions = statinfo.st_mode | stat.S_IXOTH
+            process.sudo_chmod(permissions, [pdir], sudo_password, logger,
+                               recursive=False)
+        pdir = os.path.dirname(pdir)
+            
+            
 
 def get_file_permissions(path):
     """Return a tuple of (user_id, group_id, mode_bits) for the specified file.

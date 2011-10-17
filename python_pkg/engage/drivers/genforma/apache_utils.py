@@ -149,7 +149,7 @@ class apache_is_running(action.ValueAction):
                                            self.ctx._get_sudo_password(self), self.ctx.logger)
                 self.ctx.logger.debug("Apache status is up")
                 return True
-            except iuprocess.SudoExcept, e:
+            except iuprocess.SudoBadRc, e:
                 if e.rc == 1: # this means the server is down
                     self.ctx.logger.debug("Apache status is down")
                     if i != (timeout_tries-1): time.sleep(time_between_tries)
@@ -185,6 +185,31 @@ class add_apache_config_file(action.Action):
                                        new_name)
         else:
             target_path = os.path.join(apache_config.additional_config_dir,
+                                       os.path.basename(src_config_file))
+        iuprocess.sudo_copy([src_config_file, target_path], self.ctx._get_sudo_password(self), self.ctx.logger)
+        iuprocess.sudo_set_file_permissions(target_path, uid, gid, mode, self.ctx.logger, self.ctx._get_sudo_password(self))
+
+    def dry_run(self, src_config_file, apache_config, new_name=None):
+        pass
+
+class add_apache_module_config_file(action.Action):
+    """Copy an apache config file (src_config_file) to the module config directory
+    and set the permissions to match that of the master config file.
+    If new_name is specified, use that as the name. Otherwise,
+    use the name of src_config_file.
+    """
+    NAME="apache_utils.add_apache_config_file"
+    def __init__(self, ctx):
+        super(add_apache_module_config_file, self).__init__(ctx)
+        
+    def run(self, src_config_file, apache_config, new_name=None):
+        action._check_file_exists(src_config_file, self)
+        (uid, gid, mode) = fileutils.get_file_permissions(apache_config.config_file)
+        if new_name:
+            target_path = os.path.join(apache_config.module_config_dir,
+                                       new_name)
+        else:
+            target_path = os.path.join(apache_config.module_config_dir,
                                        os.path.basename(src_config_file))
         iuprocess.sudo_copy([src_config_file, target_path], self.ctx._get_sudo_password(self), self.ctx.logger)
         iuprocess.sudo_set_file_permissions(target_path, uid, gid, mode, self.ctx.logger, self.ctx._get_sudo_password(self))

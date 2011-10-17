@@ -15,9 +15,10 @@ join = os.path.join
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 INSTALLER_DEFAULTS = {
-    'websvr_hostname': 'localhost',
-    'websvr_listen_host': 'localhost',
+    'hostname': 'localhost',
     'port': 8000,
+    'websvr_hostname': 'localhost',
+    'websvr_port': 8000,
     'app_admin_password': 'test',
     'log_directory': '',
     'home': 'django_app',
@@ -133,5 +134,5 @@ def port_is_available(netloc):
 
 def get_netloc(config_map):
     """Return host:port obtained from config_map"""
-    return '%s:%s' % (config_map['websvr_listen_host'], config_map['port'])
+    return '%s:%s' % (config_map['websvr_hostname'], config_map['websvr_port'])
 

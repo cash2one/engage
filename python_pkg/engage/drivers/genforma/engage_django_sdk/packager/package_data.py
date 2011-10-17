@@ -27,6 +27,7 @@ KNOWN_PACKAGES_TO_APPS = {
       "django.contrib.markup",
       "django.contrib.messages",
       "django.contrib.redirects",
+      "django.contrib.staticfiles",
       "django.contrib.sessions",
       "django.contrib.sitemaps",
       "django.contrib.sites",

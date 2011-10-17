@@ -7,6 +7,9 @@ module config directory that contains the LoadModule line to load the
 shared library.
 """
 
+# If you run into issues with the compile not finding Python.h, try the following:
+# export CPPFLAGS=-I/opt/local/Library/Frameworks/Python.framework/Versions/2.7/include/python2.7
+
 # Common stdlib imports
 import sys
 import os
@@ -25,7 +28,8 @@ import engage.drivers.utils
 from engage.drivers.action import Context
 from engage.drivers.genforma.macports_pkg import port_install, is_installed
 from engage.drivers.genforma.apache_utils import apache_is_running, restart_apache, \
-                                                 add_apache_config_file
+                                                 add_apache_module_config_file
+                                                 
 from engage.utils.cfg_file import is_config_line_present
 from engage.drivers.password_repo_mixin import PasswordRepoMixin
 import engage.utils.file as fileutils
@@ -83,14 +87,13 @@ def make_context(resource_json, sudo_password_fn, dry_run=False):
                    config_file=str,
                    module_config_dir=str,
                    controller_exe=str)
+    ctx.checkp("output_ports.wsgi.config_file_path")
     python_version = ctx.props.input_ports.python.version
     if python_version not in variants.keys():
         raise UserError(errors[ERR_UNSUPPORTED_PYTHON_VERSION],
                         msg_args={"pyver":python_version,
                                   "supported_vers":variants.keys().__repr__()})
     ctx.add("variant", variants[python_version])
-    ctx.add("mod_wsgi_cfg_file",
-            os.path.join(ctx.props.input_ports.apache.module_config_dir, "mod_wsgi.conf"))
     return ctx
 
 
@@ -107,16 +110,21 @@ class Manager(resource_manager.Manager, PasswordRepoMixin):
         pass
 
     def is_installed(self):
+        logger.debug("in wsgi is_installed")
         rv = self.ctx.rv
         p = self.ctx.props
         if not rv(is_installed, PORTS_PACKAGE_NAME):
+            logger.debug("wsgi package not installed")
             return False
-        elif not os.path.exists(p.mod_wsgi_cfg_file):
+        elif not os.path.exists(p.output_ports.wsgi.config_file_path):
+            logger.debug("wsgi config file not present")
             return False
-        elif not is_config_line_present(p.mod_wsgi_cfg_file,
+        elif not is_config_line_present(p.output_ports.wsgi.config_file_path,
                                         APACHE_CONFIG_LINE):
+            logger.debug("wsgi config line not present in %s" % p.output_ports.wsgi.config_file_path)
             return False
         else:
+            logger.debug("mod_wsgi installed")
             return True
                                       
     def install(self, package):
@@ -127,8 +135,9 @@ class Manager(resource_manager.Manager, PasswordRepoMixin):
         # create the new configuration file
         apache_config = p.input_ports.apache
         with fileutils.NamedTempFile(data=APACHE_CONFIG_LINE+"\n") as f:
-            r(add_apache_config_file, f.name, apache_config,
+            r(add_apache_module_config_file, f.name, apache_config,
                        new_name="mod_wsgi.conf")
+            logger.debug("added mod_wsgi config file")
         if rv(apache_is_running, apache_config, timeout_tries=2):
             logger.info("%s: restarting apache after updating config file" %
                         p.id)

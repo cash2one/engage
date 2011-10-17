@@ -6,13 +6,15 @@ from optparse import OptionParser
 import json
 from subprocess import Popen
 import getpass
+import copy
+import shutil
 
 # fix path if necessary (if running from source or running as test)
 import fixup_python_path
 
 from engage.utils.user_error import UserError, EngageErrInf, convert_exc_to_user_error, UserErrorParseExc, parse_user_error, AREA_CONFIG
 
-from engage.engine.genforma_config import parse_genforma_config, \
+from engage.engine.installer_config import parse_installer_config, \
      ValidationResults, LocalFileType, ConfigProperty, PasswordType
 import engage.utils.log_setup as log_setup
 import engage.engine.install_engine as install_engine
@@ -23,6 +25,7 @@ import engage.utils.process as processutils
 import cmdline_script_utils
 import upgrade_engine
 import preprocess_resources
+from engage.utils.find_exe import find_python_executable
 
 
 import gettext
@@ -37,8 +40,12 @@ def define_error(error_code, msg):
 
 
 ERR_UNEXPECTED_EXC = 1
+ERR_SLAVE_BOOTSTRAP = 2
+
 define_error(ERR_UNEXPECTED_EXC,
              _("Aborting install due to unexpected error."))
+define_error(ERR_SLAVE_BOOTSTRAP,
+             _("Bootstrap of slave node %(host)s failed"))
 
 ############################################################
 # constants
@@ -73,7 +80,6 @@ class LovValidator(InputValidator):
     def validate(self, data, choice_history):
         if data in self.values:
             return ValidationResults(True)
-            return True
         else:
             return ValidationResults(False, "Please specify one of %s" % self.values)
 
@@ -259,7 +265,7 @@ class ConfigChoices(object):
 
 
 def select_configuration(installer_file_layout, config_choices):
-    install_spec_options = installer_file_layout.get_genforma_config().install_spec_options
+    install_spec_options = installer_file_layout.get_installer_config().install_spec_options
     if len(install_spec_options)==1:
         # special case if there is only one option
         return 0
@@ -270,7 +276,8 @@ def select_configuration(installer_file_layout, config_choices):
 
 def get_target_machine_resource(deployment_home, log_directory):
     machine_info = system_info.get_machine_info(os_choices)
-    tr = system_info.get_target_machine_resource(machine_info["hostname"],
+    tr = system_info.get_target_machine_resource("master-host",
+                                                 machine_info["hostname"],
                                                  machine_info["username"],
                                                  "GenForma/%s/sudo_password" % machine_info["username"],
                                                  machine_info["os"], machine_info["private_ip"])
@@ -278,24 +285,104 @@ def get_target_machine_resource(deployment_home, log_directory):
     tr['config_port']['log_directory'] = log_directory
     return tr
 
-    
-def create_install_spec(target_machine, install_spec_option_no, installer_file_layout):
-    def find_python_version(key):
-        """For now, we grab the version of python from the current one we're using. This
-        is somewhat dependent on the way our bootstrap works.
-        TODO: decouple the engage python version from the install app python version.
-        """
-        return "%d.%d" % (sys.version_info[0], sys.version_info[1])
 
-    substitutions = {
-        u"targetMachineResource": json.dumps(target_machine),
-        u"hostname": target_machine["config_port"]["hostname"],
-        u"targetMachineKey": json.dumps(target_machine["key"]),
-        u"pythonVersion": find_python_version(target_machine["key"]) # XXX should get rid of this eventually
-    }
-    subst_utf8_template_file(installer_file_layout.get_install_spec_file(install_spec_option_no),
-                             substitutions,
-                             srcfile=installer_file_layout.get_install_spec_template_file(install_spec_option_no))
+def setup_slave_host(resource, master_deployment_home,
+                     password_file, password_salt_file, logger):
+    bootstrap_script = os.path.abspath(os.path.join(master_deployment_home,
+                                                    "engage/bootstrap.py"))
+    assert os.path.exists(bootstrap_script), "Can't find bootstrap script %s" % \
+                                             bootstrap_script
+    python_exe = find_python_executable(logger)
+    
+    dh = resource["config_port"]["genforma_home"]
+    logger.info("Bootstrapping slave node %s" % resource["id"])
+    deployed_nodes_root = os.path.dirname(dh)
+    if not os.path.exists(deployed_nodes_root):
+        os.makedirs(deployed_nodes_root)
+    try:
+        rc = processutils.run_and_log_program([python_exe, bootstrap_script, "-p",
+                                               python_exe, dh], None, logger,
+                                              cwd=os.path.dirname(bootstrap_script))
+    except Exception, e:
+        logger.exception("Error in slave bootstrap for %s: %s" % (e, resource["id"]))
+        raise UserError(errors[ERR_SLAVE_BOOTSTRAP],
+                        msg_args={"host":resource["id"]},
+                        developer_msg="deployment home was %s" % dh)
+    if rc!=0:
+        raise UserError(errors[ERR_SLAVE_BOOTSTRAP],
+                        msg_args={"host":resource["id"]},
+                        developer_msg="deployment home was %s" % dh)
+    if password_file:
+        assert password_salt_file
+        slave_pw_file = os.path.join(os.path.join(dh, "config"),
+                                     os.path.basename(password_file))
+        shutil.copy(password_file, slave_pw_file)
+        slave_pw_salt_file = os.path.join(os.path.join(dh, "config"),
+                                          os.path.basename(password_salt_file))
+        shutil.copy(password_salt_file, slave_pw_salt_file)
+    logger.debug("Slave %s bootstrap successful" % resource["id"])
+
+
+def create_install_spec(master_node_resource, install_spec_option_no,
+                        installer_file_layout, logger):
+    """Create the install spec from the abstract template and write it to the
+    specified file. Currently, the multinode version just assumes that we are creating
+    slaves locally. Returns a list of the host resources.
+    """
+    assert master_node_resource["id"]=="master-host", \
+           "Id of local host should be master-host"
+    deployed_nodes_root = \
+        os.path.join(master_node_resource["config_port"]["genforma_home"],
+                     "deployed_nodes")
+    spec = preprocess_resources.parse_raw_install_spec_file(
+               installer_file_layout.get_install_spec_template_file(
+                   install_spec_option_no))
+    fixup_resources = []
+    dynamic_hosts = preprocess_resources.query_install_spec(spec,
+                                                            name="dynamic-host",
+                                                            version="*")
+    for host in dynamic_hosts:
+        if host["id"] == "master-host":
+            fixup_resources.append(master_node_resource)
+        else:
+            # we currently just create fake nodes under the master node
+            slave_resource = copy.deepcopy(master_node_resource)
+            slave_resource["id"] = host["id"]
+            slave_dh = os.path.join(deployed_nodes_root, host["id"])
+            slave_resource["config_port"]["genforma_home"] = slave_dh
+            slave_resource["config_port"]["log_directory"] = \
+                                                           os.path.join(slave_dh, "log")
+            fixup_resources.append(slave_resource)
+    python_insts = preprocess_resources.query_install_spec(spec,
+                                                           name="python",
+                                                           version="*")
+    python_key = {"name":"python", "version":"%d.%d" % (sys.version_info[0],
+                                                        sys.version_info[1])}
+    for pyinst in python_insts:
+        new_inst = copy.deepcopy(pyinst)
+        new_inst["key"] = python_key
+        fixup_resources.append(new_inst)
+        
+    spec = \
+      preprocess_resources.fixup_installed_resources_in_install_spec(spec,
+                                                                     fixup_resources)
+    with open(installer_file_layout.get_install_spec_file(install_spec_option_no),
+              "wb") as f:
+        # write the actual spec
+        json.dump(spec, f)
+
+    # find hosts and return a list of the host resources
+    all_hosts = []
+    for inst in spec:
+        # a host is a resource that isn't inside any other resource
+        if inst.has_key("inside"):
+            continue
+        # check that host has the expected mimimal config values
+        assert inst.has_key("config_port")
+        assert (inst["config_port"]).has_key("genforma_home")
+        assert (inst["config_port"]).has_key("log_directory")
+        all_hosts.append(inst)
+    return all_hosts
 
 
 def set_install_spec_properties(installer_file_layout, install_spec_option_no,
@@ -316,7 +403,7 @@ def set_install_spec_properties(installer_file_layout, install_spec_option_no,
             resource['config_port'] = {}
         resource['config_port'][prop_name] = prop_value
         
-    gc = installer_file_layout.get_genforma_config()
+    gc = installer_file_layout.get_installer_config()
     config_props = gc.get_config_properties_for_install_spec(install_spec_option_no)
     if len(config_props)==0 and (not gc.has_application_archive()):
         return
@@ -340,8 +427,13 @@ def set_install_spec_properties(installer_file_layout, install_spec_option_no,
         if not result.successful():
             raise Exception("Validation error in application achive '%s': %s" %
                             (archive_path, result.get_error_message()))
-        install_spec.extend(av.get_app_dependency_resources(target_machine["id"],
-                                                            target_machine["key"]))
+        included_resources = set([inst["id"] for inst in install_spec])
+        dependencies = av.get_app_dependency_resources(target_machine["id"],
+                                                       target_machine["key"])
+        for dep in dependencies:
+            if not (dep["id"] in included_resources):
+                install_spec.append(dep)
+                included_resources.add(dep["id"])
         # set the associated property in the install spec
         r = find_resource(av.resource, install_spec)
         assert r, "Unable to find resource %s in install spec" % av.resource
@@ -404,6 +496,7 @@ def system(command, cwd=None, shell=True):
 
     
 def run_config_engine(req, install_spec_file, logger):
+    preprocess_resources.validate_install_spec(install_spec_file)
     ifl = req.installer_file_layout
     install_script_file = ifl.get_install_script_file()
     # we run the config engine from the same directory as where we want
@@ -547,8 +640,8 @@ class InstallRequest(object):
 def run(req, logger):
     install_spec_option_no = select_configuration(req.installer_file_layout, req.config_choices)
     
-    # If what the genforma_config file says about passwords -- will be either True, False or None
-    password_required = req.installer_file_layout.get_genforma_config().is_password_required(install_spec_option_no)
+    # If what the installer_config file says about passwords -- will be either True, False or None
+    password_required = req.installer_file_layout.get_installer_config().is_password_required(install_spec_option_no)
     if req.options.no_password_file and password_required==True:
         parser.error("--no-password-file is not permitted with this installer")
     use_password = (password_required==True) or (password_required==None and (not req.options.no_password_file)) or \
@@ -560,21 +653,30 @@ def run(req, logger):
 
     # create the install spec
     target_machine = get_target_machine_resource(req.deployment_home, req.installer_file_layout.get_log_directory())
-    create_install_spec(target_machine, install_spec_option_no, req.installer_file_layout)
+    hosts = create_install_spec(target_machine, install_spec_option_no,
+                                req.installer_file_layout, logger)
 
     # here is were we handle any additional configuration inputs
     password_list = set_install_spec_properties(req.installer_file_layout, install_spec_option_no,
                                                 req.config_choices, target_machine, logger)
 
     # setup the password repository
+    def get_pw_file_and_salt():
+        return \
+          (os.path.join(req.installer_file_layout.get_password_file_directory(),
+                        pw_repository.REPOSITORY_FILE_NAME),
+           os.path.join(req.installer_file_layout.get_password_file_directory(),
+                        pw_repository.SALT_FILE_NAME))
+    
     if req.upgrade_from and os.path.exists(os.path.join(req.installer_file_layout.get_password_file_directory(), "pw_repository")):
         # If we are running an upgrade and the old password file exists, we read it.
         # TODO: what if we need to add or change the password file?
         import engage.utils.pw_repository as pw_repository
         load_from_file = pw_repository.PasswordRepository.load_from_file
-        passwords = load_from_file(os.path.join(req.installer_file_layout.get_password_file_directory(), "pw_repository"),
-                                   os.path.join(req.installer_file_layout.get_password_file_directory(), "pw_salt"),
-                                   get_password_input("Sudo password:", read_from_stdin=req.options.subproc))
+        (pw_file, pw_salt_file) = get_pw_file_and_salt()
+        passwords = load_from_file(pw_file, pw_salt_file,
+                                   get_password_input("Sudo password:",
+                                                      read_from_stdin=req.options.subproc))
     elif use_password or len(password_list)>0:
         # Otherwise, if there is a fresh install, we generate a new password file
         # and pass along the in-memory copy of the database to the install engine.
@@ -586,10 +688,13 @@ def run(req, logger):
                           passwords.user_key)
         for (key, value) in password_list:
             passwords.add_key(key, value)
-        passwords.save_to_file(os.path.join(req.installer_file_layout.get_password_file_directory(), pw_repository.REPOSITORY_FILE_NAME),
-                               salt_filename=os.path.join(req.installer_file_layout.get_password_file_directory(), pw_repository.SALT_FILE_NAME))
+        (pw_file, pw_salt_file) = get_pw_file_and_salt()
+        passwords.save_to_file(pw_file,
+                               salt_filename=pw_salt_file)
     else:
         passwords = None
+        pw_file = None
+        pw_salt_file = None
 
     # save the history file to user location, if provided
     if req.options.history_file:
@@ -612,6 +717,10 @@ def run(req, logger):
         return 0
 
     if not req.upgrade_from: # this is a fresh install
+        for host in hosts:
+            if host["id"] != "master-host":
+                setup_slave_host(host, req.deployment_home, pw_file, pw_salt_file,
+                                 logger)
         install_engine_args = []
         if passwords == None:
             install_engine_args.append("--no-password-file")

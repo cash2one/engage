@@ -31,23 +31,29 @@
         "description": "Application Administrator's Email Address",
         "default":"admin@example.com"
       },
-      { "resource": "django-1",
-        "name": "websvr_hostname",
-        "type": "string",
-        "description": "Webserver hostname",
-        "optional": true
-      },
-      { "resource": "django-1",
-        "name": "websvr_listen_host",
-        "type": "string",
+      { "resource": "django-webserver-config",
+        "name": "hostname",
+        "type": "hostname",
         "description": "Webserver listen host",
-        "optional": true
+        "default": "0.0.0.0"
       },
       { "resource": "django-webserver-config",
         "name": "port",
         "type": "int",
         "description": "Webserver listen port",
         "default": 8000
+      },
+      { "resource": "django-1",
+        "name": "websvr_hostname",
+        "type": "hostname",
+        "description": "Webserver public hostname",
+        "default": ""
+      },
+      { "resource": "django-1",
+        "name": "websvr_port",
+        "type": "int",
+        "description": "Webserver public port",
+        "optional": true
       },
       { "resource": "django-1",
         "name": "log_directory",
@@ -67,12 +73,65 @@
       { "resource": "django-1",
         "name": "app_admin_password",
         "type": "string",
-        "description": "Application Administrator's Password"
+        "description": "Application Administrator's Password",
+        "default": "test"
       },
       { "resource": "django-1",
         "name": "admin_email",
         "type": "string",
-        "description": "Application Administrator's Email Address"
+        "description": "Application Administrator's Email Address",
+        "default": "admin@example.com"
+      },
+      { "resource": "django-1",
+        "name": "log_directory",
+        "type": "path-to-be-created",
+        "description": "Directory for logfiles",
+        "optional": true
+      }]},
+   { "choice_name":"Multinode install with MySQL on dedicated server (not yet fully functional)", "file_name": "django_multinode_inst_spec.json",
+    "password_required": true,
+    "config_properties": [
+      { "resource": "django-1",
+        "name": "home",
+        "type": "install-subdir",
+        "description": "Install directory for Django application",
+        "default": "django_app"
+      },
+      { "resource": "django-1",
+        "name": "app_admin_password",
+        "type": "string",
+        "description": "Application Administrator's Password",
+        "default":"test"
+      },
+      { "resource": "django-1",
+        "name": "admin_email",
+        "type": "string",
+        "description": "Application Administrator's Email Address",
+        "default":"admin@example.com"
+      },
+      { "resource": "django-webserver-config",
+        "name": "hostname",
+        "type": "hostname",
+        "description": "Webserver listen host",
+        "default": "0.0.0.0"
+      },
+      { "resource": "django-webserver-config",
+        "name": "port",
+        "type": "int",
+        "description": "Webserver listen port",
+        "default": 8000
+      },
+      { "resource": "django-1",
+        "name": "websvr_hostname",
+        "type": "hostname",
+        "description": "Webserver public hostname",
+        "default": ""
+      },
+      { "resource": "django-1",
+        "name": "websvr_port",
+        "type": "int",
+        "description": "Webserver public port",
+        "optional": true
       },
       { "resource": "django-1",
         "name": "log_directory",

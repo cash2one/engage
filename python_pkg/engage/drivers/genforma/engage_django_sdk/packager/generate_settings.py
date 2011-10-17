@@ -33,6 +33,7 @@ DATABASE_HOST="database_host"
 DATABASE_PORT="database_port"
 CACHE_BACKEND="cache_backend"
 CACHE_LOCATION="cache_location"
+STATIC_ROOT="static_root"
 
 CELERY_CONFIG_BROKER_HOST="rabbitmq_host"
 CELERY_CONFIG_BROKER_PORT="rabbitmq_port"
@@ -93,6 +94,8 @@ DATABASES = {
 }
 TIME_ZONE = '${time_zone}'
 SECRET_KEY = '${secret_key}'
+
+STATIC_ROOT = ${static_root}
 
 ENGAGE_DJANGO_COMPONENTS = ${engage_django_components}
 
@@ -206,6 +209,9 @@ if "SECRET_KEY_OVERRIDE" not in _symbols:
 if "DATABASES_OVERRIDE" not in _symbols:
     DATABASES = engage_settings.DATABASES
 
+if "STATIC_ROOT_OVERRIDE" not in _symbols:
+    STATIC_ROOT = engage_settings.STATIC_ROOT
+
 if ("CACHES_OVERRIDE" not in _symbols) and \
    ('memcached' in engage_settings.ENGAGE_DJANGO_COMPONENTS):
     CACHES = engage_settings.CACHES
@@ -239,6 +245,8 @@ if ('MEDIA_URL' in _symbols) and (MEDIA_URL != ''):
     MEDIA_URL = engage_settings.fixup_url(MEDIA_URL, True)
 if ('ADMIN_MEDIA_PREFIX' in _symbols) and (ADMIN_MEDIA_PREFIX != ''):
     ADMIN_MEDIA_PREFIX = engage_settings.fixup_url(ADMIN_MEDIA_PREFIX, True)
+if ('STATIC_URL' in _symbols) and (STATIC_URL != ''):
+    STATIC_URL = engage_settings.fixup_url(STATIC_URL, True)
 
 # logging config support not yet in released django,
 # so we call it explicitly. This is similar to the latest code
@@ -315,13 +323,14 @@ def generate_settings_file(app_dir_path, django_settings_module, components_list
             CELERY_CONFIG_BROKER_PASSWORD:'None',
             CELERY_CONFIG_BROKER_VHOST:'None',
             CELERY_CONFIG_CELERY_RESULT_BACKEND:'None',
+            STATIC_ROOT: 'None',
             REDIS_HOST:"localhost",
             REDIS_PORT:6379,
             HOSTNAME: "localhost",
             PRIVATE_IP_ADDRESS: None,
             PORT: 8000,
             LOG_DIRECTORY: os.path.join(app_dir_path, "log"),
-            TIME_ZONE: _gen_rand_string(8),
+            TIME_ZONE: "America/Chicago",
             EMAIL_HOST: 'bar.com',
             EMAIL_HOST_USER: "admin",
             EMAIL_FROM: 'admin@bar.com',
@@ -339,6 +348,10 @@ def generate_settings_file(app_dir_path, django_settings_module, components_list
             lowered_components_list.__repr__()
         if properties["database_port"]==None:
             properties["database_port"]=="''"
+        if properties[STATIC_ROOT]!=None:
+            properties[STATIC_ROOT] = '"' + properties[STATIC_ROOT] + '"'
+        else:
+            properties[STATIC_ROOT] = "None"
 
     template = string.Template(engage_settings_template)
     result = template.substitute(properties)

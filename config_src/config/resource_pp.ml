@@ -7,6 +7,8 @@
  *
  *)
 
+open Str
+
 open Resources
 open Json
 
@@ -472,3 +474,19 @@ let string_of_key key =
   let sref = ref "" in
   pp_key key (make_pp_state (output_to_str sref));
   !sref
+
+let format_key_for_resource_id (key:(symbol*scalar_val) list) :string =
+  let r = Str.regexp "-\\| \\|\\." in (* match dash, space, or period *)
+  let format_val sv =
+    Str.global_replace r "_" 
+      (match sv with
+           Integer i -> string_of_int i
+         | String s -> s
+         | Boolean true -> "true"
+         | Boolean false -> "false"
+         | Null -> "null")
+  in
+  let name = format_val (List.assoc "name" key) and
+      version = format_val (List.assoc "version" key) in
+    name ^ "__" ^ version
+

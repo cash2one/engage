@@ -148,7 +148,7 @@ class UserError(Exception):
 
     def write_error_to_file(self, filename):
         errfile = open(filename, "wb")
-        json.dump(self.json_repr(), errfile)
+        json.dump(self.json_repr(), errfile, indent=2)
         errfile.close()
 
     def append_to_context_bottom(self, msg):

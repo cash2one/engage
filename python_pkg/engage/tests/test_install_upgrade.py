@@ -30,12 +30,14 @@ INSTALLERS = {
                 APPLICATION_ARCHIVE_PROP: join(tc.DEMO_DIR, 'codespeed-bad.tgz'),
                 'expected_exit_code': 3}
             },
-        'django-blog2': {
-            'install': {
-                APPLICATION_ARCHIVE_PROP: join(tc.DEMO_DIR, 'django-blog2.tgz')},
-            'upgrade': {
-                APPLICATION_ARCHIVE_PROP: join(tc.DEMO_DIR, 'django-blog2.tgz'),}
-            }
+# JF 2011-10-04: Had to comment out because httlib2 isn't accessible from
+# Rackspace. It is included in django-blog2's requirements.txt file.
+##        'django-blog2': {
+##            'install': {
+##                APPLICATION_ARCHIVE_PROP: join(tc.DEMO_DIR, 'django-blog2.tgz')},
+##            'upgrade': {
+##                APPLICATION_ARCHIVE_PROP: join(tc.DEMO_DIR, 'django-blog2.tgz'),}
+##            }
         }
     }
 
@@ -45,8 +47,8 @@ OPERATIONS = ['install', 'upgrade']
 def app_is_available(config_map):
     """Determine availability by making requests based on url templates"""
     templates = config_map['expected_url_codes']
-    host = config_map['websvr_listen_host']
-    port = config_map['port']
+    host = config_map['websvr_hostname']
+    port = config_map['websvr_port']
 
     urls = [(tmpl.format(host=host, port=port), ex) for (tmpl, ex) in templates]
     tc.logger.debug('Checking app availability at %s' % urls)

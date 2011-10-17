@@ -2,6 +2,9 @@
   {"id":"master-host",
      "key": {"name":"dynamic-host", "version":"*"}
   },
+  {"id":"database-host",
+     "key": {"name":"dynamic-host", "version":"*"}
+  },
   { "id":"python-master-host",
     "key": {"name":"python", "version":"*"},
     "properties": {
@@ -31,8 +34,22 @@
       }
     ]
   },
+ {
+    "id": "mysql-server",
+    "key": {
+      "version": "5.1",
+      "name": "mysql-macports"
+    },
+    "inside": {
+      "id": "database-host",
+      "key": {"name":"dynamic-host", "version":"*"},
+      "port_mapping": {
+        "host": "host"
+      }
+    }
+  },  
   { "id": "django-webserver-config",
-    "key": {"name": "django-apache-webserver", "version": "1.0"},
+    "key": {"name": "django-development-webserver", "version": "1.0"},
     "inside": {
       "id": "master-host",
       "key": {"name":"dynamic-host", "version":"*"},
@@ -44,9 +61,15 @@
     "key": {"name": "Django-App", "version": "1.0"},
     "inside": {
       "id": "master-host",
-      "key": {"name":"dynamic-host", "version":"*"},
+      "key": {"name":"dynamic-host", "version":"*"}, 
       "port_mapping": {"host": "host"}
     },
+    "environment": [
+      { "id":"python-master-host",
+        "key": {"name":"python", "version":"*"},
+        "port_mapping": {"python":"python"}
+      }
+    ],
     "properties": {
       "app_short_name": "django"
     }

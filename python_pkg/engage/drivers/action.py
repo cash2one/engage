@@ -163,6 +163,7 @@ The following actions are defined by this module:
   create_engage_dist <target_path>
   ensure_dir_exists <dir-path>
   ensure_shared_perms<path> <group_name> {writable_to_group=False}
+  sudo_ensure_shared_perms<path> <group_name> {writable_to_group=False}
   extract_package_as_dir <package> <desired-install-path>
   instantiate_template_str <src_string> <target_path>
   run_program <program_and_args> {cwd=None} {env_mapping=None}
@@ -993,11 +994,24 @@ def ensure_shared_perms(self, path, group_name, writable_to_group=False):
     _check_file_exists(path, self)
     if os.path.isdir(path):
         fileutils.set_shared_directory_group_and_permissions(path, group_name,
-            self.ctx.logger, writeable_to_group=writable_to_group)
+            self.ctx.logger, writable_to_group=writable_to_group)
     else:
         fileutils.set_shared_file_group_and_permissions(path, group_name,
-            self.ctx.logger, writeable_to_group=writable_to_group)
+            self.ctx.logger, writable_to_group=writable_to_group)
 
+@make_action
+def sudo_ensure_shared_perms(self, path, group_name, writable_to_group=False):
+    _check_file_exists(path, self)
+    if os.path.isdir(path):
+        fileutils.sudo_set_shared_directory_group_and_permissions(path, group_name,
+            self.ctx.logger, self.ctx._get_sudo_password(self),
+            writable_to_group=writable_to_group)
+    else:
+        fileutils.set_shared_file_group_and_permissions(path, group_name,
+            self.ctx.logger, writable_to_group=writable_to_group,
+            sudo_password=self.ctx._get_sudo_password(self))
+    fileutils.sudo_ensure_directory_group_reachable(path, group_name, self.ctx.logger,
+                                                    self.ctx._get_sudo_password(self))
 
 @make_action
 def start_server(self, cmd_and_args, log_file, pid_file, cwd=None, environment={}):

@@ -48,6 +48,7 @@ import re
 import sys
 from random import choice
 import json
+import urlparse
 
 import fixup_python_path
 from django_file_layout import create_file_layout
@@ -65,7 +66,7 @@ import engage_django_sdk.packager.archive_handlers
 import engage_django_sdk.packager.generate_settings as gs
 from engage.drivers.backup_file_resource_mixin import BackupFileMixin
 from engage.drivers.password_repo_mixin import PasswordRepoMixin
-from engage.drivers.action import Context
+from engage.drivers.action import *
 
 
 from engage.utils.user_error import ScriptErrInf, UserError, convert_exc_to_user_error
@@ -157,6 +158,7 @@ _config_type = {
   "config_port": {
     "home": unicode,
     "websvr_hostname": unicode,
+    "websvr_port": int,
     "admin_name": unicode,
     "admin_email": unicode,
     "email_host": unicode,
@@ -188,9 +190,14 @@ _config_type = {
       #"PORT": int
     },
     "webserver_config": {
-      "port": int,
+      "listen_host": unicode,
+      "listen_port": int,
       "webserver_type": unicode,
-      "controller_exe": unicode
+      "controller_exe": unicode,
+      "file_owner_group": unicode,
+      "config_file":unicode,
+      "additional_config_dir": unicode,
+      "log_dir":unicode
     }
   },
   "output_ports": {
@@ -246,6 +253,17 @@ class Config(resource_metadata.Config):
                                  os.path.join(self.input_ports.host.genforma_home,
                                               "engage/sw_packages"))
 
+        if self.input_ports.webserver_config.webserver_type == "apache":
+            self._add_computed_prop("apache_django_conf_file",
+                                    os.path.join(self.input_ports.webserver_config.additional_config_dir, self.app_short_name + "_apache_wsgi.conf"))
+            if sys.platform=="darwin":
+                self._add_computed_prop("mod_wsgi_config_file",
+                                        "/opt/local/apache2/conf/engage_modules/mod_wsgi.conf")
+            else:
+                self._add_computed_prop("mod_wsgi_config_file",
+                                        "/etc/apache2/mods-enabled/wsgi.conf")
+
+
 
 
 def make_context(resource_json, sudo_password_fn, dry_run=False):
@@ -286,14 +304,21 @@ class Manager(BackupFileMixin, PasswordRepoMixin, service_manager.Manager):
         throw an error.
         """
         logger.info("Checking for response from Django server")
+        if self.config.input_ports.webserver_config.listen_host != "0.0.0.0":
+            test_hostname = self.config.input_ports.webserver_config.listen_host
+        else:
+            test_hostname = "localhost"
+        test_port = self.config.input_ports.webserver_config.listen_port
         for i in range(TIMEOUT_TRIES):
-            if iuhttp.check_url(self.config.config_port.websvr_hostname, self.config.input_ports.webserver_config.port, self.test_url, logger):
+            if iuhttp.check_url(test_hostname, test_port, self.test_url,
+                                logger):
                 logger.info("Server responds.")
                 return
             time.sleep(TIME_BETWEEN_TRIES)
         raise UserError(errors[ERR_DJANGO_NO_RESP],
                         msg_args={"appname":self.config.app_short_name},
-                        developer_msg="url was http://%s:%d%s" % (self.config.config_port.websvr_hostname, self.config.input_ports.webserver_config.port,
+                        developer_msg="url was http://%s:%d%s" % (test_hostname,
+                                                                  test_port,
                                                                   self.test_url))
 
     def _run_python_script(self, script_name, arglist, file_layout, input=None):
@@ -346,7 +371,7 @@ class Manager(BackupFileMixin, PasswordRepoMixin, service_manager.Manager):
         """
         files = [self.config.home_path,]
         if self.config.input_ports.webserver_config.webserver_type=="apache":
-            files.append("/etc/apache2/sites-enabled/%s_apache_wsgi.conf" % self.config.app_short_name)
+            files.append(self.config.apache_django_conf_file)
         return files
 
 
@@ -389,17 +414,46 @@ class Manager(BackupFileMixin, PasswordRepoMixin, service_manager.Manager):
 
         file_layout = create_file_layout(django_config, common_dirname,
                                          self.config.home_path,
-                                         self.config.django_admin_script)
+                                         self.config.django_admin_script,
+                                         self.config.config_port.websvr_hostname,
+                                         self.config.config_port.websvr_port)
         file_layout.write_as_json_file(self.config.output_ports.django.layout_cfg_file)
         return (file_layout, django_config)
     
     def _wsgi_setup(self, file_layout):
         # setup the wsgi configuration files
         # TODO: eventually, this should go into a separate driver
+        def get_url_for_mapping(full_url):
+            path = urlparse.urlparse(full_url)[2]
+            if not (path[len(path)-1]=='/'):
+                path = path + "/"
+            return path
+        def get_path_for_mapping(path):
+            if not path[len(path)-1]=='/':
+                path = path + "/"
+            return path
+        def get_apache_directory_decl(path):
+            return "<Directory %s>\nOrder deny,allow\nAllow from all\n</Directory>\n" % path
         wsgi_deploy_dir_path = os.path.join(self.config.home_path, "wsgi_deploy")
         if not os.path.exists(wsgi_deploy_dir_path):
             logger.action("mkdir -p %s" % wsgi_deploy_dir_path)
             os.makedirs(wsgi_deploy_dir_path)
+        media_alias_directives = ""
+        media_directory_directives = ""
+        if file_layout.has_media_url_mapping():
+            (media_url, media_root) = file_layout.get_media_url_mapping()
+            media_alias_directives += "Alias %s %s\n" % (get_url_for_mapping(media_url),
+                                                       get_path_for_mapping(media_root))
+            media_directory_directives += get_apache_directory_decl(media_root)
+        if file_layout.has_static_url_mapping():
+            (static_url, static_root) = file_layout.get_static_url_mapping()
+            media_alias_directives += "Alias %s %s\n" % (get_url_for_mapping(static_url),
+                                                       get_path_for_mapping(static_root))
+            media_directory_directives += get_apache_directory_decl(static_root)
+        error_log = os.path.join(self.config.input_ports.webserver_config.log_dir,
+                                 "error.log")
+        access_log = os.path.join(self.config.input_ports.webserver_config.log_dir,
+                                  "access.log")
         wsgi_substitutions = {
             "install_path": self.config.home_path,
             "settings_file_directory": file_layout.get_settings_file_directory(),
@@ -407,7 +461,14 @@ class Manager(BackupFileMixin, PasswordRepoMixin, service_manager.Manager):
             "python_exe": self.config.input_ports.python.home,
             "genforma_home": self.config.input_ports.host.genforma_home,
             "django_settings_module": file_layout.get_deployed_settings_module(),
-            "app_short_name": self.config.app_short_name
+            "app_short_name": self.config.app_short_name,
+            "file_owner_group": self.config.input_ports.webserver_config.file_owner_group,
+            "additional_config_dir":self.config.input_ports.webserver_config.additional_config_dir,
+            "media_alias_directives":media_alias_directives,
+            "media_directory_directives":media_directory_directives,
+            "apache_error_log": error_log,
+            "apache_access_log": access_log,
+            "apache_log_dir":self.config.input_ports.webserver_config.log_dir
         }
         target_wsgi_file = os.path.join(wsgi_deploy_dir_path, "apache_wsgi.wsgi")
         wsgi_file_template = iufile.get_data_file_path(__file__,"apache_wsgi.wsgi")
@@ -422,20 +483,20 @@ class Manager(BackupFileMixin, PasswordRepoMixin, service_manager.Manager):
             conf_file_template = iufile.get_data_file_path(__file__,"django_apache_wsgi.conf")
         target_conf_file = os.path.join(wsgi_deploy_dir_path, "%s_apache_wsgi.conf" % self.config.app_short_name)
         iufile.instantiate_template_file(conf_file_template, target_conf_file, wsgi_substitutions, logger=logger)
-        # We install a shell script that can be used to configure the wsgi.conf file
-        config_mod_wsgi_file = os.path.join(wsgi_deploy_dir_path, "config_mod_wsgi.sh")
-        iufile.instantiate_template_file(iufile.get_data_file_path(__file__, "config_mod_wsgi.sh"),
-                                         config_mod_wsgi_file,
-                                         wsgi_substitutions, logger=logger)
-        # now run the shell script
-        try:
-            iuprocess.run_sudo_program([config_mod_wsgi_file], self._get_sudo_password(), logger,
-                                       cwd=wsgi_deploy_dir_path)
-        except iuprocess.SudoExcept, e:
-            exc_info = sys.exc_info()
-            raise convert_exc_to_user_error(exc_info, errors[ERR_WSGI_SCRIPT],
-                                            msg_args={"script":config_mod_wsgi_file},
-                                            nested_exc_info=e.get_nested_exc_info())
+        
+        self.ctx.r(sudo_add_config_file_line, self.config.mod_wsgi_config_file,
+                   "WSGIPythonHome %s/python" % self.config.input_ports.host.genforma_home)
+        self.ctx.r(sudo_ensure_shared_perms,
+                   self.config.input_ports.webserver_config.log_dir,
+                   self.config.input_ports.webserver_config.file_owner_group,
+                   writable_to_group=True)
+        self.ctx.r(sudo_ensure_shared_perms,
+                   self.config.input_ports.host.genforma_home, 
+                   self.config.input_ports.webserver_config.file_owner_group,
+                   writable_to_group=True)
+        self.ctx.r(apache_utils.add_apache_config_file,
+                   target_conf_file,
+                   self.config.input_ports.webserver_config)
 
     def install(self, package, upgrade=False):
         # verify that the django-admin.py utility was installed (as a part of the
@@ -454,13 +515,19 @@ class Manager(BackupFileMixin, PasswordRepoMixin, service_manager.Manager):
             self._install_pip_requirements(requirements_file_path)
         else:
             logger.debug("Requirements file '%s' not found, skipping requirements step" % requirements_file_path)
+
+        if file_layout.has_static_url_mapping():
+            (static_url, static_root) = file_layout.get_static_url_mapping()
+        else:
+            static_url = static_root = None
+            
             
         # Instantiate the settings file
         substitutions = {
             gs.INSTALL_PATH: self.config.home_path,
             gs.HOSTNAME: self.config.config_port.websvr_hostname,
             gs.PRIVATE_IP_ADDRESS: (lambda x: "'%s'" % x if x else "None")(self.config.input_ports.host.private_ip),
-            gs.PORT: self.config.input_ports.webserver_config.port,
+            gs.PORT: self.config.config_port.websvr_port,
             gs.SECRET_KEY: gen_password(50, chars=string.digits+string.letters+"!#%&()*+,-./:;<=>?@[]^_`{|}~"),
             gs.EMAIL_HOST:self.config.config_port.email_host,
             gs.EMAIL_HOST_USER:self.config.config_port.email_host_user,
@@ -488,7 +555,8 @@ class Manager(BackupFileMixin, PasswordRepoMixin, service_manager.Manager):
             gs.CELERY_CONFIG_BROKER_VHOST:'None',
             gs.CELERY_CONFIG_CELERY_RESULT_BACKEND:'amqp',
             gs.REDIS_HOST:"localhost",
-            gs.REDIS_PORT:6379
+            gs.REDIS_PORT:6379,
+            gs.STATIC_ROOT:static_root
         }
 
         # we need to check that the cache input port is present (it isn't if this is
@@ -542,8 +610,8 @@ class Manager(BackupFileMixin, PasswordRepoMixin, service_manager.Manager):
             "python_path": file_layout.get_python_path(),
             "django_settings_module": file_layout.get_deployed_settings_module(),
             "python_bin_dir": self.config.python_bin_dir,
-            "websvr_hostname": self.config.websvr_listen_host,
-            "port": self.config.input_ports.webserver_config.port,
+            "websvr_hostname": self.config.input_ports.webserver_config.listen_host,
+            "port": self.config.input_ports.webserver_config.listen_port,
             "log_directory": self.config.config_port.log_directory
         }
         admin_script_tmpl_path = iufile.get_data_file_path(__file__, "django.sh.tmpl")
@@ -599,6 +667,14 @@ class Manager(BackupFileMixin, PasswordRepoMixin, service_manager.Manager):
         if len(django_config.fixtures)>0 and not upgrade:
             file_layout.run_admin_command("loaddata", django_config.fixtures)
 
+        # gather static files, if requested
+        if static_url and \
+           ('django.contrib.staticfiles' in django_config.installed_apps):
+            if not os.path.exists(static_root):
+                logger.debug("mkdir -p %s" % static_root)
+                os.makedirs(static_root)
+            file_layout.run_admin_command("collectstatic", ["--noinput"])
+
         # See if this application includes the admin password parameter.
         # If so, we set the password by running a script.
         try:
@@ -641,14 +717,15 @@ class Manager(BackupFileMixin, PasswordRepoMixin, service_manager.Manager):
             rc = iuprocess.run_background_program(prog_and_args, {}, os.path.join(self.config.config_port.log_directory, "%s_startup.log" % self.config.app_short_name),
                                                   logger)
             if rc != 0:
-                raise UserError(errors[ERR_DJANGO_STARTUP], msg_args={"appname":self.config.app_short_name},
+                raise UserError(errors[ERR_DJANGO_STARTUP],
+                                msg_args={"appname":self.config.app_short_name},
                                 developer_msg="script %s, rc was %d" % (self.config.app_admin_script, rc))
 
         # wait for startup
         self._check_server_response()
         logger.info("%s instance %s started successfully at %s:%d" %
-                    (self.config.app_short_name, self.config.id, self.config.config_port.websvr_hostname,
-                     self.config.input_ports.webserver_config.port))
+                    (self.config.app_short_name, self.config.id, self.config.input_ports.webserver_config.listen_host,
+                     self.config.input_ports.webserver_config.listen_port))
 
     def stop(self):
         if self.config.input_ports.webserver_config.webserver_type == "apache":

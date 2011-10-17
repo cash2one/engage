@@ -150,6 +150,9 @@
             "port_mapping": {"host":"host"}}
         ]
       },
+      "input_ports": {
+        "host": {}
+      },
       "output_ports" : {
 	"nginx" : {
            "conf-path" : { "type":"string", "source":"config_port.conf-path" },
@@ -179,37 +182,15 @@
       },
       "output_ports" : {
 	"apache" : {
-           "config_file" : { "type":"string", "fixed-value":"/etc/apache2/apache2.conf" },
+           "config_file" : { "type":"path", "fixed-value":"/etc/apache2/apache2.conf" },
            "additional_config_dir" : { "type":"string", "fixed-value":"/etc/apache2/conf.d/" },
            "cgi_dir" : { "type":"string", "fixed-value": "/usr/lib/cgi-bin"},
            "htpasswd_exe" : { "type":"string", "fixed-value":"/usr/bin/htpasswd"},
 	   "apache_user": {"type":"string", "fixed-value":"www-data"},
            "apache_group": {"type":"string", "fixed-value":"www-data"},
 	   "module_lib": {"type":"string", "fixed-value":"/usr/lib/apache2/modules/mod_fastcgi.so"},
-	   "controller_exe": {"type":"string", "fixed-value":"/etc/init.d/apache2"}
-        }
-      }
-    },
-    { "key" : { "name": "apache-mac", "version" : "2.2" },
-      "display_name" : "Apache2 (Mac)",
-      "config_port" : {
-      },
-      "inside": {
-        "one-of": [
-          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
-                                                 "less-than":"10.7"}},
-            "port_mapping": {"host":"host"}}
-        ]
-      },
-      "output_ports" : {
-	"apache" : {
-           "config_file" : { "type":"string", "fixed-value":"/private/etc/apache2/httpd.conf" },
-           "additional_config_dir" : { "type":"string", "fixed-value":"/private/etc/apache2/other/" },
-           "cgi_dir" : { "type":"string", "fixed-value":"/Library/WebServer/CGI-Executables" },
-           "htpasswd_exe" : { "type":"string", "fixed-value":"/usr/sbin/htpasswd"},
-	   "apache_user": {"type":"string", "fixed-value":"_www"},
-	   "module_lib": {"type":"string", "fixed-value":"libexec/apache2/mod_fastcgi.so"},
-	   "controller_exe": {"type":"string", "fixed-value":"/usr/sbin/apachectl"}
+	   "controller_exe": {"type":"string", "fixed-value":"/etc/init.d/apache2"},
+           "log_dir": {"type":"path", "fixed-value":"/var/log/apache2"}
         }
       }
     },
@@ -236,7 +217,8 @@
            "apache_group":{"type":"string", "fixed-value":"_www"},
 	   "controller_exe": {"type":"path", "fixed-value":"/opt/local/apache2/bin/apachectl"},
            "module_config_dir" : { "type":"string", "fixed-value":"/opt/local/apache2/conf/engage_modules" },
-           "additional_config_dir" : { "type":"string", "fixed-value":"/opt/local/apache2/conf/engage_extra" }
+           "additional_config_dir" : { "type":"string", "fixed-value":"/opt/local/apache2/conf/engage_extra" },
+           "log_dir": {"type":"path", "fixed-value":"/opt/local/apache2/logs"}
         }
       },
       "inside": {
@@ -270,6 +252,9 @@
       "output_ports": {
         "apt_cfg": {
           "package_name": {"type":"string", "fixed-value":"libapache2-mod-wsgi"}
+        },
+        "mod_wsgi": {
+          "config_file_path":{"type":"string", "fixed-value":"/etc/apache2/mods-enabled/wsgi.conf"}
         }
       },
       "inside": {
@@ -298,7 +283,8 @@
       "input_ports": {
         "apache": {
           "controller_exe":"path",
-          "config_file": "path"
+          "config_file": "path",
+          "module_config_dir":"path"
         },
         "python": {
           "home": "string",
@@ -316,6 +302,9 @@
       "output_ports": {
         "port_cfg": {
           "package_name": {"type":"string", "fixed-value":"mod_wsgi"}
+        },
+        "wsgi": {
+          "config_file_path": {"type":"path", "fixed-value":"${input_ports.apache.module_config_dir}/mod_wsgi.conf"}
         }
       },
       "inside": {
@@ -1361,9 +1350,6 @@
              "port_mapping" : { "trachome" : "trachome" }
            },
            { "one-of": [
-             { "key" : { "name" : "apache-mac", "version": {"greater-than":"2.1"}},
-               "port_mapping" : { "webserver" : "apache" }
-             },
              { "key" : { "name" : "apache-linux", "version": {"greater-than":"2.1"}},
                "port_mapping" : { "webserver" : "apache" }
              }
@@ -1454,9 +1440,6 @@
              "port_mapping" : { "trachome" : "trachome" }
            },
            { "one-of": [
-             { "key" : { "name" : "apache-mac", "version": {"greater-than":"2.1"}},
-               "port_mapping" : { "webserver" : "apache" }
-             },
              { "key" : { "name" : "apache-linux", "version": {"greater-than":"2.1"}},
                "port_mapping" : { "webserver" : "apache" }
              }
@@ -1500,6 +1483,7 @@
           "port" : { "type" : "tcp_port", "default" : 8983 }
       },
       "input_ports": {
+        "host": {},
         "java": {
           "type": "string",
           "home": "string"
@@ -1589,68 +1573,38 @@
           "port_mapping": {"mysql":"mysql", "mysql_admin":"mysql_admin"}
         }
     },
-    { "key": {"name": "Wordpress", "version": "2.6"},
-      "display_name": "Wordpress 2.6",
-      "config_port": {
-	"database_table_prefix" : { "type" : "string", "default" : "wp_" },
-	"database_name" : { "type" : "string", "default" : "wordpressblog" },
-        "database_user": {"type":"username", "default":"wpuser",
-                          "display_name":"Wordpress user"},
-        "database_password": {"type":"password", "default" : "wppass",
-                              "display_name":"Wordpress user's password"},
-        "database_user_host" : { "type": "string", "default" : "localhost" },
-        "home" : {"type":"path", "display_name":"Install directory", "default" : "/Users/rupak/tmp/" },
-        "url" : { "type" : "string", "default" : "UNUSED" }
-      },
+    { "key" : { "name" : "Django", "version" : "1.2" },
+      "display_name" : "Django Web Framework",
       "input_ports": {
-        "mysql": {
-          "host": "hostname",
-          "port": "tcp_port"
-        },
-        "mysql_admin": {
-         "root_password": "password",
-         "install_dir": "path"
-        },
-        "webserver" : {
-           "config_file" : "string", 
-           "additional_config_dir" : { "type":"string" },
-           "cgi_dir" : { "type":"string" },
-           "doc_dir" : { "type":"string" }
-        }
-      },
-      "output_ports": {
-        "url" : {
-          "application_url": {"type":"string", "source" : "config_port.url" }
-        }
+        "host": { "genforma_home": "path" },
+        "python" : { "PYTHONPATH" : "string" }, 
+	"setuptools" : { "easy_install" : "string" }
       },
       "inside": {
         "one-of": [
-          { "key": {"name":"mac-osx", "version":{"greater-than":"10.5.0",
-                                                 "less-than":"10.6"}},
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
             "port_mapping": {"host":"host"}},
-          { "key": {"name": "ubuntu-linux", "version":"9.0.4"},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
             "port_mapping": {"host":"host"}},
           { "key": {"name": "ubuntu-linux", "version":"10.04"},
             "port_mapping": {"host":"host"}}
         ]
       },
-      "environment" : {
-        "one-of": [
-          { "key" : { "name" : "apache-mac", "version": {"greater-than":"2.1"}},
-             "port_mapping" : { "webserver" : "apache" }
-           },
-           { "key" : { "name" : "apache-linux", "version": {"greater-than":"2.1"}},
-             "port_mapping" : { "webserver" : "apache" }
-           }
-       ]},
-      "peers":
-        { "key": {"name":"mysql",
-                  "version":{"greater-than-or-equal":"5.1",
-                             "less-than":"6.0"}},
-          "port_mapping": {"mysql":"mysql", "mysql_admin":"mysql_admin"}
-        }
+      "environment": {
+          "all-of": [
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          },
+          { "key": {"name":"setuptools",
+                    "version":{"greater-than-or-equal":"0.6"}},
+            "port_mapping": {"setuptools":"setuptools"}
+          }
+          ]
+      }
     },
-    { "key" : { "name" : "Django", "version" : "1.2" },
+    { "key" : { "name" : "Django", "version" : "1.3" },
       "display_name" : "Django Web Framework",
       "input_ports": {
         "host": { "genforma_home": "path" },
@@ -1687,12 +1641,12 @@
         "home" : {"type":"path",
                   "display_name":"Install directory",
                   "default":"${input_ports.host.genforma_home}/django_app"},
-        "websvr_hostname": {"type": "string",
+        "websvr_hostname": {"type": "hostname",
                             "default":"${input_ports.host.hostname}",
                             "display_name": "Webserver hostname"},
-        "websvr_listen_host": {"type":"string",
-                            "default":"${input_ports.host.hostname}",
-                            "display_name": "Webserver listener hostname/IP"},
+        "websvr_port": {"type":"tcp_port",
+                        "default":"${input_ports.webserver_config.listen_port}",
+                        "display_name": "Webserver port"},
         "admin_name": {"type":"string", "default":"Admin",
                        "display_name":"Administrator's name"},
         "admin_email": {"type":"string", "default":"",
@@ -1734,9 +1688,14 @@
           "pipbin": "path"
         },
         "webserver_config": {
-          "port": "tcp_port",
+          "listen_host": "hostname",
+          "listen_port": "tcp_port",
           "webserver_type": "string",
-          "controller_exe": "string"
+          "controller_exe": "string",
+          "file_owner_group": "string",
+          "config_file": "path",
+          "additional_config_dir":"path",
+          "log_dir":"path"
         },
         "ocache" : {
           "provider" : "string",
@@ -1780,9 +1739,6 @@
           },
           { "key":{"name":"pip", "version":"any"},
             "port_mapping":{"pip": "pip"}
-          },
-          { "key": {"name":"gunicorn",
-                    "version":{"greater-than-or-equal":"0.12"}}
           },
           { "key": {"name":"Django",
                     "version":{"greater-than-or-equal":"1.2"}}
@@ -1982,8 +1938,6 @@
           "mysql_config_exe": "path",
           "mysqldump_exe": "path",
           "mysql_server_script": "path",
-          "mysql_startup_logfile":"path",
-          "mysql_server_cwd":"path",
           "mysql_user":"string",
           "pid_file_template":"string"
         }
@@ -2057,6 +2011,7 @@
     {"key" : { "name" : "psycopg2", "version" : "2.4" },
       "display_name" : "psycopg2 PostgreSQL connector for Python",
       "input_ports": {
+        "host": {},
         "python": { "PYTHONPATH": "string",
                      "home": "string" }
       },
@@ -2082,27 +2037,52 @@
     { "key": {"name": "django-apache-webserver", "version": "1.0"},
       "display_name": "Apache webserver config for Django apps",
       "config_port": {
-        "port": {"type":"tcp_port", "default":80}
+        "port": {"type":"tcp_port", "default":80},
+        "hostname": {"type":"string", "default": "${input_ports.host.hostname}"}
       },
       "input_ports": {
         "apache": {
-          "controller_exe": {"type":"string"}
+          "controller_exe": {"type":"string"},
+          "apache_group":{"type":"string"},
+          "config_file": {"type":"path"},
+          "additional_config_dir":{"type":"path"},
+          "log_dir":"path"
+        },
+        "host": {
+          "hostname": {"type":"string"}
         }
       },
       "output_ports": {
         "webserver_config": {
           "webserver_type":{"type": "string", "fixed-value": "apache"},
-          "port": {"type": "tcp_port",
-                   "fixed-value": "${config_port.port}"},
+          "listen_host": {"type": "hostname",
+                          "fixed-value": "${config_port.hostname}"},
+          "listen_port": {"type": "tcp_port",
+                          "fixed-value": "${config_port.port}"},
           "controller_exe": {"type":"string",
-                             "fixed-value":"${input_ports.apache.controller_exe}"}
+                             "fixed-value":"${input_ports.apache.controller_exe}"},
+          "file_owner_group": {"type":"string",
+                               "source":"input_ports.apache.apache_group"},
+          "config_file": {"type":"path",
+                          "source":"input_ports.apache.config_file"},
+          "additional_config_dir": {"type":"path",
+                                    "source":"input_ports.apache.additional_config_dir"},
+          "log_dir": {"type":"path",
+                      "source":"input_ports.apache.log_dir"}
         }
       },
       "environment": {
         "all-of": [
-          { "key": {"name": "libapache2-mod-wsgi-linux", "version":"3.2-2"}},
-          { "key": {"name":"apache-linux", "version": "2.2"},
-            "port_mapping": {"apache":"apache"}}
+          { "one-of": [
+            { "key": {"name": "libapache2-mod-wsgi-linux", "version":"3.2-2"}},
+            { "key": {"name": "apache2-mod-wsgi-macports", "version":"3.3"}}
+          ]},
+          { "one-of": [
+            { "key": {"name":"apache-linux", "version": "2.2"},
+              "port_mapping": {"apache":"apache"}},
+            { "key": {"name":"apache-macports", "version": "2.2"},
+              "port_mapping": {"apache":"apache"}}
+          ]}
         ]
       },
       "inside": {
@@ -2110,6 +2090,9 @@
           { "key": {"name": "ubuntu-linux", "version":"9.10"},
             "port_mapping": {"host":"host"}},
           { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
             "port_mapping": {"host":"host"}}
           ]
       }
@@ -2117,14 +2100,25 @@
     { "key": {"name": "django-development-webserver", "version": "1.0"},
       "display_name": "Development webserver config for Django apps",
       "config_port": {
-        "port": {"type":"tcp_port", "default":8000}
+        "port": {"type":"tcp_port", "default":8000},
+        "hostname": {"type":"hostname", "default": "0.0.0.0"}
+      },
+      "input_ports": {
+        "host": { "genforma_home": "path", "hostname":"string",
+                  "log_directory":"path" }
       },
       "output_ports": {
         "webserver_config": {
           "webserver_type": {"type":"string", "fixed-value": "development"},
-          "port": {"type": "tcp_port",
-                   "fixed-value": "${config_port.port}"},
-          "controller_exe": {"type":"string", "fixed-value":""}
+          "listen_host": {"type":"hostname",
+                          "fixed-value": "${config_port.hostname}"},
+          "listen_port": {"type": "tcp_port",
+                          "fixed-value": "${config_port.port}"},
+          "controller_exe": {"type":"string", "fixed-value":""},
+          "file_owner_group": {"type":"string", "fixed-value":""},
+          "config_file": {"type":"string", "fixed-value":""},
+          "additional_config_dir": {"type":"string", "fixed-value":""},
+          "log_dir": {"type":"string", "fixed-value":""}
         }
       },
       "inside": {
@@ -2137,6 +2131,13 @@
           { "key": {"name": "ubuntu-linux", "version":"10.04"},
             "port_mapping": {"host":"host"}}
           ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"gunicorn",
+                    "version":{"greater-than-or-equal":"0.12"}}
+          }
+        ]
       }
     },
     { "key" : {"name": "mercurial", "version":"any"},
@@ -2272,6 +2273,7 @@
       "config_port": {
       },
       "input_ports": {
+        "host": {},
         "django": { "home": "path",
                     "log_directory": "path",
                     "layout_cfg_file": "path"},
@@ -2306,6 +2308,7 @@
       "config_port": {
       },
       "input_ports": {
+        "host": {},
         "django": { "home": "path",
                     "log_directory": "path",
                     "layout_cfg_file": "path"},
@@ -2946,6 +2949,8 @@
          },
          "pip" : {
             "pipbin" : "string"
+         },
+         "host": {
          }
       },
       "inside": {
@@ -2985,6 +2990,10 @@
           ]
       },
       "input_ports" : {
+          "host": {},
+          "pip": {},
+          "setuptools": {},
+          "python": {},
           "cache": {
             "host" : { "type" : "string" },
             "port" : { "type" : "tcp_port" },
@@ -3033,6 +3042,9 @@
             "port_mapping": {"host":"host"}}
           ]
       },
+      "input_ports": {
+        "host": {}
+      },
       "output_ports" : {
           "ocache": {
             "host" : { "type" : "string", "fixed-value" : "dummy.host" },
@@ -3045,6 +3057,10 @@
     { "key" : { "name" : "Satchmo", "version" : "0.9.2" },
       "display_name" : "Satchmo",
       "input_ports"  : {
+        "host": {},
+        "pip": {},
+        "setuptools": {},
+        "python": {}
       }, 
       "inside" : {
         "one-of": [
@@ -3204,7 +3220,7 @@
         ]
       }
     },
-    { "key" : {"name": "apache-libcloud", "version":"0.4"},
+    { "key" : {"name": "apache-libcloud", "version":"0.5"},
       "display_name" : "Provider-independent Python API for cloud provisioning",
       "input_ports" : {
          "python": {
@@ -3354,29 +3370,10 @@
           },
           {"key": {"name":"argparse", "version":{"greater-than-or-equal":"1.1"}}},
           {"key": {"name":"cloudfiles", "version":{"greater-than-or-equal":"1.7"}}},
-          {"key": {"name":"apache-libcloud", "version":{"greater-than-or-equal":"0.4",
-                                                        "less-than":"0.5"}}},
+          {"key": {"name":"apache-libcloud", "version":{"greater-than-or-equal":"0.5",
+                                                        "less-than":"0.6"}}},
           {"key": {"name":"paramiko", "version":{"greater-than-or-equal":"1.7"}}}
         ]
-      }
-    },
-    { "key" : {"name": "provision-secrets", "version":"1.0"},
-      "display_name" : "keys and other secrect data for genForma cloud provisioning engine",
-      "output_ports": {
-        "archive_info": {
-          "extract_path": {"type":"path", "fixed-value":"~/.provision/secrets"}
-        }
-      },
-      "inside": {
-        "one-of": [
-          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
-                                                 "less-than":"10.7"}},
-            "port_mapping": {"host":"host"}},
-          { "key": {"name": "ubuntu-linux", "version":"9.10"},
-            "port_mapping": {"host":"host"}},
-          { "key": {"name": "ubuntu-linux", "version":"10.04"},
-            "port_mapping": {"host":"host"}}
-          ]
       }
     },
     { "key" : {"name": "rabbitmq", "version":"2.4"},
@@ -3538,7 +3535,8 @@
             "username" : "string", 
             "password" : "password",
             "vhost"    : "string"
-        }
+        },
+        "host": {}
       },
       "output_ports" : {
          "celery" : { 
@@ -3585,6 +3583,7 @@
         "BROKER_VHOST" : { "type" : "string", "default" : "" }
       },
       "input_ports" : {
+        "host": {},
         "broker" : { "broker" : "string" }
       },
       "output_ports" : {
@@ -3613,6 +3612,7 @@
     { "key": {"name":"MoinMoin-apache-adapter", "version":"2.2"},
       "display_name": "MoinMoin wiki adapter to Apache webserver",
       "input_ports": {
+        "host": {},
         "apache": {
           "config_file": "path",
           "additional_config_dir": "path",
@@ -3664,6 +3664,9 @@
     },
     { "key": {"name":"MoinMoin-localserver-adapter", "version":"1.0"},
       "display_name": "MoinMoin wiki adapter to local webserver",
+      "input_ports": {
+        "host": {}
+      },
       "output_ports": {
         "webserver_adapter": {
           "type": {"type":"string", "fixed-value":"local-server"},
@@ -3861,6 +3864,8 @@
             }, 
          "setuptools" : {
             "easy_install" : "string"
+         },
+         "mysql": {
          },
          "mysql_admin": {
            "mysql_config_exe": "path"

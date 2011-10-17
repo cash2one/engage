@@ -5,7 +5,7 @@ from engage_file_layout import *
 def validate_layout(installer_name=None):
     logger.info("Getting installer layout object with installer_name=%s" % installer_name)
     l = get_engine_layout_mgr(installer_name)
-    gc = l.get_genforma_config()
+    gc = l.get_installer_config()
     app_name = gc.application_name
     assert app_name
     r = l.get_resource_def_file()

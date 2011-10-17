@@ -133,11 +133,11 @@ def get_machine_info(os_choices):
     return info
 
 
-def get_target_machine_resource(hostname, username, password, os_desc, private_ip):
+def get_target_machine_resource(id, hostname, username, password, os_desc, private_ip):
     key = os_keys[os_desc]
     arch = os_arches[os_desc]
     return {
-        u"id":hostname,
+        u"id":id,
         u"key": key,
         u"properties": {
             u"installed": True,

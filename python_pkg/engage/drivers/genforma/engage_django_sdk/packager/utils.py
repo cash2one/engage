@@ -277,7 +277,7 @@ def install_requirements(python_virtualenv_dir, requirements_file,
 
 
 _platform_requirements = [
-  "Django==1.2.5",
+  "Django==1.3.1",
   "South==0.7.3"
 ]
 

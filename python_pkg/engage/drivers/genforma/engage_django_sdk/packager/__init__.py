@@ -46,7 +46,7 @@ COMPATIBLE_PACKAGER_VERSION = ".".join(VERSION.split('.')[0:2])
 from errors import *
 from archive_handlers import ZipfileHandler, TarfileHandler, create_handler, \
                              validate_archive_files
-from django_config import DjangoConfig, django_config_from_json
+from django_config import django_config_from_validation_results, django_config_from_json
 from generate_settings import generate_settings_file, simulated_install
 from utils import app_module_name_to_dir, write_json, find_files, \
                   get_deployed_settings_module, import_module, \
@@ -123,16 +123,18 @@ def check_url_setting(setting_name, setting_value, results, default_value='',
                       path_should_end_in_slash=True):
     if setting_value == default_value:
         logger.debug("Setting '%s' has default value" % setting_name)
-        return
+        return True
     try:
         sr = urlparse.urlsplit(setting_value)
         if path_should_end_in_slash and (sr[2][len(sr[2])-1] != '/'):
             results.warning("Setting '%s': The path component of the URL ('%s') is expected by Django to end in a slash ('/'). Engage will add a slash" %
                             (setting_name, sr[2]))
         logger.debug("Setting '%s' is a valid URL" % setting_name)
+        return True
     except:
         results.error("Invalid URL format for setting '%s': '%s'" %
                       (setting_name, setting_value))
+        return False
 
 
 def check_directory_setting(setting_name, setting_value, default_value,
@@ -141,7 +143,7 @@ def check_directory_setting(setting_name, setting_value, default_value,
         logger.debug("Setting '%s' has default value" % setting_name)
     elif not os.path.isdir(setting_value):
         results.error("Setting '%s' points to directory '%s', which does not exist" %
-                      (setting_name, setting_value))
+                      (setting_name, setting_vaxolue))
     elif string.find(os.path.realpath(setting_value),
                      os.path.realpath(app_dir_path)) != 0:
         results.error("Setting '%s' points to directory '%s', which is not a subdirectory of '%s'" %
@@ -306,6 +308,74 @@ def _get_subdir_component(parent_dir, subdir):
         return subdir[len(parent_dir)+1:]
 
 
+def extract_static_files_settings(settings_module, app_dir_path, results):
+    # Extract any settings related to static files that we need in the
+    # install phase and perform the related sanity checks.
+    def get_url_path(url):
+        if len(url)==0:
+            return None
+        sr = urlparse.urlsplit(url)
+        if sr[2][len(sr[2])-1] != '/':
+            return sr[2] + '/'
+        else:
+            return sr[2]
+
+    def path_setting_has_value(setting_name):
+        return hasattr(settings_module, setting_name) and \
+               getattr(settings_module, setting_name)!=None and \
+               getattr(settings_module, setting_name)!=''
+
+    def url_setting_has_value(setting_name):
+        return hasattr(settings_module, setting_name) and \
+               getattr(settings_module, setting_name)!=None and \
+               getattr(settings_module, setting_name)!='' and \
+               check_url_setting(setting_name, getattr(settings_module, setting_name),
+                                 results)
+        
+    if path_setting_has_value('MEDIA_ROOT'):
+        results.media_root_subdir = _get_subdir_component(app_dir_path,
+                                                          settings_module.MEDIA_ROOT)
+    if url_setting_has_value("MEDIA_URL"):
+        results.media_url_path = get_url_path(settings_module.MEDIA_URL)
+    else:
+        results.media_url_path = None
+    if url_setting_has_value("STATIC_URL"):
+        results.static_url_path = get_url_path(settings_module.STATIC_URL)
+    else:
+        results.static_url_path = None
+    if path_setting_has_value("STATIC_ROOT"):
+        results.static_root_subdir = _get_subdir_component(app_dir_path,
+                                                           settings_module.STATIC_ROOT)
+    if hasattr(settings_module, "ADMIN_MEDIA_PREFIX"):
+        check_url_setting("ADMIN_MEDIA_PREFIX",
+                          settings_module.ADMIN_MEDIA_PREFIX,
+                          results)
+
+    # Check that STATIC_URL, STATIC_ROOT, and INSTALLED_APPS are consistent.
+    # If STATIC_URL isn't set, we won't enable any staticfiles-related functionality.
+    # Thus, we give an error if it is none and either the app is present or STATIC_ROOT
+    # is set.
+    # If STATIC_URL is set, but STATIC_ROOT isn't, we will set it to
+    # <project_root>/static.
+    if ("django.contrib.staticfiles" in results.installed_apps) and \
+       results.static_url_path==None:
+        results.warning("django.contrib.staticfiles was included in INSTALLED_APPS,"+
+                        " but STATIC_URL was not set. Static file mappings will not be enabled.")
+    if results.static_root_subdir and results.static_root_subdir!='' and \
+       results.static_url_path==None:
+        results.warning("STATIC_ROOT setting was specified as %s, but STATIC_URL was not set. Static file mappings will not be enabled." % settings_module.STATIC_ROOT)
+
+    if results.static_url_path!=None and \
+       (results.static_root_subdir==None or results.static_root_subdir==''):
+        if "django.contrib.staticfiles" in results.installed_apps:
+            logger.debug("Using default value for STATIC_ROOT: <project_home>/static")
+            results.static_root_subdir = "static"
+        else:
+            results.warning("STATIC_URL setting was specified, but STATIC_ROOT was not set and django.contrib.staticfiles not in INSTALLED_APPS. Static mappings will not be enabled.")
+            results.static_url_path = None
+            results.static_root_subdir = None
+        
+
 def validate_settings(app_dir_path, django_settings_module, django_config=None,
                       prev_version_component_list=None):
     """This is the main settings validation function. It takes the following arguments:
@@ -366,24 +436,11 @@ def validate_settings(app_dir_path, django_settings_module, django_config=None,
         check_directory_setting("MEDIA_ROOT",
                                 settings_module.MEDIA_ROOT,
                                 '', app_dir_path, results)
-    if hasattr(settings_module, "STATIC_MEDIA_ROOT"):
-        check_directory_setting("STATIC_MEDIA_ROOT",
-                                settings_module.STATIC_MEDIA_ROOT,
-                                '', app_dir_path, results)
     if hasattr(settings_module, "TEMPLATE_DIRS"):
         check_directory_tuple_setting("TEMPLATE_DIRS",
                                       settings_module.TEMPLATE_DIRS,
                                       app_dir_path, results)
-
-    # check url settings
-    if hasattr(settings_module, "MEDIA_URL"):
-        check_url_setting("MEDIA_URL", settings_module.MEDIA_URL,
-                          results)
-    if hasattr(settings_module, "ADMIN_MEDIA_PREFIX"):
-        check_url_setting("ADMIN_MEDIA_PREFIX",
-                          settings_module.ADMIN_MEDIA_PREFIX,
-                          results)
-
+    
     # Get the packages in requirements.txt. We use this in validating
     # the django apps. We defer the validation of the actual packages
     # until we have parsed and validated the engage_components.json file.
@@ -425,6 +482,25 @@ def validate_settings(app_dir_path, django_settings_module, django_config=None,
         validate_migration_apps(results.migration_apps, results.installed_apps, results)
     else:
         results.migration_apps = []
+
+    # check the static files directories, if present. Each entry could be a source
+    # directory, or a tuple of (target_subdir, source_path)
+    if hasattr(settings_module, "STATICFILES_DIRS"):
+        staticfiles_dirs = _tuple_setting_to_list(settings_module.STATICFILES_DIRS)
+        for dirpath in staticfiles_dirs:
+            if isinstance(dirpath, tuple):
+                dirpath = dirpath[1]
+            if not os.path.isdir(dirpath):
+                results.error("Setting STATICFILES_DIRS references '%s', which does not exist" % dirpath)
+            elif string.find(os.path.realpath(dirpath),
+                             os.path.realpath(app_dir_path)) != 0:
+                results.error("Setting STATICFILES_DIRS references '%s', which is not a subdirectory of '%s'" % (dirpath, app_dir_path))
+                 
+        check_directory_tuple_setting("STATICFILES_DIRS", staticfiles_dirs,
+                                      app_dir_path, results)
+    # gather the values of static files related settings for use during
+    # installation.
+    extract_static_files_settings(settings_module, app_dir_path, results)
         
     # check each command in ENGAGE_DJANGO_POSTINSTALL_COMMANDS is actually present in manager
     if hasattr(settings_module, "ENGAGE_DJANGO_POSTINSTALL_COMMANDS"):
@@ -607,22 +683,9 @@ class PrepareCommandBase(Command):
         results.print_final_status_message(logger)
         if results.get_return_code() != SUCCESS_RC:
             return results.get_return_code()
-        if results.product:
-            product = results.product
-        else:
-            product = "Custom Django Application"
-        if results.product_version:
-            product_version = results.product_version
-        else:
-            product_version = ""
-        config = DjangoConfig(product, product_version,
-                              self.django_settings_module,
-                              results.python_path_subdirectory, VERSION,
-                              installed_apps=results.installed_apps,
-                              fixtures=results.fixtures,
-                              migration_apps=results.migration_apps,
-                              components=results.components,
-                              post_install_commands=results.post_install_commands)
+        config = django_config_from_validation_results(self.django_settings_module,
+                                                       VERSION,
+                                                       results)
         write_json(config.to_json(), os.path.join(app_dir_path, DJANGO_CFG_FILENAME))
 
         # undo the changes we made
@@ -646,22 +709,8 @@ class PrepareCommandBase(Command):
         if results.get_return_code() != SUCCESS_RC:
             results.print_final_status_message(logger)
             return results.get_return_code()
-        if results.product:
-            product = results.product
-        else:
-            product = "Custom Django Application"
-        if results.product_version:
-            product_version = results.product_version
-        else:
-            product_version = ""
-        config = DjangoConfig(product, product_version,
-                              self.django_settings_module,
-                              results.python_path_subdirectory, VERSION,
-                              installed_apps=results.installed_apps,
-                              fixtures=results.fixtures,
-                              migration_apps=results.migration_apps,
-                              components=results.components,
-                              post_install_commands=results.post_install_commands)
+        config = django_config_from_validation_results(self.django_settings_module,
+                                                       VERSION, results)
         write_json(config.to_json(), os.path.join(app_dir_path, DJANGO_CFG_FILENAME))
 
         # undo the changes we made

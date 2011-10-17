@@ -76,8 +76,8 @@ class BaseFileLayout(object):
         self.configurator_exe = None
         self.metadata_directory = None
         self.installer_metadata_directory = None
-        self.genforma_config_file = None
-        self.genforma_config = None
+        self.installer_config_file = None
+        self.installer_config = None
         self.resource_def_file = None
         self.software_library_file = None
         self.install_script_file = None
@@ -111,17 +111,17 @@ class BaseFileLayout(object):
                                           "installers":', '.join(_find_list_of_installers(metadata_dir))})
         return self.installer_metadata_directory
 
-    def _get_genforma_config_file(self):
+    def _get_installer_config_file(self):
         assert self.installer_name, "Install name must be specified"
-        if not self.genforma_config_file:
-            self.genforma_config_file = os.path.join(self._get_installer_metadata_directory(),
+        if not self.installer_config_file:
+            self.installer_config_file = os.path.join(self._get_installer_metadata_directory(),
                                                      "installer_config.json")
-            self._check_for_file(self.genforma_config_file)
-        return self.genforma_config_file
+            self._check_for_file(self.installer_config_file)
+        return self.installer_config_file
 
     def get_install_spec_template_file(self, config_option_num):
         filename = os.path.join(self._get_installer_metadata_directory(),
-                                self.get_genforma_config().install_spec_options[config_option_num]['file_name'] + ".tmpl")
+                                self.get_installer_config().install_spec_options[config_option_num]['file_name'] + ".tmpl")
         self._check_for_file(filename)
         return filename
 
@@ -130,20 +130,20 @@ class BaseFileLayout(object):
     ## def get_install_spec_file(self, config_option_num):
     ##     """ We don't check for the filename in advance, as it might not yet have been created"""
     ##     filename = os.path.join(self._get_installer_metadata_directory(),
-    ##                             self.get_genforma_config().install_spec_options[config_option_num]['file_name'])
+    ##                             self.get_installer_config().install_spec_options[config_option_num]['file_name'])
     ##     return filename
 
-    def get_genforma_config(self):
-        if not self.genforma_config:
-            import engage.engine.genforma_config
-            self.genforma_config = engage.engine.genforma_config.parse_genforma_config(self._get_genforma_config_file())
-        return self.genforma_config
+    def get_installer_config(self):
+        if not self.installer_config:
+            import engage.engine.installer_config
+            self.installer_config = engage.engine.installer_config.parse_installer_config(self._get_installer_config_file())
+        return self.installer_config
 
     def get_resource_def_file(self):
         if not self.resource_def_file:
             if self.installer_name:
                 self.resource_def_file = os.path.join(self._get_metadata_directory(),
-                                                      self.get_genforma_config().resource_def_file_name)
+                                                      self.get_installer_config().resource_def_file_name)
             else:
                 self.resource_def_file = os.path.join(self._get_metadata_directory(),
                                                       "resource_definitions.json")
@@ -154,7 +154,7 @@ class BaseFileLayout(object):
         if not self.software_library_file:
             if self.installer_name:
                 self.software_library_file = os.path.join(self._get_metadata_directory(),
-                                                          self.get_genforma_config().software_library_file_name)
+                                                          self.get_installer_config().software_library_file_name)
             else:
                 self.software_library_file = os.path.join(self._get_metadata_directory(),
                                                           "resource_library.json")
@@ -319,7 +319,7 @@ class DeployedFileLayout(BaseFileLayout):
     def get_install_spec_file(self, config_option_num):
         """ We don't check for the filename in advance, as it might not yet have been created"""
         filename = os.path.join(self._get_deployment_config_directory(),
-                                self.get_genforma_config().install_spec_options[config_option_num]['file_name'])
+                                self.get_installer_config().install_spec_options[config_option_num]['file_name'])
         return filename
 
     def get_preprocessed_resource_file(self):
@@ -352,13 +352,14 @@ class SrcFileLayout(BaseFileLayout):
 
     def _get_config_engine_dir(self):
         if not self.config_engine_dir:
-            self.config_engine_dir = os.path.join(os.path.join(self.src_dir, "config"), "c_wrapper")
+            self.config_engine_dir = os.path.join(self.src_engage_dir,
+                                                  "config_src/config/c_wrapper")
             self._check_for_directory(self.config_engine_dir)
         return self.config_engine_dir
     
     def get_configurator_exe(self):
         if not self.configurator_exe:
-            self.configurator_exe = os.path.join(self._get_config_engine_dir(), "config_test")
+            self.configurator_exe = os.path.join(self._get_config_engine_dir(), "configurator")
             self._check_for_file(self.configurator_exe)
         return self.configurator_exe
 
@@ -399,7 +400,7 @@ class SrcFileLayout(BaseFileLayout):
     def get_install_spec_file(self, config_option_num):
         """ We don't check for the filename in advance, as it might not yet have been created"""
         filename = os.path.join(self._get_build_output_directory(),
-                                self.get_genforma_config().install_spec_options[config_option_num]['file_name'])
+                                self.get_installer_config().install_spec_options[config_option_num]['file_name'])
         return filename
 
     def get_preprocessed_resource_file(self):
@@ -476,7 +477,7 @@ class DistFileLayout(BaseFileLayout):
     def get_install_spec_file(self, config_option_num):
         """ We don't check for the filename in advance, as it might not yet have been created"""
         filename = os.path.join(self.build_output_directory,
-                                self.get_genforma_config().install_spec_options[config_option_num]['file_name'])
+                                self.get_installer_config().install_spec_options[config_option_num]['file_name'])
         return filename
 
     def get_preprocessed_resource_file(self):

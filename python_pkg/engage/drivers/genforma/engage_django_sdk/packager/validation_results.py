@@ -35,7 +35,8 @@ class ResultsBase(object):
                  exception=None, product=None, product_version=None,
                  python_path_subdirectory=None, installed_apps=None,
                  fixtures=None, migration_apps=None, components=None,
-                 post_install_commands=None):
+                 post_install_commands=None, media_root_subdir=None,
+                 media_url_path=None, static_root_subdir=None, static_url_path=None):
         self.version = version
         if error_messages:
             self.error_messages = error_messages
@@ -54,6 +55,10 @@ class ResultsBase(object):
         self.migration_apps = migration_apps
         self.components = components
         self.post_install_commands = post_install_commands
+        self.media_root_subdir = media_root_subdir
+        self.media_url_path = media_url_path
+        self.static_root_subdir = static_root_subdir
+        self.static_url_path = static_url_path
 
     def get_return_code(self):
         raise Exception("%s does not implement get_return_code()!" % self.__type__.__name__)
@@ -78,7 +83,11 @@ class ResultsBase(object):
                u"fixtures": self.fixtures,
                u"migration_apps":self.migration_apps,
                u"components":self.components,
-               u"post_install_commands":self.post_install_commands}
+               u"post_install_commands":self.post_install_commands,
+               u"media_root_subdir":self.media_root_subdir,
+               u"media_url_path":self.media_url_path,
+               u"static_root_subdir":self.static_root_subdir,
+               u"static_url_path":self.static_url_path}
         return js
 
 
@@ -117,7 +126,11 @@ class ParsedJsonResults(ResultsBase):
                      u"fixtures",
                      u"migration_apps",
                      u"components",
-                     u"post_install_commands"]
+                     u"post_install_commands",
+                     u"media_root_subdir",
+                     u"media_url_path",
+                     u"static_root_subdir",
+                     u"static_url_path"]
             for prop in props:
                 if not json_obj.has_key(prop):
                     raise Exception("Invalid results file, missing property %s" %
@@ -134,7 +147,11 @@ class ParsedJsonResults(ResultsBase):
                                  fixtures=json_obj[u"fixtures"],
                                  migration_apps=json_obj[u"migration_apps"],
                                  components=json_obj[u"components"],
-                                 post_install_commands=json_obj[u"post_install_commands"])
+                                 post_install_commands=json_obj[u"post_install_commands"],
+                                 media_root_subdir=json_obj[u"media_root_subdir"],
+                                 media_url_path=json_obj[u"media_url_path"],
+                                 static_root_subdir=json_obj[u"static_root_subdir"],
+                                 static_url_path=json_obj[u"static_url_path"])
             self.return_code = json_obj[u"return_code"]
             self.return_code_desc = json_obj[u"return_code_desc"]
         except Exception, v:
