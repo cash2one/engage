@@ -1,0 +1,73 @@
+{ "resource_def_version": "1.0",
+  "resource_definitions": [
+    { "key": {"name":"mac-osx", "version":"10.5.6"},
+      "display_name": "mac-osx",
+      "config_port": {
+        "hostname" : {"type":"string", "default":"localhost"},
+        "os_user_name" : "string",
+        "cpu_arch" : {"type":"string", "default":"x86"}
+       },
+      "output_ports": {
+        "host": {
+          "hostname": {"type":"string", "fixed-value":"${config_port.hostname}"},
+          "os_type" : {"type":"string", "fixed-value":"mac-osx"},
+          "os_user_name" : {"type": "string",
+                            "source":"config_port.os_user_name"},
+          "cpu_arch" : {"type":"string", "source":"config_port.cpu_arch"}
+        }
+      }
+    },
+    { "key": { "name": "windows-xp", "version": "sp2"},
+      "display_name": "windows-xp",
+      "config_port": {
+        "hostname": {"type":"string", "default":"localhost"},
+        "os_user_name" : "string",
+        "cpu_arch" : {"type":"string", "default":"x86"}
+      },
+      "output_ports": {
+        "host": {
+          "hostname": {"type":"string", "source":"config_port.hostname"},
+          "os_type" : {"type":"string", "fixed-value":"windows-xp"},
+          "os_user_name" : {"type": "string",
+                            "source":"config_port.os_user_name"},
+          "cpu_arch" : {"type":"string", "source":"config_port.cpu_arch"}
+        }
+      }
+    },
+    { "key": {"name":"mysql", "version":"5.1.31"},
+      "display_name": "mysql",
+      "config_port": {
+        "install_dir": "string",
+        "port": {"type":"tcp_port", "default":3306},
+        "admin_password": {"type":"password", "default":"mysql/admin_password"}
+      },
+      "input_ports": { 
+        "host" : {
+          "hostname": "string",
+          "os_type": "string",
+          "os_user_name": "string",
+          "cpu_arch": "string"
+        }
+      },
+      "output_ports": {     
+        "mysql" : {
+          "host": {"type":"string", "source":"input_ports.host.hostname"},
+          "port": {"type":"tcp_port", "source":"config_port.port"}
+        },
+        "mysql-admin" : {
+          "root_password": {"type":"string",
+                            "source":"config_port.admin_password"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than":"10.5.0",
+                                                 "less-than":"10.6"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "windows-xp", "version":"sp2"},
+            "port_mapping": {"host":"host"}}
+        ]
+      }
+    }     
+  ]
+}

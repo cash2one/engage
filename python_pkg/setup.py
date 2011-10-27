@@ -16,8 +16,8 @@ setup(
             'install-backend = engage.engine.install_engine:call_from_console_script',
             'install-from-spec = engage.engine.install_from_spec:call_from_console_script',
             'install = engage.engine.cmdline_install:call_from_console_script',
-            'upgrade = engage.engine.upgrade:call_from_console_script',
             'backup = engage.engine.backup:call_from_console_script',
+            'deploy-spec = engage.engine.deploy_spec:call_from_console_script',
             'create-distribution = engage.engine.create_distribution:call_from_console_script'
             ]},
     install_requires=[],

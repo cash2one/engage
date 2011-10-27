@@ -1,0 +1,607 @@
+[
+  { "id": "master-host",
+    "key": {"name": "mac-osx", "version": "10.6"},
+    "properties": {
+      "installed": true,
+      "use_as_install_target": true
+    },
+    "config_port": {
+      "cpu_arch": "x86_64",
+      "genforma_home": "/Users/jfischer/apps",
+      "hostname": "jfischer.intern",
+      "log_directory": "/Users/jfischer/apps/log",
+      "os_user_name": "jfischer",
+      "private_ip": null,
+      "sudo_password": "GenForma/jfischer/sudo_password"
+    },
+    "output_ports": {
+      "host": {
+        "cpu_arch": "x86_64",
+        "genforma_home": "/Users/jfischer/apps",
+        "hostname": "jfischer.intern",
+        "log_directory": "/Users/jfischer/apps/log",
+        "os_type": "mac-osx",
+        "os_user_name": "jfischer",
+        "private_ip": null,
+        "sudo_password": "GenForma/jfischer/sudo_password"
+      }
+    }
+  },
+  { "id": "sqlite-connector",
+    "key": {"name": "sqlite-connector-for-django", "version": "1.0"},
+    "config_port": {
+      "database_file_name": "/Users/jfischer/apps/database/django.db"
+    },
+    "input_ports": {
+      "host": {
+        "cpu_arch": "x86_64",
+        "genforma_home": "/Users/jfischer/apps",
+        "hostname": "jfischer.intern",
+        "log_directory": "/Users/jfischer/apps/log",
+        "os_type": "mac-osx",
+        "os_user_name": "jfischer",
+        "private_ip": null,
+        "sudo_password": "GenForma/jfischer/sudo_password"
+      }
+    },
+    "output_ports": {
+      "django_db": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "HOST": "",
+        "NAME": "/Users/jfischer/apps/database/django.db",
+        "PASSWORD": null,
+        "PORT": null,
+        "USER": ""
+      }
+    },
+    "inside": {
+      "id": "master-host",
+      "key": {"name": "mac-osx", "version": "10.6"},
+      "port_mapping": {
+        "host": "host"
+      }
+    }
+  },
+  { "id": "dummycache-1",
+    "key": {"name": "django-dummy-cache-adapter", "version": "any"},
+    "input_ports": {
+      "host": {
+        "cpu_arch": "x86_64",
+        "genforma_home": "/Users/jfischer/apps",
+        "hostname": "jfischer.intern",
+        "log_directory": "/Users/jfischer/apps/log",
+        "os_type": "mac-osx",
+        "os_user_name": "jfischer",
+        "private_ip": null,
+        "sudo_password": "GenForma/jfischer/sudo_password"
+      }
+    },
+    "output_ports": {
+      "ocache": {
+        "home": "__dummy__",
+        "host": "dummy.host",
+        "provider": "dummy"
+      }
+    },
+    "inside": {
+      "id": "master-host",
+      "key": {"name": "mac-osx", "version": "10.6"},
+      "port_mapping": {
+        "host": "host"
+      }
+    }
+  },
+  { "id": "dummy-celery-1",
+    "key": {"name": "django-dummy-celery-adapter", "version": "any"},
+    "config_port": {
+      "BROKER_HOST": "localhost",
+      "BROKER_PASSWORD": "",
+      "BROKER_PORT": 0,
+      "BROKER_USER": "",
+      "BROKER_VHOST": ""
+    },
+    "input_ports": {
+      "broker": { },
+      "host": {
+        "cpu_arch": "x86_64",
+        "genforma_home": "/Users/jfischer/apps",
+        "hostname": "jfischer.intern",
+        "log_directory": "/Users/jfischer/apps/log",
+        "os_type": "mac-osx",
+        "os_user_name": "jfischer",
+        "private_ip": null,
+        "sudo_password": "GenForma/jfischer/sudo_password"
+      }
+    },
+    "output_ports": {
+      "celery": {
+        "BROKER_HOST": "localhost",
+        "BROKER_PASSWORD": "",
+        "BROKER_PORT": 0,
+        "BROKER_USER": "",
+        "BROKER_VHOST": "",
+        "broker": "dummy",
+        "provider": "dummy"
+      }
+    },
+    "inside": {
+      "id": "master-host",
+      "key": {"name": "mac-osx", "version": "10.6"},
+      "port_mapping": {
+        "host": "host"
+      }
+    }
+  },
+  { "id": "python-master-host",
+    "key": {"name": "python", "version": "2.7"},
+    "properties": {
+      "installed": true
+    },
+    "config_port": {
+      "PYTHONPATH": "/Users/jfischer/apps/python/lib/python2.7/site-packages/",
+      "PYTHON_BIN_DIR": "/Users/jfischer/apps/python/bin",
+      "PYTHON_HOME": "/Users/jfischer/apps/python/bin/python"
+    },
+    "input_ports": {
+      "host": {
+        "cpu_arch": "x86_64",
+        "genforma_home": "/Users/jfischer/apps",
+        "hostname": "jfischer.intern",
+        "log_directory": "/Users/jfischer/apps/log",
+        "os_type": "mac-osx",
+        "os_user_name": "jfischer",
+        "private_ip": null,
+        "sudo_password": "GenForma/jfischer/sudo_password"
+      }
+    },
+    "output_ports": {
+      "python": {
+        "PYTHONPATH": "/Users/jfischer/apps/python/lib/python2.7/site-packages/",
+        "home": "/Users/jfischer/apps/python/bin/python",
+        "python_bin_dir": "/Users/jfischer/apps/python/bin",
+        "type": "python",
+        "version": "2.7"
+      }
+    },
+    "inside": {
+      "id": "master-host",
+      "key": {"name": "mac-osx", "version": "10.6"},
+      "port_mapping": {
+        "host": "host"
+      }
+    }
+  },
+  { "id": "setuptools-master-host",
+    "key": {"name": "setuptools", "version": "0.6"},
+    "properties": {
+      "installed": true
+    },
+    "input_ports": {
+      "host": {
+        "cpu_arch": "x86_64",
+        "genforma_home": "/Users/jfischer/apps",
+        "hostname": "jfischer.intern",
+        "log_directory": "/Users/jfischer/apps/log",
+        "os_type": "mac-osx",
+        "os_user_name": "jfischer",
+        "private_ip": null,
+        "sudo_password": "GenForma/jfischer/sudo_password"
+      },
+      "python": {
+        "PYTHONPATH": "/Users/jfischer/apps/python/lib/python2.7/site-packages/",
+        "home": "/Users/jfischer/apps/python/bin/python",
+        "python_bin_dir": "/Users/jfischer/apps/python/bin",
+        "type": "python",
+        "version": "2.7"
+      }
+    },
+    "output_ports": {
+      "setuptools": {
+        "easy_install": "/Users/jfischer/apps/python/bin/easy_install"
+      }
+    },
+    "inside": {
+      "id": "master-host",
+      "key": {"name": "mac-osx", "version": "10.6"},
+      "port_mapping": {
+        "host": "host"
+      }
+    },
+    "environment": [
+      {
+        "id": "python-master-host",
+        "key": {"name": "python", "version": "2.7"},
+        "port_mapping": {
+          "python": "python"
+        }
+      }
+    ]
+  },
+  { "id": "__Django__1_3__2",
+    "key": {"name": "Django", "version": "1.3"},
+    "input_ports": {
+      "host": {
+        "cpu_arch": "x86_64",
+        "genforma_home": "/Users/jfischer/apps",
+        "hostname": "jfischer.intern",
+        "log_directory": "/Users/jfischer/apps/log",
+        "os_type": "mac-osx",
+        "os_user_name": "jfischer",
+        "private_ip": null,
+        "sudo_password": "GenForma/jfischer/sudo_password"
+      },
+      "python": {
+        "PYTHONPATH": "/Users/jfischer/apps/python/lib/python2.7/site-packages/",
+        "home": "/Users/jfischer/apps/python/bin/python",
+        "python_bin_dir": "/Users/jfischer/apps/python/bin",
+        "type": "python",
+        "version": "2.7"
+      },
+      "setuptools": {
+        "easy_install": "/Users/jfischer/apps/python/bin/easy_install"
+      }
+    },
+    "inside": {
+      "id": "master-host",
+      "key": {"name": "mac-osx", "version": "10.6"},
+      "port_mapping": {
+        "host": "host"
+      }
+    },
+    "environment": [
+      {
+        "id": "setuptools-master-host",
+        "key": {"name": "setuptools", "version": "0.6"},
+        "port_mapping": {
+          "setuptools": "setuptools"
+        }
+      },
+      {
+        "id": "python-master-host",
+        "key": {"name": "python", "version": "2.7"},
+        "port_mapping": {
+          "python": "python"
+        }
+      }
+    ]
+  },
+  { "id": "__pip__any__1",
+    "key": {"name": "pip", "version": "any"},
+    "input_ports": {
+      "host": {
+        "cpu_arch": "x86_64",
+        "genforma_home": "/Users/jfischer/apps",
+        "hostname": "jfischer.intern",
+        "log_directory": "/Users/jfischer/apps/log",
+        "os_type": "mac-osx",
+        "os_user_name": "jfischer",
+        "private_ip": null,
+        "sudo_password": "GenForma/jfischer/sudo_password"
+      },
+      "python": {
+        "PYTHONPATH": "/Users/jfischer/apps/python/lib/python2.7/site-packages/",
+        "home": "/Users/jfischer/apps/python/bin/python",
+        "python_bin_dir": "/Users/jfischer/apps/python/bin",
+        "type": "python",
+        "version": "2.7"
+      },
+      "setuptools": {
+        "easy_install": "/Users/jfischer/apps/python/bin/easy_install"
+      }
+    },
+    "output_ports": {
+      "pip": {
+        "pipbin": "/Users/jfischer/apps/python/bin/pip"
+      }
+    },
+    "inside": {
+      "id": "master-host",
+      "key": {"name": "mac-osx", "version": "10.6"},
+      "port_mapping": {
+        "host": "host"
+      }
+    },
+    "environment": [
+      {
+        "id": "python-master-host",
+        "key": {"name": "python", "version": "2.7"},
+        "port_mapping": {
+          "python": "python"
+        }
+      },
+      {
+        "id": "setuptools-master-host",
+        "key": {"name": "setuptools", "version": "0.6"},
+        "port_mapping": {
+          "setuptools": "setuptools"
+        }
+      }
+    ]
+  },
+  { "id": "__gunicorn__0_12__0",
+    "key": {"name": "gunicorn", "version": "0.12"},
+    "input_ports": {
+      "host": {
+        "cpu_arch": "x86_64",
+        "genforma_home": "/Users/jfischer/apps",
+        "hostname": "jfischer.intern",
+        "log_directory": "/Users/jfischer/apps/log",
+        "os_type": "mac-osx",
+        "os_user_name": "jfischer",
+        "private_ip": null,
+        "sudo_password": "GenForma/jfischer/sudo_password"
+      },
+      "python": {
+        "PYTHONPATH": "/Users/jfischer/apps/python/lib/python2.7/site-packages/",
+        "home": "/Users/jfischer/apps/python/bin/python",
+        "python_bin_dir": "/Users/jfischer/apps/python/bin",
+        "type": "python",
+        "version": "2.7"
+      },
+      "setuptools": {
+        "easy_install": "/Users/jfischer/apps/python/bin/easy_install"
+      }
+    },
+    "inside": {
+      "id": "master-host",
+      "key": {"name": "mac-osx", "version": "10.6"},
+      "port_mapping": {
+        "host": "host"
+      }
+    },
+    "environment": [
+      {
+        "id": "python-master-host",
+        "key": {"name": "python", "version": "2.7"},
+        "port_mapping": {
+          "python": "python"
+        }
+      },
+      {
+        "id": "setuptools-master-host",
+        "key": {"name": "setuptools", "version": "0.6"},
+        "port_mapping": {
+          "setuptools": "setuptools"
+        }
+      }
+    ]
+  },
+  { "id": "__Django_South__0_7_3__4",
+    "key": {"name": "Django-South", "version": "0.7.3"},
+    "input_ports": {
+      "host": {
+        "cpu_arch": "x86_64",
+        "genforma_home": "/Users/jfischer/apps",
+        "hostname": "jfischer.intern",
+        "log_directory": "/Users/jfischer/apps/log",
+        "os_type": "mac-osx",
+        "os_user_name": "jfischer",
+        "private_ip": null,
+        "sudo_password": "GenForma/jfischer/sudo_password"
+      },
+      "python": {
+        "PYTHONPATH": "/Users/jfischer/apps/python/lib/python2.7/site-packages/",
+        "home": "/Users/jfischer/apps/python/bin/python",
+        "python_bin_dir": "/Users/jfischer/apps/python/bin",
+        "type": "python",
+        "version": "2.7"
+      },
+      "setuptools": {
+        "easy_install": "/Users/jfischer/apps/python/bin/easy_install"
+      }
+    },
+    "inside": {
+      "id": "master-host",
+      "key": {"name": "mac-osx", "version": "10.6"},
+      "port_mapping": {
+        "host": "host"
+      }
+    },
+    "environment": [
+      {
+        "id": "__Django__1_3__2",
+        "key": {"name": "Django", "version": "1.3"}
+      },
+      {
+        "id": "python-master-host",
+        "key": {"name": "python", "version": "2.7"},
+        "port_mapping": {
+          "python": "python"
+        }
+      },
+      {
+        "id": "setuptools-master-host",
+        "key": {"name": "setuptools", "version": "0.6"},
+        "port_mapping": {
+          "setuptools": "setuptools"
+        }
+      }
+    ]
+  },
+  { "id": "django-webserver-config",
+    "key": {"name": "django-development-webserver", "version": "1.0"},
+    "config_port": {
+      "hostname": "0.0.0.0",
+      "port": 8000
+    },
+    "input_ports": {
+      "host": {
+        "cpu_arch": "x86_64",
+        "genforma_home": "/Users/jfischer/apps",
+        "hostname": "jfischer.intern",
+        "log_directory": "/Users/jfischer/apps/log",
+        "os_type": "mac-osx",
+        "os_user_name": "jfischer",
+        "private_ip": null,
+        "sudo_password": "GenForma/jfischer/sudo_password"
+      }
+    },
+    "output_ports": {
+      "webserver_config": {
+        "additional_config_dir": "",
+        "config_file": "",
+        "controller_exe": "",
+        "file_owner_group": "",
+        "listen_host": "0.0.0.0",
+        "listen_port": 8000,
+        "log_dir": "",
+        "webserver_type": "development"
+      }
+    },
+    "inside": {
+      "id": "master-host",
+      "key": {"name": "mac-osx", "version": "10.6"},
+      "port_mapping": {
+        "host": "host"
+      }
+    },
+    "environment": [
+      {
+        "id": "__gunicorn__0_12__0",
+        "key": {"name": "gunicorn", "version": "0.12"}
+      }
+    ]
+  },
+  { "id": "django-1",
+    "key": {"name": "Django-App", "version": "1.0"},
+    "properties": {
+      "app_short_name": "django"
+    },
+    "config_port": {
+      "admin_email": "admin@example.com",
+      "admin_name": "Admin",
+      "app_admin_password": "test",
+      "application_archive": "/Users/jfischer/demos/test_app_v1.tgz",
+      "email_from": "Not_used",
+      "email_host": "Not_used",
+      "email_host_user": "Not_used",
+      "email_password": "Not_used",
+      "email_port": 25,
+      "home": "/Users/jfischer/apps/django_app",
+      "log_directory": "/Users/jfischer/apps/log/django",
+      "time_zone": "America/Los_Angeles",
+      "websvr_hostname": "jfischer.intern",
+      "websvr_port": 8000
+    },
+    "input_ports": {
+      "celery": {
+        "BROKER_HOST": "localhost",
+        "BROKER_PASSWORD": "",
+        "BROKER_PORT": 0,
+        "BROKER_USER": "",
+        "BROKER_VHOST": "",
+        "broker": "dummy",
+        "provider": "dummy"
+      },
+      "django_db": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "HOST": "",
+        "NAME": "/Users/jfischer/apps/database/django.db",
+        "PASSWORD": null,
+        "PORT": null,
+        "USER": ""
+      },
+      "host": {
+        "cpu_arch": "x86_64",
+        "genforma_home": "/Users/jfischer/apps",
+        "hostname": "jfischer.intern",
+        "log_directory": "/Users/jfischer/apps/log",
+        "os_type": "mac-osx",
+        "os_user_name": "jfischer",
+        "private_ip": null,
+        "sudo_password": "GenForma/jfischer/sudo_password"
+      },
+      "ocache": {
+        "home": "__dummy__",
+        "host": "dummy.host",
+        "provider": "dummy"
+      },
+      "pip": {
+        "pipbin": "/Users/jfischer/apps/python/bin/pip"
+      },
+      "python": {
+        "PYTHONPATH": "/Users/jfischer/apps/python/lib/python2.7/site-packages/",
+        "home": "/Users/jfischer/apps/python/bin/python",
+        "python_bin_dir": "/Users/jfischer/apps/python/bin",
+        "type": "python",
+        "version": "2.7"
+      },
+      "webserver_config": {
+        "additional_config_dir": "",
+        "config_file": "",
+        "controller_exe": "",
+        "file_owner_group": "",
+        "listen_host": "0.0.0.0",
+        "listen_port": 8000,
+        "log_dir": "",
+        "webserver_type": "development"
+      }
+    },
+    "output_ports": {
+      "django": {
+        "home": "/Users/jfischer/apps/django_app",
+        "layout_cfg_file": "/Users/jfischer/apps/django_app/file_layout.json",
+        "log_directory": "/Users/jfischer/apps/log/django"
+      }
+    },
+    "inside": {
+      "id": "master-host",
+      "key": {"name": "mac-osx", "version": "10.6"},
+      "port_mapping": {
+        "host": "host"
+      }
+    },
+    "environment": [
+      {
+        "id": "django-webserver-config",
+        "key": {"name": "django-development-webserver", "version": "1.0"},
+        "port_mapping": {
+          "webserver_config": "webserver_config"
+        }
+      },
+      {
+        "id": "dummycache-1",
+        "key": {"name": "django-dummy-cache-adapter", "version": "any"},
+        "port_mapping": {
+          "ocache": "ocache"
+        }
+      },
+      {
+        "id": "dummy-celery-1",
+        "key": {"name": "django-dummy-celery-adapter", "version": "any"},
+        "port_mapping": {
+          "celery": "celery"
+        }
+      },
+      {
+        "id": "sqlite-connector",
+        "key": {"name": "sqlite-connector-for-django", "version": "1.0"},
+        "port_mapping": {
+          "django_db": "django_db"
+        }
+      },
+      {
+        "id": "__Django_South__0_7_3__4",
+        "key": {"name": "Django-South", "version": "0.7.3"}
+      },
+      {
+        "id": "__Django__1_3__2",
+        "key": {"name": "Django", "version": "1.3"}
+      },
+      {
+        "id": "__pip__any__1",
+        "key": {"name": "pip", "version": "any"},
+        "port_mapping": {
+          "pip": "pip"
+        }
+      },
+      {
+        "id": "python-master-host",
+        "key": {"name": "python", "version": "2.7"},
+        "port_mapping": {
+          "python": "python"
+        }
+      }
+    ]
+  }
+]

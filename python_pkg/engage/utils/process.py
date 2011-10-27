@@ -374,6 +374,18 @@ def sudo_mkdir(dir_path, sudo_password, logger, create_intermediate_dirs=False):
         cmd = [_mkdir_exe, dir_path]
     run_sudo_program(cmd, sudo_password, logger)
 
+
+def sudo_rm(path, sudo_password, logger):
+    """Remove the file or directory. Does a recursive remove if
+    the path points to a directory.
+    """
+    if os.path.isdir(path):
+        cmd = [_rm_exe, "-r", path]
+    else:
+        cmd = [_rm_exe, path]
+    run_sudo_program(cmd, sudo_password, logger)
+
+    
 def sudo_set_file_permissions(path, user_id, group_id, mode_bits, logger, sudo_password):
     """Set the permissions of a file, running as root
     """

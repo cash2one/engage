@@ -145,12 +145,10 @@ class TestRequest(object):
         with fileutils.TempDir(dir=self.deployment_home) as td:
             self.logger.info("[Dry Run] Calling service %s, backup()" % mgr.id)
             mgr.backup(td.name)
+            self.logger.info("[Dry Run] Calling service %s, uninstall()" % mgr.id)
+            mgr.uninstall()
             self.logger.info("[Dry Run] Calling service %s, restore()" % mgr.id)
             mgr.restore(td.name, package)
-        with fileutils.TempDir(dir=self.deployment_home) as td:
-            self.logger.info("[Dry Run] Calling service %s, uninstall()" % mgr.id)
-            mgr.uninstall(td.name)
-            
         self.logger.info("[Dry Run] Tests for resource %s completed successfully" % mgr.id)
 
 

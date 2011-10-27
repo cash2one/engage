@@ -47,11 +47,11 @@ def backup_resources(backup_directory, mgr_pkg_list, logger, compress):
         m.backup(backup_directory, compress)
     logger.info("Backup of deployed resources to %s completed successfully" % backup_directory)
 
-def uninstall_resources(backup_directory, mgr_pkg_list, logger, compress):
+def uninstall_resources(mgr_pkg_list, logger):
     for (m, p) in mgr_pkg_list:
         logger.debug("uninstalling resource %s" % m.id)
-        m.uninstall(backup_directory, False, compress)
-    logger.info("Uninstall of deployed resources to %s completed successfully" % backup_directory)
+        m.uninstall(incomplete_install=False)
+    logger.info("Uninstall of deployed resources completed successfully")
 
 
 def save_engage_files(backup_directory, deployment_home, logger, compress):
@@ -93,26 +93,27 @@ def restore_engage_files(backup_directory, move=False):
 
 def main(argv):
     from optparse import OptionParser
-    parser = OptionParser(usage="%prog [options] backup|uninstall|restore|restore-engage backup_directory")
+    parser = OptionParser(usage="%prog [options] backup|uninstall|restore|restore-engage [backup_directory]")
 
     parser.add_option("--compress", "-c", action="store_true", dest="compress",
                       default=False, help="If specified, compress backup files")
     cmdline_script_utils.add_standard_cmdline_options(parser)
     (options, args) = parser.parse_args()
-    if len(args)!=2:
-        parser.error("Wrong number of args, expecting at least 2")
+    if not (len(args)==2 or (len(args)==1 and args[0]=="uninstall")):
+        parser.error("Wrong number of args, expecting 1 or 2")
     cmd = args[0]
     valid_commands = ["backup", "uninstall", "restore", "restore-engage"]
     if not (cmd in valid_commands):
         parser.error("Command must be one of %s" % valid_commands)
 
     (file_layout, dh) = cmdline_script_utils.process_standard_options(options, parser)
-        
-    backup_directory = os.path.abspath(os.path.expanduser(args[1]))
-    if cmd=="backup" or cmd=="uninstall":
+
+    if cmd != "uninstall":
+        backup_directory = os.path.abspath(os.path.expanduser(args[1]))
+    if cmd=="backup":
         if not os.path.isdir(backup_directory):
             os.makedirs(backup_directory)
-    else:
+    elif (cmd=="restore") or (cmd=="restore-engage"):
         if not os.path.isdir(backup_directory):
             parser.error("Backup directory %s does not exist" % backup_directory)
 
@@ -125,16 +126,19 @@ def main(argv):
 
     logger = log_setup.setup_engine_logger(__name__)
 
-    if cmd=="backup" or cmd=="uninstall":
+    if cmd=="backup":
         for (m, p) in reversed(mgr_pkg_list):
             if m.is_service() and m.is_running():
                 logger.info("stopping resource %s" % m.id)
                 m.stop()
-        if cmd=="backup":
-            backup_resources(backup_directory, mgr_pkg_list, logger, options.compress)
-        else:
-            uninstall_resources(backup_directory, mgr_pkg_list, logger, options.compress)
+        backup_resources(backup_directory, mgr_pkg_list, logger, options.compress)
         save_engage_files(backup_directory, dh, logger, options.compress)
+    elif cmd=="uninstall":
+        for (m, p) in reversed(mgr_pkg_list):
+            if m.is_service() and m.is_running():
+                logger.info("stopping resource %s" % m.id)
+                m.stop()
+        uninstall_resources(mgr_pkg_list, logger)
     else: # command == restore
         restore_resources(backup_directory, mgr_pkg_list, logger)
     return 0

@@ -43,21 +43,21 @@ def get_old_resources(backup_dir):
 def _undo_bad_install(failed_resource_mgr, undo_list, deployment_home, orig_exc):
     m = failed_resource_mgr
     try:
-        failed_upgrade_dir = os.path.join(deployment_home, "failed_upgrade")
-        if os.path.exists(failed_upgrade_dir):
-            logger.debug("Removing old upgrade directory %s" % failed_upgrade_dir)
-            shutil.rmtree(failed_upgrade_dir)
+        ## failed_upgrade_dir = os.path.join(deployment_home, "failed_upgrade")
+        ## if os.path.exists(failed_upgrade_dir):
+        ##     logger.debug("Removing old upgrade directory %s" % failed_upgrade_dir)
+        ##     shutil.rmtree(failed_upgrade_dir)
         logger.debug("Force stop and uninstall of resource %s" % failed_resource_mgr.id)
         if m.is_service():
             m.force_stop()
-        os.makedirs(failed_upgrade_dir)
-        m.uninstall(failed_upgrade_dir, incomplete_install=True, compress=False)
+        ## os.makedirs(failed_upgrade_dir)
+        m.uninstall(incomplete_install=True)
         logger.debug("Uninstalling remaining resources")
         undo_list.reverse()
         for m in undo_list:
             if m.is_service():
                 m.force_stop()
-            m.uninstall(failed_upgrade_dir, incomplete_install=False, compress=False)
+            m.uninstall(incomplete_install=False)
         logger.info("Uninstall of failed version successful")
     except:
         exc_info = sys.exc_info()

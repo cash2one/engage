@@ -56,6 +56,6 @@ class Manager(BackupFileMixin, resource_manager.Manager):
         """For the upgrade of a django sqlite database, we restore the previous version
         and let the django app resource manager handle the schema upgrade (if needed).
         """
-        backup_file = self._find_backup_file(backup_root_directory, old_metadata.id)
+        backup_file = self._find_backup_archive(backup_root_directory, old_metadata.id)
         logger.info("Upgrading %s by restoring file at %s" % (self.id, backup_file))
         backup.restore(backup_file, move=False)

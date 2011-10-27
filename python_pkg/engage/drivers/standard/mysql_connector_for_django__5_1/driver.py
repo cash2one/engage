@@ -75,7 +75,8 @@ def make_context(resource_json, sudo_password_fn, dry_run=False):
                    admin_password=str,
                    mysqladmin_exe=str,
                    mysql_client_exe=str,
-                   mysqldump_exe=str)
+                   mysqldump_exe=str,
+                   mysql_server_script=str)
     ctx.check_port("input_ports.mysql",
                    host=str,
                    port=int)
@@ -146,6 +147,20 @@ class Manager(resource_manager.Manager, PasswordRepoMixin):
           p.config_port.USER, self._get_password(p.config_port.PASSWORD),
           "use %s;\nquit\n" % p.config_port.NAME)
 
+    def _ensure_mysql_running(self):
+        """Make sure that mysql is running. Returns True if we had to start
+        mysql and False if it was already running.
+        """
+        p = self.ctx.props
+        rv = self.ctx.rv
+        r = self.ctx.r
+        # TODO: Figure out how this gets done when mysql is remote
+        is_running = rv(mysql_utils.get_mysql_status, p.input_ports.mysql_admin)
+        if not is_running:
+            r(mysql_utils.start_mysql_server, p.input_ports.mysql_admin)
+            self.ctx.check_poll(10, 1.0, lambda x: x, mysql_utils.get_mysql_status, p.input_ports.mysql_admin)
+        return not is_running
+    
     def backup(self, backup_to_directory, compress=True):
         p = self.ctx.props
         r = self.ctx.r
@@ -153,23 +168,20 @@ class Manager(resource_manager.Manager, PasswordRepoMixin):
             os.path.join(backup_to_directory,
                          fileutils.mangle_resource_key(self.metadata.key))
         r(ensure_dir_exists, mysql_backup_dir)
+        need_to_stop = self._ensure_mysql_running()
         r(mysql_utils.dump_database, p.config_port.NAME,
           os.path.join(mysql_backup_dir,
                        "mysql_dump_%s.sql" % p.config_port.NAME),
           self._get_admin_password())
+        if need_to_stop:
+            # leave the server in the same state we started it
+            r(mysql_utils.run_mysqladmin, p.input_ports.mysql_admin,
+              self._get_admin_password(), ["stop"])
     
-    def uninstall(self, backup_to_directory, incomplete_install=False,
-                  compress=True):
+    def uninstall(self, incomplete_install=False):
         p = self.ctx.props
         r = self.ctx.r
-        try:
-            self.backup(backup_to_directory, compress)
-        except Exception, e:
-            if incomplete_install:
-                logger.debug("Backup failed for resource %s, exception was %s ignoring." %
-                             (p.id, str(e)))
-            else:
-                raise
+        need_to_stop = self._ensure_mysql_running()
         try:
             r(mysql_utils.run_mysql_client, "root", self._get_admin_password(),
               "drop database %s;\nquit\n" % p.config_port.NAME)
@@ -188,6 +200,10 @@ class Manager(resource_manager.Manager, PasswordRepoMixin):
                              (p.id, str(e)))
             else:
                 raise
+        if need_to_stop:
+            # leave the server in the same state we started it
+            r(mysql_utils.run_mysqladmin, p.input_ports.mysql_admin,
+              self._get_admin_password(), ["stop"])
 
     def restore(self, backup_to_directory, package):
         p = self.ctx.props

@@ -1,0 +1,188 @@
+{ "resource_def_version": "1.0",
+  "resource_definitions": [
+    { "key": {"name":"mac-osx", "version":"10.5.6"},
+      "display_name": "Machine (mac-osx)",
+      "config_port": {
+        "hostname" : {"type":"string", "default":"localhost"},
+        "os_user_name" : "string",
+        "cpu_arch" : {"type":"string", "default":"x86"}
+       },
+      "output_ports": {
+        "host": {
+          "hostname": {"type":"string", "source":"config_port.hostname"},
+          "os_type" : {"type":"string", "fixed-value":"mac-osx"},
+          "os_user_name" : {"type": "string",
+                            "source":"config_port.os_user_name"},
+          "cpu_arch" : {"type":"string", "source":"config_port.cpu_arch"}
+        }
+      }
+    },
+    { "key": {"name":"mysql", "version":"5.1.31"},
+      "display_name": "MySQL 5.1.31",
+      "config_port": {
+        "install_dir": {"type":"string", "default":"/Users/jfischer/test/mysql"},
+        "port": {"type":"tcp_port", "default":3306},
+        "admin_password": {"type":"password", "default":"admin"}
+      },
+      "input_ports": { 
+        "host" : {
+          "hostname": "string",
+          "os_type": "string",
+          "os_user_name": "string",
+          "cpu_arch": "string"
+        }
+      },
+      "output_ports": {     
+        "mysql" : {
+          "host": {"type":"string", "source":"input_ports.host.hostname"},
+          "port": {"type":"tcp_port", "source":"config_port.port"}
+        },
+        "mysql_admin" : {
+          "root_password": {"type":"password",
+                            "source":"config_port.admin_password"},
+          "install_dir": {"type":"string",
+                          "source":"config_port.install_dir"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than":"10.5.0",
+                                                 "less-than":"10.6"}},
+            "port_mapping": {"host":"host"}}
+        ]
+      }
+    },
+    { "key": {"name":"java-developer-kit", "version":"1.5"},
+      "display_name":"JDK 1.5",
+      "config_port": {
+        "JAVA_HOME": {"type":"string",
+                      "default":"System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK/Home"}
+      },
+      "input_ports": {
+        "host" : {
+          "hostname": "string",
+          "os_type": "string",
+          "os_user_name": "string",
+          "cpu_arch": "string"
+        }
+      },
+      "output_ports": {
+        "jdk": {
+          "type": {"type":"string", "fixed-value":"jdk"},
+          "home": {"type":"string", "source":"config_port.JAVA_HOME"}
+        }
+      }, 
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than":"10.5.0",
+                                                 "less-than":"10.6"}},
+            "port_mapping": {"host":"host"}}
+        ]
+      }
+    },
+    { "key": {"name": "apache-tomcat", "version": "6.0.18"},
+      "display_name": "Apache Tomcat 6.0.18",
+      "config_port": {
+        "admin_user": {"type":"string", "default":"admin"},
+        "admin_password": {"type":"password", "default":"admin"},
+        "manager_port": {"type":"tcp_port", "default":8080},
+        "home" : {"type":"string", "default":"/Users/jfischer/test/tomcat"}
+      },
+      "input_ports": {
+        "host" : {
+          "hostname": "string",
+          "os_type": "string",
+          "os_user_name": "string",
+          "cpu_arch": "string"
+        },
+        "java": {
+          "type": "string",
+          "home": "string"
+        }
+      },
+      "output_ports": {
+        "tomcat": {
+          "admin_user": {"type":"string", "source":"config_port.admin_user"},
+          "admin_password": {"type":"password",
+                             "source":"config_port.admin_password"},
+          "hostname": {"type":"string", "source":"input_ports.host.hostname"},
+          "manager_port": {"type":"tcp_port",
+                           "source":"config_port.manager_port"},
+          "home": {"type":"string", "source":"config_port.home"},
+          "environment_vars": {"type":[{"name":"string", "value":"string"}]}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than":"10.5.0",
+                                                 "less-than":"10.6"}},
+            "port_mapping": {"host":"host"}}
+        ]
+      },
+      "environment": {
+        "one-of": [
+          { "key": {"name":"java-developer-kit",
+                    "version":{"greater-than-or-equal":"1.5"}},
+            "port_mapping": {"java":"jdk"}}
+        ]
+      }
+    },
+    { "key": {"name": "OpenMRS", "version": "1.3.4"},
+      "display_name": "OpenMRS 1.3.4",
+      "config_port": {
+        "database_user": {"type":"string", "default":"openmrs"},
+        "database_password": {"type":"password", "default":"openmrs"},
+        "home" : {"type":"string", "default":"/Users/jfischer/test/openmrs"}
+      },
+      "input_ports": {
+        "java": {
+          "type": "string",
+          "home": "string"
+        },
+        "tomcat": {
+          "admin_user": "string",
+          "admin_password": {"type":"password"},
+          "hostname": "string",
+          "manager_port": {"type":"tcp_port"},
+          "home": {"type":"string"},
+          "environment_vars": {
+            "type":[{"name":"string", "value":"string"}],
+            "includes":[{"name":"OPENMRS_RUNTIME_PROPERTIES_FILE",
+                        "value":"${config_port.home}/runtime.properties"}]
+          }
+        },
+        "mysql": {
+          "host": "string",
+          "port": "tcp_port"
+        },
+        "mysql_admin": {
+         "root_password": "password",
+         "install_dir": "string"
+        }
+      },
+      "output_ports": {
+        "openmrs": {
+          "url":{"type":"url",
+                 "fixed-value":"${input_ports.tomcat.hostname}:${input_ports.tomcat.manager_port}/openmrs"}
+        }
+      },
+      "inside": {
+        "key": {"name": "apache-tomcat", "version": "6.0.18"},
+        "port_mapping": {"tomcat": "tomcat"}
+      },
+      "environment": {
+        "one-of": [
+          { "key": {"name":"java-developer-kit",
+                    "version":{"greater-than-or-equal":"1.5"}},
+            "port_mapping": {"java":"jdk"}}
+        ]
+      },
+      "peers":
+        { "key": {"name":"mysql",
+                  "version":{"greater-than-or-equal":"5.1",
+                             "less-than":"6.0"}},
+          "port_mapping": {"mysql":"mysql", "mysql_admin":"mysql_admin"}
+        }
+    }
+  ]
+}

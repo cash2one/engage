@@ -1,0 +1,55 @@
+[
+  { "id": "machine-1",
+    "key": {"name": "mac-osx", "version": "10.5.6"},
+    "properties": {
+      "installed": true
+    },
+    "config_port": {
+      "cpu_arch": "x86",
+      "hostname": "jfischer.local",
+      "os_user_name": "jfischer"
+    },
+    "output_ports": {
+      "host": {
+        "cpu_arch": "x86",
+        "genforma_home": "/Users/jfischer/genforma",
+        "hostname": "jfischer.local",
+        "os_type": "mac-osx",
+        "os_user_name": "jfischer"
+      }
+    }
+  },
+  { "id": "mysql-1",
+    "key": {"name": "mysql", "version": "5.1.31"},
+    "config_port": {
+      "admin_password": "overriding the default pw key",
+      "install_dir": "/Users/jfischer/genforma/mysql-5.1.31",
+      "port": 3306
+    },
+    "input_ports": {
+      "host": {
+        "cpu_arch": "x86",
+        "genforma_home": "/Users/jfischer/genforma",
+        "hostname": "jfischer.local",
+        "os_type": "mac-osx",
+        "os_user_name": "jfischer"
+      }
+    },
+    "output_ports": {
+      "mysql": {
+        "host": "jfischer.local",
+        "port": 3306
+      },
+      "mysql-admin": {
+        "root_password": "overriding the default pw key"
+      }
+    },
+    "inside": {
+      "id": "machine-1",
+      "key": {"name": "mac-osx", "version": "10.5.6"},
+      "port_mapping": {
+        "host": "host"
+      }
+    }
+  }
+]

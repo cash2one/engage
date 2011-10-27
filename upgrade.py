@@ -101,7 +101,7 @@ def _run_engage_command(req, command_name, command_args, logger, valid_rcs=[0]):
     args.append("--log=%s" % req.options.loglevel)
     args.extend(command_args)
     rc = run_and_log_program(args, None, logger, req.engage_bin_dir,
-                             req.master_pw, hide_input=True)
+                             input=req.master_pw, hide_input=True)
     if rc not in valid_rcs:
         raise Exception("Execution of engage command '%s' failed, return code was %d" %
                         (args, rc))
@@ -138,11 +138,13 @@ def run(req, logger):
         shutil.rmtree(prev_version_dir)
     os.makedirs(prev_version_dir)
 
-    # run the uninstall
-    logger.info("Uninstalling old application version to %s" % prev_version_dir)
+    # run the backup and uninstall
     # TODO: We should make the uninstall command atomic: if it fails, we should
     # restore the original state.
-    _run_engage_command(req, "backup", ["uninstall", prev_version_dir], logger)
+    logger.info("Backing up old application version to %s" % prev_version_dir)
+    _run_engage_command(req, "backup", ["backup", prev_version_dir], logger)
+    logger.info("Uninstalling old application version")
+    _run_engage_command(req, "backup", ["uninstall",], logger)
     # If present, move the password database to the backup dir until we finish the boostrap
     pw_repository_path = os.path.join(req.config_dir, "pw_repository")
     pw_salt_path = os.path.join(req.config_dir, "pw_salt")

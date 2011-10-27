@@ -7,7 +7,6 @@ import json
 from subprocess import Popen
 import getpass
 import copy
-import shutil
 
 # fix path if necessary (if running from source or running as test)
 import fixup_python_path
@@ -19,13 +18,12 @@ from engage.engine.installer_config import parse_installer_config, \
 import engage.utils.log_setup as log_setup
 import engage.engine.install_engine as install_engine
 from engage.engine.engage_file_layout import get_engine_layout_mgr
-import engage.utils.system_info as system_info
 from engage.utils.file import subst_utf8_template_file
-import engage.utils.process as processutils
 import cmdline_script_utils
 import upgrade_engine
-import preprocess_resources
-from engage.utils.find_exe import find_python_executable
+from preprocess_resources import create_install_spec
+from host_resource_utils import get_target_machine_resource, setup_slave_host
+from config_engine import preprocess_and_run_config_engine, get_config_error_file
 
 
 import gettext
@@ -39,13 +37,16 @@ def define_error(error_code, msg):
     errors[error_info.error_code] = error_info
 
 
-ERR_UNEXPECTED_EXC = 1
-ERR_SLAVE_BOOTSTRAP = 2
+ERR_UNEXPECTED_EXC  = 1
+ERR_NEED_PW_FILE    = 3
+ERR_MISSING_PW_KEY  = 4
 
 define_error(ERR_UNEXPECTED_EXC,
              _("Aborting install due to unexpected error."))
-define_error(ERR_SLAVE_BOOTSTRAP,
-             _("Bootstrap of slave node %(host)s failed"))
+define_error(ERR_NEED_PW_FILE,
+             _("No password file provided, but password file needed for property %(name)s (password key %(key)s)"))
+define_error(ERR_MISSING_PW_KEY,
+             _("Password file does not include key %(key)s, which is needed for input property %(name)s"))
 
 ############################################################
 # constants
@@ -55,10 +56,6 @@ define_error(ERR_SLAVE_BOOTSTRAP,
 APPLICATION_ARCHIVE_PROP = "Application Archive File"
 # Name of property in config choices to keep track of management tools in the case of upgrades
 MGT_BACKENDS_PROP = "_management backends"
-
-os_choices = [system_info.LINUX_UBUNTU_9, system_info.LINUX_UBUNTU_9_64BIT,
-              system_info.LINUX_UBUNTU_10_64BIT,
-              system_info.MACOSX_10_5, system_info.MACOSX_10_6]
 
 
 class InputValidator(object):
@@ -120,15 +117,16 @@ class ConfigChoices(object):
     We record all the choices, in case we want to save them to a history
     file for future replay.
     """
-    def __init__(self, filename=None, password_repository=None,
-                 use_defaults=False):
+    def __init__(self, filename=None, use_defaults=False):
         self.filename = filename
         if self.filename:
             with open(filename, "rb") as f:
                 self.choices_from_file = json.load(f)
         else:
             self.choices_from_file = None
-        self.password_repository = password_repository
+        # password repository will be set later if we are running from an input
+        # file.
+        self.password_repository = None
         self.choice_history = {}
         self.app_archive_value = None # used if we override on command line
         self.use_defaults = use_defaults # if true and getting input from user, pick default without asking user
@@ -274,116 +272,6 @@ def select_configuration(installer_file_layout, config_choices):
                                                      [c["choice_name"] for c in install_spec_options])
 
 
-def get_target_machine_resource(deployment_home, log_directory):
-    machine_info = system_info.get_machine_info(os_choices)
-    tr = system_info.get_target_machine_resource("master-host",
-                                                 machine_info["hostname"],
-                                                 machine_info["username"],
-                                                 "GenForma/%s/sudo_password" % machine_info["username"],
-                                                 machine_info["os"], machine_info["private_ip"])
-    tr['config_port']['genforma_home'] = deployment_home
-    tr['config_port']['log_directory'] = log_directory
-    return tr
-
-
-def setup_slave_host(resource, master_deployment_home,
-                     password_file, password_salt_file, logger):
-    bootstrap_script = os.path.abspath(os.path.join(master_deployment_home,
-                                                    "engage/bootstrap.py"))
-    assert os.path.exists(bootstrap_script), "Can't find bootstrap script %s" % \
-                                             bootstrap_script
-    python_exe = find_python_executable(logger)
-    
-    dh = resource["config_port"]["genforma_home"]
-    logger.info("Bootstrapping slave node %s" % resource["id"])
-    deployed_nodes_root = os.path.dirname(dh)
-    if not os.path.exists(deployed_nodes_root):
-        os.makedirs(deployed_nodes_root)
-    try:
-        rc = processutils.run_and_log_program([python_exe, bootstrap_script, "-p",
-                                               python_exe, dh], None, logger,
-                                              cwd=os.path.dirname(bootstrap_script))
-    except Exception, e:
-        logger.exception("Error in slave bootstrap for %s: %s" % (e, resource["id"]))
-        raise UserError(errors[ERR_SLAVE_BOOTSTRAP],
-                        msg_args={"host":resource["id"]},
-                        developer_msg="deployment home was %s" % dh)
-    if rc!=0:
-        raise UserError(errors[ERR_SLAVE_BOOTSTRAP],
-                        msg_args={"host":resource["id"]},
-                        developer_msg="deployment home was %s" % dh)
-    if password_file:
-        assert password_salt_file
-        slave_pw_file = os.path.join(os.path.join(dh, "config"),
-                                     os.path.basename(password_file))
-        shutil.copy(password_file, slave_pw_file)
-        slave_pw_salt_file = os.path.join(os.path.join(dh, "config"),
-                                          os.path.basename(password_salt_file))
-        shutil.copy(password_salt_file, slave_pw_salt_file)
-    logger.debug("Slave %s bootstrap successful" % resource["id"])
-
-
-def create_install_spec(master_node_resource, install_spec_option_no,
-                        installer_file_layout, logger):
-    """Create the install spec from the abstract template and write it to the
-    specified file. Currently, the multinode version just assumes that we are creating
-    slaves locally. Returns a list of the host resources.
-    """
-    assert master_node_resource["id"]=="master-host", \
-           "Id of local host should be master-host"
-    deployed_nodes_root = \
-        os.path.join(master_node_resource["config_port"]["genforma_home"],
-                     "deployed_nodes")
-    spec = preprocess_resources.parse_raw_install_spec_file(
-               installer_file_layout.get_install_spec_template_file(
-                   install_spec_option_no))
-    fixup_resources = []
-    dynamic_hosts = preprocess_resources.query_install_spec(spec,
-                                                            name="dynamic-host",
-                                                            version="*")
-    for host in dynamic_hosts:
-        if host["id"] == "master-host":
-            fixup_resources.append(master_node_resource)
-        else:
-            # we currently just create fake nodes under the master node
-            slave_resource = copy.deepcopy(master_node_resource)
-            slave_resource["id"] = host["id"]
-            slave_dh = os.path.join(deployed_nodes_root, host["id"])
-            slave_resource["config_port"]["genforma_home"] = slave_dh
-            slave_resource["config_port"]["log_directory"] = \
-                                                           os.path.join(slave_dh, "log")
-            fixup_resources.append(slave_resource)
-    python_insts = preprocess_resources.query_install_spec(spec,
-                                                           name="python",
-                                                           version="*")
-    python_key = {"name":"python", "version":"%d.%d" % (sys.version_info[0],
-                                                        sys.version_info[1])}
-    for pyinst in python_insts:
-        new_inst = copy.deepcopy(pyinst)
-        new_inst["key"] = python_key
-        fixup_resources.append(new_inst)
-        
-    spec = \
-      preprocess_resources.fixup_installed_resources_in_install_spec(spec,
-                                                                     fixup_resources)
-    with open(installer_file_layout.get_install_spec_file(install_spec_option_no),
-              "wb") as f:
-        # write the actual spec
-        json.dump(spec, f)
-
-    # find hosts and return a list of the host resources
-    all_hosts = []
-    for inst in spec:
-        # a host is a resource that isn't inside any other resource
-        if inst.has_key("inside"):
-            continue
-        # check that host has the expected mimimal config values
-        assert inst.has_key("config_port")
-        assert (inst["config_port"]).has_key("genforma_home")
-        assert (inst["config_port"]).has_key("log_directory")
-        all_hosts.append(inst)
-    return all_hosts
-
 
 def set_install_spec_properties(installer_file_layout, install_spec_option_no,
                                 config_choices, target_machine, logger):
@@ -494,35 +382,6 @@ def system(command, cwd=None, shell=True):
     if rc != 0:
         raise Exception("Command execution failed: '%s'" % command)
 
-    
-def run_config_engine(req, install_spec_file, logger):
-    preprocess_resources.validate_install_spec(install_spec_file)
-    ifl = req.installer_file_layout
-    install_script_file = ifl.get_install_script_file()
-    # we run the config engine from the same directory as where we want
-    # the install script file, as it write the file to the current
-    # directory.
-    rc = processutils.run_and_log_program([ifl.get_configurator_exe(),
-                                           ifl.get_preprocessed_resource_file(),
-                                           install_spec_file], None, logger,
-                                          cwd=os.path.dirname(install_script_file))
-    if rc != 0:
-        logger.error("Config engine returned %d" % rc)
-        if os.path.exists(req.config_error_file):
-            # if the config engine wrote an error file, we parse that
-            # error and raise it.
-            try:
-                with open(req.config_error_file, "rb") as f:
-                    ue = parse_user_error(json.load(f),
-                                          component=AREA_CONFIG)
-                raise ue
-            except UserErrorParseExc, e:
-                logger.exception("Unable to parse user error file %s" %
-                                 req.config_error_file)
-        raise Exception("Configuration engine returned an error")
-    if not os.path.exists(install_script_file):
-        raise Exception("Configuration engine must have encountered a problem: install script %s was not generated" % install_script_file)
-
 
 class InstallRequest(object):
     """This class is for processing the command line arguments of the installer
@@ -619,10 +478,7 @@ class InstallRequest(object):
 
         self.error_file = os.path.join(self.installer_file_layout.get_log_directory(),
                                        "user_error.json")
-        self.config_error_file = \
-            os.path.join(os.path.dirname(
-                             self.installer_file_layout.get_install_script_file()),
-                         "config_error.json")
+        self.config_error_file = get_config_error_file(self.installer_file_layout)
 
         if self.options.mgt_backends:
             import mgt_registration
@@ -653,21 +509,18 @@ def run(req, logger):
 
     # create the install spec
     target_machine = get_target_machine_resource(req.deployment_home, req.installer_file_layout.get_log_directory())
-    hosts = create_install_spec(target_machine, install_spec_option_no,
-                                req.installer_file_layout, logger)
+    hosts = create_install_spec(target_machine,
+                                req.installer_file_layout.get_install_spec_template_file(install_spec_option_no),
+                                req.installer_file_layout.get_install_spec_file(install_spec_option_no),
+              req.installer_file_layout, logger)
 
-    # here is were we handle any additional configuration inputs
-    password_list = set_install_spec_properties(req.installer_file_layout, install_spec_option_no,
-                                                req.config_choices, target_machine, logger)
-
-    # setup the password repository
     def get_pw_file_and_salt():
         return \
           (os.path.join(req.installer_file_layout.get_password_file_directory(),
                         pw_repository.REPOSITORY_FILE_NAME),
            os.path.join(req.installer_file_layout.get_password_file_directory(),
                         pw_repository.SALT_FILE_NAME))
-    
+
     if req.upgrade_from and os.path.exists(os.path.join(req.installer_file_layout.get_password_file_directory(), "pw_repository")):
         # If we are running an upgrade and the old password file exists, we read it.
         # TODO: what if we need to add or change the password file?
@@ -677,6 +530,24 @@ def run(req, logger):
         passwords = load_from_file(pw_file, pw_salt_file,
                                    get_password_input("Sudo password:",
                                                       read_from_stdin=req.options.subproc))
+        req.config_choices.password_repository = passwords
+
+    # here is were we handle any additional configuration inputs
+    password_list = set_install_spec_properties(req.installer_file_layout, install_spec_option_no,
+                                                req.config_choices, target_machine, logger)
+    
+    ## if req.upgrade_from and os.path.exists(os.path.join(req.installer_file_layout.get_password_file_directory(), "pw_repository")):
+    ##     # If we are running an upgrade and the old password file exists, we read it.
+    ##     # TODO: what if we need to add or change the password file?
+    ##     import engage.utils.pw_repository as pw_repository
+    ##     load_from_file = pw_repository.PasswordRepository.load_from_file
+    ##     (pw_file, pw_salt_file) = get_pw_file_and_salt()
+    ##     passwords = load_from_file(pw_file, pw_salt_file,
+    ##                                get_password_input("Sudo password:",
+    ##                                                   read_from_stdin=req.options.subproc))
+    ## elif use_password or len(password_list)>0:
+    if req.config_choices.password_repository:
+        pass # already did the setup above
     elif use_password or len(password_list)>0:
         # Otherwise, if there is a fresh install, we generate a new password file
         # and pass along the in-memory copy of the database to the install engine.
@@ -704,13 +575,8 @@ def run(req, logger):
     
 
     # run the configuration engine
-    preprocess_resources.preprocess_resource_file(
-        req.installer_file_layout.get_resource_def_file(),
-        req.installer_file_layout.get_extension_resource_files(),
-        req.installer_file_layout.get_preprocessed_resource_file(),
-        logger)
-    run_config_engine(req, req.installer_file_layout.get_install_spec_file(install_spec_option_no), logger)
-    print "Configuration successful."
+    preprocess_and_run_config_engine(req.installer_file_layout,
+        req.installer_file_layout.get_install_spec_file(install_spec_option_no))
 
     # for now, dry run just exits at this point
     if req.options.dry_run:
@@ -719,8 +585,7 @@ def run(req, logger):
     if not req.upgrade_from: # this is a fresh install
         for host in hosts:
             if host["id"] != "master-host":
-                setup_slave_host(host, req.deployment_home, pw_file, pw_salt_file,
-                                 logger)
+                setup_slave_host(host, req.deployment_home, pw_file, pw_salt_file)
         install_engine_args = []
         if passwords == None:
             install_engine_args.append("--no-password-file")

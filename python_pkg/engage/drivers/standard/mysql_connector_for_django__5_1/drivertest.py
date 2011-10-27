@@ -43,7 +43,12 @@ _install_script = """
         "admin_password": "mysql-server/mysql_admin_password",
         "mysql_client_exe": "/opt/local/bin/mysql5",
         "mysqladmin_exe": "/opt/local/bin/mysqladmin5",
-        "mysqldump_exe": "/opt/local/bin/mysqldump5"
+        "mysqldump_exe": "/opt/local/bin/mysqldump5",
+        "mysql_server_script": "/opt/local/bin/mysqld_safe5",
+        "mysql_startup_logfile":"/var/log/mysql.log",
+        "mysql_server_cwd":"/opt/local",
+        "mysql_user":"_mysql",
+        "pid_file_template":"/opt/local/var/db/mysql5/%(hostname)s.pid"
       }
     },
     "output_ports": {

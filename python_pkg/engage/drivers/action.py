@@ -2,7 +2,7 @@
 Library of actions for use in resource managers.
 
 Goals
-=====
+---------------
 The goal of this library is to:
  * Provide management of the config properties and other context needed
    by most installation and service management actions.
@@ -11,7 +11,7 @@ The goal of this library is to:
  * Make it easy to test and debug action sequences.
 
 Object Types
-============
+------------
 There are two main object types in this framework:
  * The context object (an instance of the Context class) provides the
    shared global state needed by the actions running under a driver. This
@@ -30,7 +30,7 @@ There are two categories of actions:
 
 
 The Context Object
-==================
+------------------
 The context object should be created in the constructor of your resource manager.
 Usually, this is done in an separate function (e.g. make_context) so that it can be
 testing outside of the resource manager.
@@ -49,7 +49,7 @@ The Context constructor takes the following parameters:
              the install, without actually making any of the external changes.
 
 Context object fields
----------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The context object has the following public fields:
   props         - this field provides a representation of the resource instance
                   JSON as a python object. For example, if the JSON contains
@@ -66,7 +66,7 @@ The context object has the following public fields:
                   get_template_subst actions).
 
 Context object methods
-----------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The context object has the following methods:
   add()        - Add a new key, value entry to the props and substitutions fields.
                  This key can be a qualified name (e.g.
@@ -87,7 +87,7 @@ The context object has the following methods:
 
 
 Action Naming Conventions
-=========================
+-------------------------
 We use the following naming conventions:
   "get_" is used for value actions.
 
@@ -103,7 +103,7 @@ We use the following naming conventions:
 
 
 Defining Actions
-================
+----------------
 To define a new action, subclass from Action or Value action as appropriate, set a
 class field called NAME to the action's name, and override the run() method. You can
 also override the dry_run() method as well if there is some checking you want to do in
@@ -116,7 +116,7 @@ avoiding the boilerplate.
 
 
 Shorthand
-=========
+---------
 Dereferencing the methods and properties of the context can be tedious in driver code.
 By convention, we use the following shorter variables where appropriate::
 
@@ -129,7 +129,7 @@ By convention, we use the following shorter variables where appropriate::
 
 
 Example Code
-============
+------------
 Here is some example code that excercises the action api in the REPL::
 
     from action import *
@@ -155,41 +155,45 @@ Here is some example code that excercises the action api in the REPL::
 
 
 Actions
-=======
+-------
 The following actions are defined by this module:
-  check_dir_exists <dir-path>
-  check_file_exists <file-path>
-  check_installable_to_dir <install-dir>
-  create_engage_dist <target_path>
-  ensure_dir_exists <dir-path>
-  ensure_shared_perms<path> <group_name> {writable_to_group=False}
-  sudo_ensure_shared_perms<path> <group_name> {writable_to_group=False}
-  extract_package_as_dir <package> <desired-install-path>
-  instantiate_template_str <src_string> <target_path>
-  run_program <program_and_args> {cwd=None} {env_mapping=None}
-      {input=None} {hide_input=False} {hide_command=False}
-  set_file_mode_bits <path> <mode_bits>
-  start_server <cmd_and_args> <log_file> <pid_file> {cwd=None} {environment={}}
-  stop_server <pid_file> {timeout_tries=10} {force_stop=False}
-  sudo_add_config_file_line <config-file> <line>
-  sudo_copy <copy_args>
-  sudo_mkdir <path> {create_intermediate_dirs=False}
-  sudo_run_program <program_and_args> {cwd=None}
-  sudo_start_server <cmd_and_args> <log_file> {cwd=None} {environment={}}
-  sudo_set_file_permissions <path> <user-id> <group-id> <mode-bits>
-  sudo_set_file_perms_by_name <path> <mode_bits> {user_name=effective_user} {group_name=effective_group}
-  template <src-data-file> <target-path>
+
+ * check_dir_exists <dir-path>
+ * check_file_exists <file-path>
+ * check_installable_to_dir <install-dir>
+ * create_engage_dist <target_path>
+ * ensure_dir_exists <dir-path>
+ * ensure_shared_perms<path> <group_name> {writable_to_group=False}
+ * sudo_ensure_shared_perms<path> <group_name> {writable_to_group=False}
+ * extract_package_as_dir <package> <desired-install-path>
+ * instantiate_template_str <src_string> <target_path>
+ * run_program <program_and_args> {cwd=None} {env_mapping=None} {input=None} {hide_input=False} {hide_command=False}
+ * set_file_mode_bits <path> <mode_bits>
+ * start_server <cmd_and_args> <log_file> <pid_file> {cwd=None} {environment={}}
+ * stop_server <pid_file> {timeout_tries=10} {force_stop=False}
+ * sudo_add_config_file_line <config-file> <line>
+ * sudo_copy <copy_args>
+ * sudo_mkdir <path> {create_intermediate_dirs=False}
+ * sudo_run_program <program_and_args> {cwd=None}
+ * sudo_start_server <cmd_and_args> <log_file> {cwd=None} {environment={}}
+ * sudo_set_file_permissions <path> <user-id> <group-id> <mode-bits>
+ * sudo_set_file_perms_by_name <path> <mode_bits> {user_name=effective_user} {group_name=effective_group}
+ * template <src-data-file> <target-path>
 
 
 Value Actions
-=============
+-------------
 The following value actions are defined by this module:
-  get_server_status <pid_file> {remove_pidfile_if_dead_proc=False}
-  get_template_subst <src_data_file>
-  wait_for_file <file_path> <timeout_tries> <time_between_tries>
-  sudo_cat_file <path>
-  sudo_run_program_and_scan_results <program_and_args> <re_map> {env=None} {cwd=None} {log_output=False}
+ * get_server_status <pid_file> {remove_pidfile_if_dead_proc=False}
+ * get_template_subst <src_data_file>
+ * wait_for_file <file_path> <timeout_tries> <time_between_tries>
+ * sudo_cat_file <path>
+ * sudo_run_program_and_scan_results <program_and_args> <re_map> {env=None} {cwd=None} {log_output=False}
 
+
+Classes and functions
+----------------------
+We now look at the individual classes and functions defined this module.
 """
 import sys
 import os
@@ -291,9 +295,16 @@ class Action(object):
         self.ctx = ctx
 
     def run(self, *args, **kwargs):
+        """This method executes the action. Will be overridden in
+        subclasses to take the specific arguments needed by the action.
+        """
         pass
 
     def dry_run(self, *args, **kwargs):
+        """Dry run version of action. By default does nothing. Should still
+        be overriden in subclasses to take the specific arguments needed by the
+        action.
+        """
         pass
 
     def format_action_args(self, *args, **kwargs):
@@ -312,9 +323,18 @@ class ValueAction(object):
         self.ctx = ctx
 
     def run(self, *args, **kwargs):
+        """This method executes the action. Will be overridden in
+        subclasses to take the specific arguments needed by the action, run
+        the action, and return a value.
+        """
         pass
 
     def dry_run(self, *args, **kwargs):
+        """Dry run version of action. By default does nothing. Should still
+        be overriden in subclasses to take the specific arguments needed by the
+        action. Return value may be None - return values are not guaranteed
+        by dry run actions.
+        """
         pass
 
     def format_action_args(self, *args, **kwargs):
@@ -435,6 +455,9 @@ class _Config(object):
 
 
 class Context(object):
+    """This is the main state object used by actions. It should be
+    created by the driver using the resource metadata.
+    """
     def __init__(self, resource_config_props, logger, filepath,
                  sudo_password_fn=None,
                  dry_run=False):
@@ -449,6 +472,10 @@ class Context(object):
             raise UserError(errors[ERR_MISSING_ID_PROP])
 
     def add(self, key, value):
+        """Add a property and value to the existing metadata. Useful for
+        dynamically computed properties. Property names may be of the form
+        "x.y.z".
+        """
         if self.substitutions.has_key(key):
             raise AttributeError, \
                   "Context already has a value for key %s" % key
@@ -506,6 +533,8 @@ class Context(object):
         return self
                             
     def r(self, action, *args, **kwargs):
+        """Run the specified Action, providing it the given arguments.
+        """
         a = action(self)
         assert isinstance(a, Action), \
                "r() passed an action of type %s, not an instance of Action" % type(a).__name__
@@ -528,6 +557,8 @@ class Context(object):
         return self
 
     def rv(self, value_action, *args, **kwargs):
+        """Run the specified ValueAction, providing it the given arguments.
+        """
         a = value_action(self)
         assert isinstance(a, ValueAction), \
                "rv() passed an action of type %s, not an instance of ValueAction" % type(a).__name__
@@ -683,6 +714,7 @@ def _check_file_exists(file_path, action):
 
     
 class check_file_exists(Action):
+    """Action: Throws an error if file does not exist"""
     NAME = "check_file_exists"
     def __init__(self, ctx):
         super(check_file_exists, self).__init__(ctx)
@@ -694,6 +726,7 @@ class check_file_exists(Action):
         _check_file_exists(file_path, self)
 
 class check_dir_exists(Action):
+    """Action: throws an error if directory does not exist"""
     NAME = "check_dir_exists"
     def __init__(self, ctx):
         super(check_dir_exists, self).__init__(ctx)
@@ -706,7 +739,7 @@ class check_dir_exists(Action):
 
 
 class check_installable_to_dir(Action):
-    """Given that the installed software is supposed to end up in
+    """Action: given that the installed software is supposed to end up in
     install_dir, check that we can really install there. This means that
     the parent directory is writable (or if it doesn't exist, is creatable) and
     that the directory we will create by expanding the package archive doesn't
@@ -770,7 +803,7 @@ def _substitute_in_string(s, substitutions):
 
 
 class get_template_subst(ValueAction):
-    """Substitute values in a template file and return the value.
+    """ValueAction: Substitute values in a template file and return the value.
 
     Unless src_dir is specified, the file is assumed to be in the
     data subdirectory, relative the the calling file.
@@ -807,7 +840,7 @@ class get_template_subst(ValueAction):
 
 
 class template(Action):
-    """Instantiate a template file.
+    """Action: Instantiate a template file.
     
     Unless src_dir is specified, the file is assumed to be in the
     data subdirectory, relative the the calling file.
@@ -848,7 +881,7 @@ class template(Action):
         _check_dir_exists(os.path.dirname(target_path), self)
 
 class instantiate_template_str(Action):
-    """Instantiate a template string, creating the specified file.
+    """Action: Instantiate a template string, creating the specified file.
     """
     NAME = "instantiate_template_str"
     def __init__(self, ctx):
@@ -881,7 +914,7 @@ class instantiate_template_str(Action):
 
 @make_action
 def set_file_mode_bits(self, path, mode_bits):
-    """Set the file's mode bits as specified.
+    """Action: set the file's mode bits as specified.
     This is itempotent.
     """
     _check_file_exists(path, self)
@@ -892,7 +925,7 @@ def set_file_mode_bits(self, path, mode_bits):
 
 @make_action
 def sudo_mkdir(self, dir_path, create_intermediate_dirs=False):
-    """Create a directory, running as root.
+    """Action: create a directory, running as root.
     """
     if os.path.exists(dir_path):
         self.ctx.logger.debug("Directory %s already exists" % dir_path)
@@ -904,14 +937,14 @@ def sudo_mkdir(self, dir_path, create_intermediate_dirs=False):
 
 @make_value_action
 def sudo_cat_file(self, path):
-    """Use this go get the contents of a file that is only readable
+    """ValueAction: use this to get the contents of a file that is only readable
     as root. Returns the contents of the file"""
     return procutils.sudo_cat_file(path, self.ctx.logger,
                                    self.ctx._get_sudo_password(self))
 
 @make_action
 def sudo_copy(self, copy_args):
-    """Copy files (as in the unix cp command) running as the superuser.
+    """Action: copy files (as in the unix cp command) running as the superuser.
     copy_args is a list of arguments to the cp operation
     (e.g. [src_file, dest_file]).
     """
@@ -920,7 +953,7 @@ def sudo_copy(self, copy_args):
 
 @make_action
 def sudo_set_file_permissions(self, path, user_id, group_id, mode_bits):
-    """Set the permissions of a file, running as root"""
+    """Action: set the permissions of a file, running as root"""
     _check_file_exists(path, self)
     procutils.sudo_set_file_permissions(path, user_id, group_id,
                                         mode_bits, self.ctx.logger,
@@ -929,7 +962,7 @@ def sudo_set_file_permissions(self, path, user_id, group_id, mode_bits):
 @make_action
 def sudo_set_file_perms_by_name(self, path, mode_bits, user_name=None,
                                 group_name=None):
-    """Set the permissions of a file, running as root. This is similar to
+    """Action: set the permissions of a file, running as root. This is similar to
     sudo_set_file_permissions, but instead takes user/group names rather
     than numeric ids. If the user name or group name are not specified,
     the current effective user/group ids are used.
@@ -950,7 +983,7 @@ def sudo_set_file_perms_by_name(self, path, mode_bits, user_name=None,
 
 @make_action
 def sudo_ensure_user_in_group(self, group_name, user=None):
-    """Ensure that the user is in the specified group. If user is left
+    """Action: ensure that the user is in the specified group. If user is left
     as default, we assume the current user.
     """
     procutils.sudo_ensure_user_in_group(group_name, self.ctx.logger,
@@ -960,7 +993,7 @@ def sudo_ensure_user_in_group(self, group_name, user=None):
 
 @make_action
 def sudo_add_config_file_line(self, config_file, line):
-    """Add or uncomment the specified line in the config file,
+    """Action: add or uncomment the specified line in the config file,
     running as root.
     """
     _check_file_exists(config_file, self)
@@ -970,7 +1003,7 @@ def sudo_add_config_file_line(self, config_file, line):
 
 @make_action
 def extract_package_as_dir(self, package, desired_extract_path):
-    """Given an archive-type package, we call its extract method. Then,
+    """Action: given an archive-type package, we call its extract method. Then,
     we rename the resulting directory, if necessary, to make it match
     extracted path.
     """
@@ -986,11 +1019,16 @@ def extract_package_as_dir(self, package, desired_extract_path):
 
 @make_action
 def ensure_dir_exists(self, dir_path):
+    """Action: if the specified directory does not exist, create it.
+    """
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
 
 @make_action
 def ensure_shared_perms(self, path, group_name, writable_to_group=False):
+    """Action: make sure that the specified path is accessible to the
+    specified group. If a directory, this is done recursively.
+    """
     _check_file_exists(path, self)
     if os.path.isdir(path):
         fileutils.set_shared_directory_group_and_permissions(path, group_name,
@@ -1001,6 +1039,10 @@ def ensure_shared_perms(self, path, group_name, writable_to_group=False):
 
 @make_action
 def sudo_ensure_shared_perms(self, path, group_name, writable_to_group=False):
+    """Action: make sure that the specified path is accessible to the
+    specified group. If a directory, this is done recursively. This version is
+    run as the super user.
+    """
     _check_file_exists(path, self)
     if os.path.isdir(path):
         fileutils.sudo_set_shared_directory_group_and_permissions(path, group_name,
@@ -1015,7 +1057,7 @@ def sudo_ensure_shared_perms(self, path, group_name, writable_to_group=False):
 
 @make_action
 def start_server(self, cmd_and_args, log_file, pid_file, cwd=None, environment={}):
-    """Start another process as a server. Does not wait for it to complete.
+    """Action: start another process as a server. Does not wait for it to complete.
     If started successfully, the pid of the process is written to pidfile.
     """
     _check_file_exists(cmd_and_args[0], self)
@@ -1025,6 +1067,8 @@ def start_server(self, cmd_and_args, log_file, pid_file, cwd=None, environment={
 
 @make_action
 def stop_server(self, pid_file, timeout_tries=10, force_stop=False):
+    """Action: stop a server process started using start_server.
+    """
     procutils.stop_server_process(pid_file, self.ctx.logger,
                                   self.ctx.props.id, timeout_tries,
                                   force_stop)
@@ -1032,7 +1076,8 @@ def stop_server(self, pid_file, timeout_tries=10, force_stop=False):
 
 @make_value_action
 def get_server_status(self, pid_file, remove_pidfile_if_dead_proc=False):
-    """Check whether a server process is alive by grabbing its pid from the specified
+    """ValueAction: check whether a server process is alive by grabbing its
+    pid from the specified
     pidfile and then checking the liveness of that pid. If the pidfile doesn't
     exist, assume that server isn't alive. Returns the pid if the server is running
     and None if it isn't running."""
@@ -1042,8 +1087,8 @@ def get_server_status(self, pid_file, remove_pidfile_if_dead_proc=False):
 
 @make_action
 def sudo_start_server(self, cmd_and_args, log_file, cwd=None, environment={}):
-    """Start another process as a server, under root. Does not wait for it to
-    complete.
+    """Action: start another process as a server, under root. Does not wait for
+    it to complete.
     """
     _check_file_exists(cmd_and_args[0], self)
     procutils.sudo_run_server(cmd_and_args, environment, log_file,
@@ -1052,6 +1097,7 @@ def sudo_start_server(self, cmd_and_args, log_file, cwd=None, environment={}):
 
 @make_action
 def sudo_run_program(self, program_and_args, cwd=None):
+    """Action: Run the specified program as a super user"""
     procutils.run_sudo_program(program_and_args,
                                self.ctx._get_sudo_password(self),
                                self.ctx.logger,
@@ -1059,6 +1105,9 @@ def sudo_run_program(self, program_and_args, cwd=None):
 
 
 class sudo_run_program_and_scan_results(ValueAction):
+    """ValueAction: Run the specified program as the super user and scan the
+    results for the provided regular expressions.
+    """
     NAME="sudo_run_program_and_scan_results"
     def __init__(self, ctx):
         super(sudo_run_program_and_scan_results, self).__init__(ctx)
@@ -1078,12 +1127,12 @@ class sudo_run_program_and_scan_results(ValueAction):
 
 @make_value_action
 def get_path_exists(self, file_path, timeout_tries, time_between_tries):
-    """Return True if the file path exists, False otherwise.
+    """ValueAction: return True if the file path exists, False otherwise.
     """
     return os.path.exists(file_path)
 
 class run_program(Action):
-    """Run the specified program as a subprocess and log its output.
+    """Action: run the specified program as a subprocess and log its output.
     Throws an exception (user error) if the program's return code is nonzero.
     """
     NAME = "run_program"
@@ -1110,7 +1159,7 @@ class run_program(Action):
         pass
             
 class create_engage_dist(Action):
-    """Create an engage distribution. This uses the create-distribution
+    """Action: create an engage distribution. This uses the create-distribution
     command. We do this if we are going to need a distribution for a
     distributed install. The distribution will include any extensions
     that have been added to the current deployment home.

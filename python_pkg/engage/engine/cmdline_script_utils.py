@@ -38,7 +38,8 @@ def get_deployment_home(options, parser, file_layout, allow_overrides=False):
     return dh
 
 def process_standard_options(options, parser, precreated_file_layout=None, installer_name=None, allow_overrides_of_dh=False):
-    if hasattr(options, "no_password_file") and options.no_password_file and options.force_password_file:
+    if hasattr(options, "no_password_file") and options.no_password_file and \
+       hasattr(options, "force_password_file") and options.force_password_file:
         parser.error("Cannot specify both --no-password-file and --force-password-file")
     if precreated_file_layout:
         file_layout = precreated_file_layout

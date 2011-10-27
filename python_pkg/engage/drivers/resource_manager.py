@@ -78,21 +78,14 @@ class Manager(object):
         The compress flag is just a hint about whether we are more
         concerned about space vs. time.
         """
-        print "backup called for %s" % self.id # XXX
+        pass
 
-    def uninstall(self, backup_to_directory, incomplete_install=False, compress=True):
-        """Uninstall the resource, moving the files and other
-        data for this resource to a unique filename or sub-directory under
-        the specified directory. The format used should be compatible with
-        the restore() method.
-
+    def uninstall(self, incomplete_install=False):
+        """Uninstall the resource.
+        
         If incomplete_install is True, then the install of this resource
-        failed and the uninstall() method should not fail if the data to
-        be backed up is incomplete. Of course, in this situation, it is not
-        required to be able to restore() the resource to a functional state.
-
-        The compress flag is just a hint about whether we are more
-        concerned about space vs. time.
+        failed and the uninstall() method should not fail if files to be
+        removed are not found.
         """
         pass
 
@@ -108,6 +101,9 @@ class Manager(object):
         object corresponding to the previous version of the resource instance.
         backup_root_directory is the directory to which the previous version
         was uninstalled to.
+
+        Note that upgrade() assumes that the previous version was uninstalled -
+        we currently do not support in-place upgrades of individual resources.
 
         Default implementation is just to reinstall, if not present."""
         if not self.is_installed():

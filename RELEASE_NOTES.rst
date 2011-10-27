@@ -30,6 +30,7 @@ The following drivers are supported in the current release:[1]_
 
 What's New for Each Release
 ============================
+ * 1.0.4 - added deploy-spec tool; start of developer docs
  * 1.0.3 - Support for Django 1.3; serve django static files directly
  * 1.0.2 - Added Architecture Guide; bug fixes in build and documentation
  * 1.0.1 - Added User's Guide

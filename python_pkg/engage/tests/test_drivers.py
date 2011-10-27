@@ -15,7 +15,7 @@ except:
 
 import engage.tests.test_common as tc
 import engage.drivers
-import engage.engine.cmdline_install as cmdline_install
+import engage.engine.host_resource_utils as host_resource_utils
 import engage.utils.system_info as system_info
 import engage.utils.log_setup as log_setup
 import engage.engine.run_driver as run_driver
@@ -167,7 +167,7 @@ class TestRequest(object):
             self.dh = tc.get_randomized_deploy_dir("test_drivers_")
 
 
-        sys_info = system_info.get_machine_info(cmdline_install.os_choices)
+        sys_info = system_info.get_machine_info(host_resource_utils.os_choices)
         self.hostname = sys_info['hostname']
         self.username = sys_info['username']
         

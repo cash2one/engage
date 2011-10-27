@@ -13,7 +13,10 @@ include $(CONFIG_SRC_HOME)/rules.make
 
 CONFIG_BIN=$(ENGAGE_CODE_HOME)/bin/configurator-$(ENGAGE_PLATFORM)
 
-all: $(CONFIG_BIN)
+all: $(CONFIG_BIN) test
+
+test: $(CONFIG_BIN)
+	cd $(CONFIG_SRC_HOME)/test; make
 
 $(CONFIG_BIN): config
 	mkdir -p $(ENGAGE_CODE_HOME)/bin
@@ -29,6 +32,7 @@ config: 3rdparty
 clean:
 	cd $(CONFIG_SRC_HOME)/3rdparty; make clean
 	cd $(CONFIG_SRC_HOME)/config; make clean
+	cd $(CONFIG_SRC_HOME)/test; make clean
 	rm -rf $(ENGAGE_CODE_HOME)/bin
 
-.PHONY: all 3rdparty config clean
+.PHONY: all 3rdparty config clean test

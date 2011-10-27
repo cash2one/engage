@@ -1,0 +1,9 @@
+
+[
+  { "type": "Archive",
+    "package_class": "GzippedTarArchive",
+    "location":"http://www.bitlib.net/mirror/apache.org/tomcat/tomcat-6/v6.0.33/bin/apache-tomcat-6.0.33.tar.gz",
+    "filename": "apache-tomcat-6.0.33.tar.gz",
+    "downloader":"HTTPDownloader"
+  }
+]

@@ -1,0 +1,3598 @@
+{
+  "resource_def_version": "1.0", 
+  "resource_definitions": [
+    {
+      "environment": {
+        "all-of": [
+          {
+            "port_mapping": {
+              "setuptools": "setuptools"
+            }, 
+            "key": {
+              "version": "0.6", 
+              "name": "setuptools"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "python": "python"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "2.3"
+              }, 
+              "name": "python"
+            }
+          }
+        ]
+      }, 
+      "input_ports": {
+        "python": {
+          "home": "string"
+        }, 
+        "host": {
+          "genforma_home": "path"
+        }, 
+        "setuptools": {
+          "easy_install": "string"
+        }
+      }, 
+      "display_name": "Green Unicorn: Python WSGI HTTP Server", 
+      "inside": {
+        "one-of": [
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "10.5", 
+                "less-than": "10.7"
+              }, 
+              "name": "mac-osx"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "9.10", 
+              "name": "ubuntu-linux"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "10.04", 
+              "name": "ubuntu-linux"
+            }
+          }
+        ]
+      }, 
+      "key": {
+        "version": "0.12", 
+        "name": "gunicorn"
+      }
+    }, 
+    {
+      "display_name": "setuptools", 
+      "input_ports": {
+        "python": {
+          "home": "string", 
+          "type": "string"
+        }, 
+        "host": {
+          "genforma_home": "path", 
+          "cpu_arch": "string", 
+          "os_type": "string", 
+          "hostname": "string", 
+          "os_user_name": "string"
+        }
+      }, 
+      "environment": {
+        "one-of": [
+          {
+            "port_mapping": {
+              "python": "python"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "2.3"
+              }, 
+              "name": "python"
+            }
+          }
+        ]
+      }, 
+      "key": {
+        "version": "0.6", 
+        "name": "setuptools"
+      }, 
+      "inside": {
+        "one-of": [
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "10.5", 
+                "less-than": "10.7"
+              }, 
+              "name": "mac-osx"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "9.10", 
+              "name": "ubuntu-linux"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "10.04", 
+              "name": "ubuntu-linux"
+            }
+          }
+        ]
+      }, 
+      "output_ports": {
+        "setuptools": {
+          "easy_install": {
+            "type": "string", 
+            "fixed-value": "${input_ports.host.genforma_home}/python/bin/easy_install"
+          }
+        }
+      }
+    }, 
+    {
+      "environment": {
+        "all-of": [
+          {
+            "port_mapping": {
+              "setuptools": "setuptools"
+            }, 
+            "key": {
+              "version": "0.6", 
+              "name": "setuptools"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "python": "python"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "2.3"
+              }, 
+              "name": "python"
+            }
+          }, 
+          {
+            "key": {
+              "version": {
+                "greater-than-or-equal": "1.2"
+              }, 
+              "name": "Django"
+            }
+          }
+        ]
+      }, 
+      "input_ports": {
+        "python": {
+          "home": "string"
+        }, 
+        "host": {
+          "genforma_home": "path"
+        }, 
+        "setuptools": {
+          "easy_install": "string"
+        }
+      }, 
+      "display_name": "South (upgrade manager for Django)", 
+      "inside": {
+        "one-of": [
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "10.5", 
+                "less-than": "10.7"
+              }, 
+              "name": "mac-osx"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "9.10", 
+              "name": "ubuntu-linux"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "10.04", 
+              "name": "ubuntu-linux"
+            }
+          }
+        ]
+      }, 
+      "key": {
+        "version": "0.7.3", 
+        "name": "Django-South"
+      }
+    }, 
+    {
+      "display_name": "Django Application", 
+      "input_ports": {
+        "python": {
+          "PYTHONPATH": "string", 
+          "home": "string"
+        }, 
+        "ocache": {
+          "home": "string", 
+          "host": "string", 
+          "port": "tcp_port", 
+          "provider": "string"
+        }, 
+        "celery": {
+          "BROKER_PASSWORD": "string", 
+          "BROKER_USER": "string", 
+          "provider": "string", 
+          "broker": "string", 
+          "BROKER_VHOST": "string", 
+          "BROKER_HOST": "string", 
+          "BROKER_PORT": "tcp_port"
+        }, 
+        "host": {
+          "genforma_home": "path", 
+          "hostname": "string", 
+          "log_directory": "path"
+        }, 
+        "django_db": {
+          "ENGINE": "string", 
+          "NAME": "string", 
+          "HOST": "string", 
+          "USER": "string", 
+          "PASSWORD": "password", 
+          "PORT": "tcp_port"
+        }, 
+        "pip": {
+          "pipbin": "path"
+        }, 
+        "webserver_config": {
+          "webserver_type": "string", 
+          "listen_host": "hostname", 
+          "controller_exe": "string", 
+          "config_file": "path", 
+          "listen_port": "tcp_port", 
+          "additional_config_dir": "path", 
+          "log_dir": "path", 
+          "file_owner_group": "string"
+        }
+      }, 
+      "environment": {
+        "all-of": [
+          {
+            "port_mapping": {
+              "python": "python"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "2.3"
+              }, 
+              "name": "python"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "pip": "pip"
+            }, 
+            "key": {
+              "version": "any", 
+              "name": "pip"
+            }
+          }, 
+          {
+            "key": {
+              "version": {
+                "greater-than-or-equal": "1.2"
+              }, 
+              "name": "Django"
+            }
+          }, 
+          {
+            "key": {
+              "version": "0.7.3", 
+              "name": "Django-South"
+            }
+          }, 
+          {
+            "one-of": [
+              {
+                "port_mapping": {
+                  "django_db": "django_db"
+                }, 
+                "key": {
+                  "version": "8.4", 
+                  "name": "postgresql-connector-for-django"
+                }
+              }, 
+              {
+                "port_mapping": {
+                  "django_db": "django_db"
+                }, 
+                "key": {
+                  "version": "5.1", 
+                  "name": "mysql-connector-for-django"
+                }
+              }, 
+              {
+                "port_mapping": {
+                  "django_db": "django_db"
+                }, 
+                "key": {
+                  "version": "1.0", 
+                  "name": "sqlite-connector-for-django"
+                }
+              }
+            ]
+          }, 
+          {
+            "one-of": [
+              {
+                "port_mapping": {
+                  "celery": "celery"
+                }, 
+                "key": {
+                  "version": "any", 
+                  "name": "celery-django-adapter"
+                }
+              }, 
+              {
+                "port_mapping": {
+                  "celery": "celery"
+                }, 
+                "key": {
+                  "version": "any", 
+                  "name": "django-dummy-celery-adapter"
+                }
+              }
+            ]
+          }, 
+          {
+            "one-of": [
+              {
+                "port_mapping": {
+                  "ocache": "ocache"
+                }, 
+                "key": {
+                  "version": "any", 
+                  "name": "memcached-django-adapter"
+                }
+              }, 
+              {
+                "port_mapping": {
+                  "ocache": "ocache"
+                }, 
+                "key": {
+                  "version": "any", 
+                  "name": "django-dummy-cache-adapter"
+                }
+              }
+            ]
+          }, 
+          {
+            "one-of": [
+              {
+                "port_mapping": {
+                  "webserver_config": "webserver_config"
+                }, 
+                "key": {
+                  "version": "1.0", 
+                  "name": "django-development-webserver"
+                }
+              }, 
+              {
+                "port_mapping": {
+                  "webserver_config": "webserver_config"
+                }, 
+                "key": {
+                  "version": "1.0", 
+                  "name": "django-apache-webserver"
+                }
+              }
+            ]
+          }
+        ]
+      }, 
+      "key": {
+        "version": "1.0", 
+        "name": "Django-App"
+      }, 
+      "inside": {
+        "one-of": [
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "10.5", 
+                "less-than": "10.7"
+              }, 
+              "name": "mac-osx"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "9.10", 
+              "name": "ubuntu-linux"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "10.04", 
+              "name": "ubuntu-linux"
+            }
+          }
+        ]
+      }, 
+      "output_ports": {
+        "django": {
+          "home": {
+            "source": "config_port.home", 
+            "type": "path"
+          }, 
+          "layout_cfg_file": {
+            "type": "path", 
+            "fixed-value": "${config_port.home}/file_layout.json"
+          }, 
+          "log_directory": {
+            "source": "config_port.log_directory", 
+            "type": "path"
+          }
+        }
+      }, 
+      "config_port": {
+        "websvr_hostname": {
+          "default": "${input_ports.host.hostname}", 
+          "type": "hostname", 
+          "display_name": "Webserver hostname"
+        }, 
+        "app_admin_password": {
+          "type": "string", 
+          "display_name": "Application Administrator's Password"
+        }, 
+        "log_directory": {
+          "default": "${input_ports.host.log_directory}/django", 
+          "type": "path", 
+          "display_name": "Log Directory"
+        }, 
+        "time_zone": {
+          "default": "America/Los_Angeles", 
+          "type": "string", 
+          "display_name": "Time Zone"
+        }, 
+        "websvr_port": {
+          "default": "${input_ports.webserver_config.listen_port}", 
+          "type": "tcp_port", 
+          "display_name": "Webserver port"
+        }, 
+        "admin_name": {
+          "default": "Admin", 
+          "type": "string", 
+          "display_name": "Administrator's name"
+        }, 
+        "email_password": {
+          "default": "Not_used", 
+          "type": "string", 
+          "display_name": "Email account password"
+        }, 
+        "email_port": {
+          "default": 25, 
+          "type": "tcp_port", 
+          "display_name": "Email server port"
+        }, 
+        "home": {
+          "default": "${input_ports.host.genforma_home}/django_app", 
+          "type": "path", 
+          "display_name": "Install directory"
+        }, 
+        "application_archive": {
+          "type": "path", 
+          "display_name": "Application Archive File"
+        }, 
+        "admin_email": {
+          "default": "", 
+          "type": "string", 
+          "display_name": "Administrator's email address"
+        }, 
+        "email_from": {
+          "default": "Not_used", 
+          "type": "string", 
+          "display_name": "Email from address"
+        }, 
+        "email_host_user": {
+          "default": "Not_used", 
+          "type": "string", 
+          "display_name": "Email host username"
+        }, 
+        "email_host": {
+          "default": "Not_used", 
+          "type": "string", 
+          "display_name": "Email server hostname"
+        }
+      }
+    }, 
+    {
+      "display_name": "Apache webserver config for Django apps", 
+      "input_ports": {
+        "apache": {
+          "additional_config_dir": {
+            "type": "path"
+          }, 
+          "controller_exe": {
+            "type": "string"
+          }, 
+          "config_file": {
+            "type": "path"
+          }, 
+          "log_dir": "path", 
+          "apache_group": {
+            "type": "string"
+          }
+        }, 
+        "host": {
+          "hostname": {
+            "type": "string"
+          }
+        }
+      }, 
+      "environment": {
+        "all-of": [
+          {
+            "one-of": [
+              {
+                "key": {
+                  "version": "3.2-2", 
+                  "name": "libapache2-mod-wsgi-linux"
+                }
+              }, 
+              {
+                "key": {
+                  "version": "3.3", 
+                  "name": "apache2-mod-wsgi-macports"
+                }
+              }
+            ]
+          }, 
+          {
+            "one-of": [
+              {
+                "port_mapping": {
+                  "apache": "apache"
+                }, 
+                "key": {
+                  "version": "2.2", 
+                  "name": "apache-linux"
+                }
+              }, 
+              {
+                "port_mapping": {
+                  "apache": "apache"
+                }, 
+                "key": {
+                  "version": "2.2", 
+                  "name": "apache-macports"
+                }
+              }
+            ]
+          }
+        ]
+      }, 
+      "key": {
+        "version": "1.0", 
+        "name": "django-apache-webserver"
+      }, 
+      "inside": {
+        "one-of": [
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "9.10", 
+              "name": "ubuntu-linux"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "10.04", 
+              "name": "ubuntu-linux"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "10.5", 
+                "less-than": "10.7"
+              }, 
+              "name": "mac-osx"
+            }
+          }
+        ]
+      }, 
+      "output_ports": {
+        "webserver_config": {
+          "webserver_type": {
+            "type": "string", 
+            "fixed-value": "apache"
+          }, 
+          "listen_host": {
+            "type": "hostname", 
+            "fixed-value": "${config_port.hostname}"
+          }, 
+          "controller_exe": {
+            "type": "string", 
+            "fixed-value": "${input_ports.apache.controller_exe}"
+          }, 
+          "config_file": {
+            "source": "input_ports.apache.config_file", 
+            "type": "path"
+          }, 
+          "listen_port": {
+            "type": "tcp_port", 
+            "fixed-value": "${config_port.port}"
+          }, 
+          "additional_config_dir": {
+            "source": "input_ports.apache.additional_config_dir", 
+            "type": "path"
+          }, 
+          "log_dir": {
+            "source": "input_ports.apache.log_dir", 
+            "type": "path"
+          }, 
+          "file_owner_group": {
+            "source": "input_ports.apache.apache_group", 
+            "type": "string"
+          }
+        }
+      }, 
+      "config_port": {
+        "hostname": {
+          "default": "${input_ports.host.hostname}", 
+          "type": "string"
+        }, 
+        "port": {
+          "default": 80, 
+          "type": "tcp_port"
+        }
+      }
+    }, 
+    {
+      "display_name": "Development webserver config for Django apps", 
+      "input_ports": {
+        "host": {
+          "genforma_home": "path", 
+          "hostname": "string", 
+          "log_directory": "path"
+        }
+      }, 
+      "environment": {
+        "all-of": [
+          {
+            "key": {
+              "version": {
+                "greater-than-or-equal": "0.12"
+              }, 
+              "name": "gunicorn"
+            }
+          }
+        ]
+      }, 
+      "key": {
+        "version": "1.0", 
+        "name": "django-development-webserver"
+      }, 
+      "inside": {
+        "one-of": [
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "10.5", 
+                "less-than": "10.7"
+              }, 
+              "name": "mac-osx"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "9.10", 
+              "name": "ubuntu-linux"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "10.04", 
+              "name": "ubuntu-linux"
+            }
+          }
+        ]
+      }, 
+      "output_ports": {
+        "webserver_config": {
+          "webserver_type": {
+            "type": "string", 
+            "fixed-value": "development"
+          }, 
+          "listen_host": {
+            "type": "hostname", 
+            "fixed-value": "${config_port.hostname}"
+          }, 
+          "controller_exe": {
+            "type": "string", 
+            "fixed-value": ""
+          }, 
+          "config_file": {
+            "type": "string", 
+            "fixed-value": ""
+          }, 
+          "listen_port": {
+            "type": "tcp_port", 
+            "fixed-value": "${config_port.port}"
+          }, 
+          "additional_config_dir": {
+            "type": "string", 
+            "fixed-value": ""
+          }, 
+          "log_dir": {
+            "type": "string", 
+            "fixed-value": ""
+          }, 
+          "file_owner_group": {
+            "type": "string", 
+            "fixed-value": ""
+          }
+        }
+      }, 
+      "config_port": {
+        "hostname": {
+          "default": "0.0.0.0", 
+          "type": "hostname"
+        }, 
+        "port": {
+          "default": 8000, 
+          "type": "tcp_port"
+        }
+      }
+    }, 
+    {
+      "display_name": "SQLite connector for Django", 
+      "input_ports": {
+        "host": {
+          "genforma_home": "path", 
+          "hostname": "string"
+        }
+      }, 
+      "key": {
+        "version": "1.0", 
+        "name": "sqlite-connector-for-django"
+      }, 
+      "inside": {
+        "one-of": [
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "10.5", 
+                "less-than": "10.7"
+              }, 
+              "name": "mac-osx"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "9.10", 
+              "name": "ubuntu-linux"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "10.04", 
+              "name": "ubuntu-linux"
+            }
+          }
+        ]
+      }, 
+      "output_ports": {
+        "django_db": {
+          "ENGINE": {
+            "type": "string", 
+            "fixed-value": "django.db.backends.sqlite3"
+          }, 
+          "NAME": {
+            "source": "config_port.database_file_name", 
+            "type": "string"
+          }, 
+          "HOST": {
+            "type": "string", 
+            "fixed-value": ""
+          }, 
+          "USER": {
+            "type": "string", 
+            "fixed-value": ""
+          }, 
+          "PASSWORD": {
+            "type": "password", 
+            "fixed-value": null
+          }, 
+          "PORT": {
+            "type": "tcp_port", 
+            "fixed-value": null
+          }
+        }
+      }, 
+      "config_port": {
+        "database_file_name": {
+          "default": "${input_ports.host.genforma_home}/database/django.db", 
+          "type": "string"
+        }
+      }
+    }, 
+    {
+      "environment": {
+        "all-of": [
+          {
+            "port_mapping": {
+              "python": "python"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "2.3"
+              }, 
+              "name": "python"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "setuptools": "setuptools"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "0.6"
+              }, 
+              "name": "setuptools"
+            }
+          }
+        ]
+      }, 
+      "input_ports": {
+        "python": {
+          "PYTHONPATH": "string"
+        }, 
+        "host": {
+          "genforma_home": "path"
+        }, 
+        "setuptools": {
+          "easy_install": "string"
+        }
+      }, 
+      "display_name": "Django Web Framework", 
+      "inside": {
+        "one-of": [
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "10.5", 
+                "less-than": "10.7"
+              }, 
+              "name": "mac-osx"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "9.10", 
+              "name": "ubuntu-linux"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "10.04", 
+              "name": "ubuntu-linux"
+            }
+          }
+        ]
+      }, 
+      "key": {
+        "version": "1.2", 
+        "name": "Django"
+      }
+    }, 
+    {
+      "display_name": "MySQL Adapter for Python", 
+      "input_ports": {
+        "python": {
+          "home": "string"
+        }, 
+        "host": {
+          "genforma_home": "path"
+        }, 
+        "mysql_admin": {
+          "mysql_config_exe": "path"
+        }, 
+        "setuptools": {
+          "easy_install": "string"
+        }, 
+        "mysql": {}
+      }, 
+      "environment": {
+        "all-of": [
+          {
+            "port_mapping": {
+              "setuptools": "setuptools"
+            }, 
+            "key": {
+              "version": "0.6", 
+              "name": "setuptools"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "python": "python"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "2.3"
+              }, 
+              "name": "python"
+            }
+          }, 
+          {
+            "one-of": [
+              {
+                "port_mapping": {
+                  "mysql_admin": "mysql_admin", 
+                  "mysql": "mysql"
+                }, 
+                "key": {
+                  "version": {
+                    "greater-than-or-equal": "5.1"
+                  }, 
+                  "name": "mysql-macports"
+                }
+              }, 
+              {
+                "port_mapping": {
+                  "mysql_admin": "mysql_admin", 
+                  "mysql": "mysql"
+                }, 
+                "key": {
+                  "version": {
+                    "greater-than-or-equal": "5.1"
+                  }, 
+                  "name": "mysql-apt"
+                }
+              }
+            ]
+          }
+        ]
+      }, 
+      "key": {
+        "version": "1.2", 
+        "name": "mysql-python"
+      }, 
+      "inside": {
+        "one-of": [
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "10.5", 
+                "less-than": "10.7"
+              }, 
+              "name": "mac-osx"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "9.10", 
+              "name": "ubuntu-linux"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "10.04", 
+              "name": "ubuntu-linux"
+            }
+          }
+        ]
+      }, 
+      "output_ports": {
+        "pkg_info": {
+          "test_module": {
+            "type": "string", 
+            "fixed-value": "MySQLdb"
+          }, 
+          "provides_pkg": {
+            "type": "string", 
+            "fixed-value": "MySQLdb"
+          }
+        }
+      }
+    }, 
+    {
+      "environment": {
+        "all-of": [
+          {
+            "port_mapping": {
+              "python": "python"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "2.3"
+              }, 
+              "name": "python"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "setuptools": "setuptools"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "0.6"
+              }, 
+              "name": "setuptools"
+            }
+          }
+        ]
+      }, 
+      "input_ports": {
+        "python": {
+          "PYTHONPATH": "string"
+        }, 
+        "host": {
+          "genforma_home": "path"
+        }, 
+        "setuptools": {
+          "easy_install": "string"
+        }
+      }, 
+      "display_name": "Django Web Framework", 
+      "inside": {
+        "one-of": [
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "10.5", 
+                "less-than": "10.7"
+              }, 
+              "name": "mac-osx"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "9.10", 
+              "name": "ubuntu-linux"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "10.04", 
+              "name": "ubuntu-linux"
+            }
+          }
+        ]
+      }, 
+      "key": {
+        "version": "1.3", 
+        "name": "Django"
+      }
+    }, 
+    {
+      "display_name": "memcached", 
+      "input_ports": {
+        "host": {
+          "genforma_home": "path", 
+          "os_type": "string", 
+          "hostname": "string", 
+          "log_directory": "path"
+        }
+      }, 
+      "key": {
+        "version": "1.4", 
+        "name": "memcached"
+      }, 
+      "inside": {
+        "one-of": [
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "10.5", 
+                "less-than": "10.7"
+              }, 
+              "name": "mac-osx"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "9.10", 
+              "name": "ubuntu-linux"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "10.04", 
+              "name": "ubuntu-linux"
+            }
+          }
+        ]
+      }, 
+      "output_ports": {
+        "cache": {
+          "home": {
+            "type": "path", 
+            "fixed-value": "${input_ports.host.genforma_home}/memcached-1.4.5"
+          }, 
+          "host": {
+            "source": "config_port.host", 
+            "type": "string"
+          }, 
+          "port": {
+            "source": "config_port.port", 
+            "type": "tcp_port"
+          }, 
+          "provider": {
+            "type": "string", 
+            "fixed-value": "memcached"
+          }
+        }
+      }, 
+      "config_port": {
+        "host": {
+          "default": "localhost", 
+          "type": "string"
+        }, 
+        "port": {
+          "default": 11211, 
+          "type": "tcp_port"
+        }
+      }
+    }, 
+    {
+      "key": {
+        "version": "1.9", 
+        "name": "macports"
+      }, 
+      "input_ports": {
+        "host": {
+          "os_user_name": {
+            "type": "string"
+          }, 
+          "hostname": {
+            "type": "string"
+          }, 
+          "sudo_password": {
+            "type": "password"
+          }
+        }
+      }, 
+      "display_name": "Package management system for MacOSX", 
+      "inside": {
+        "one-of": [
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "10.5", 
+                "less-than": "10.7"
+              }, 
+              "name": "mac-osx"
+            }
+          }
+        ]
+      }, 
+      "output_ports": {
+        "macports": {
+          "macports_exe": {
+            "type": "path", 
+            "fixed-value": "/opt/local/bin/port"
+          }
+        }
+      }
+    }, 
+    {
+      "display_name": "Ubuntu Linux 10.04", 
+      "key": {
+        "version": "10.04", 
+        "name": "ubuntu-linux"
+      }, 
+      "output_ports": {
+        "host": {
+          "cpu_arch": {
+            "source": "config_port.cpu_arch", 
+            "type": "string"
+          }, 
+          "sudo_password": {
+            "source": "config_port.sudo_password", 
+            "type": "password"
+          }, 
+          "log_directory": {
+            "source": "config_port.log_directory", 
+            "type": "path"
+          }, 
+          "genforma_home": {
+            "source": "config_port.genforma_home", 
+            "type": "path"
+          }, 
+          "os_user_name": {
+            "source": "config_port.os_user_name", 
+            "type": "string"
+          }, 
+          "hostname": {
+            "source": "config_port.hostname", 
+            "type": "hostname"
+          }, 
+          "private_ip": {
+            "source": "config_port.private_ip", 
+            "type": "string"
+          }, 
+          "os_type": {
+            "type": "string", 
+            "fixed-value": "linux"
+          }
+        }
+      }, 
+      "config_port": {
+        "cpu_arch": {
+          "default": "i386", 
+          "type": "string"
+        }, 
+        "sudo_password": {
+          "type": "string"
+        }, 
+        "log_directory": {
+          "default": "${config_port.genforma_home}/log", 
+          "type": "path"
+        }, 
+        "genforma_home": {
+          "default": "/home/${config_port.os_user_name}/apps", 
+          "type": "path"
+        }, 
+        "os_user_name": "string", 
+        "hostname": {
+          "default": "localhost", 
+          "type": "hostname"
+        }, 
+        "private_ip": {
+          "default": null, 
+          "type": "string"
+        }
+      }
+    }, 
+    {
+      "display_name": "Mac OSX 10.5 (Leopard)", 
+      "key": {
+        "version": "10.5", 
+        "name": "mac-osx"
+      }, 
+      "output_ports": {
+        "host": {
+          "cpu_arch": {
+            "source": "config_port.cpu_arch", 
+            "type": "string"
+          }, 
+          "sudo_password": {
+            "source": "config_port.sudo_password", 
+            "type": "password"
+          }, 
+          "log_directory": {
+            "source": "config_port.log_directory", 
+            "type": "path"
+          }, 
+          "genforma_home": {
+            "source": "config_port.genforma_home", 
+            "type": "path"
+          }, 
+          "os_user_name": {
+            "source": "config_port.os_user_name", 
+            "type": "string"
+          }, 
+          "hostname": {
+            "source": "config_port.hostname", 
+            "type": "string"
+          }, 
+          "private_ip": {
+            "source": "config_port.private_ip", 
+            "type": "string"
+          }, 
+          "os_type": {
+            "type": "string", 
+            "fixed-value": "mac-osx"
+          }
+        }
+      }, 
+      "config_port": {
+        "cpu_arch": {
+          "default": "x86", 
+          "type": "string"
+        }, 
+        "sudo_password": {
+          "default": "fubar", 
+          "type": "string"
+        }, 
+        "log_directory": {
+          "default": "${config_port.genforma_home}/log", 
+          "type": "path"
+        }, 
+        "genforma_home": {
+          "default": "/Users/${config_port.os_user_name}e/apps", 
+          "type": "path"
+        }, 
+        "os_user_name": "string", 
+        "hostname": {
+          "default": "localhost", 
+          "type": "string"
+        }, 
+        "private_ip": {
+          "default": null, 
+          "type": "string"
+        }
+      }
+    }, 
+    {
+      "display_name": "Mac OSX 10.6 (Snow Leopard)", 
+      "key": {
+        "version": "10.6", 
+        "name": "mac-osx"
+      }, 
+      "output_ports": {
+        "host": {
+          "cpu_arch": {
+            "source": "config_port.cpu_arch", 
+            "type": "string"
+          }, 
+          "sudo_password": {
+            "source": "config_port.sudo_password", 
+            "type": "password"
+          }, 
+          "log_directory": {
+            "source": "config_port.log_directory", 
+            "type": "path"
+          }, 
+          "genforma_home": {
+            "source": "config_port.genforma_home", 
+            "type": "path"
+          }, 
+          "os_user_name": {
+            "source": "config_port.os_user_name", 
+            "type": "string"
+          }, 
+          "hostname": {
+            "source": "config_port.hostname", 
+            "type": "string"
+          }, 
+          "private_ip": {
+            "source": "config_port.private_ip", 
+            "type": "string"
+          }, 
+          "os_type": {
+            "type": "string", 
+            "fixed-value": "mac-osx"
+          }
+        }
+      }, 
+      "config_port": {
+        "cpu_arch": {
+          "default": "x86", 
+          "type": "string"
+        }, 
+        "sudo_password": {
+          "type": "string"
+        }, 
+        "log_directory": {
+          "default": "${config_port.genforma_home}/log", 
+          "type": "path"
+        }, 
+        "genforma_home": {
+          "default": "/Users/${config_port.os_user_name}/apps", 
+          "type": "path"
+        }, 
+        "os_user_name": "string", 
+        "hostname": {
+          "default": "localhost", 
+          "type": "string"
+        }, 
+        "private_ip": {
+          "default": null, 
+          "type": "string"
+        }
+      }
+    }, 
+    {
+      "display_name": "Apache2 (Linux)", 
+      "inside": {
+        "one-of": [
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "9.10", 
+              "name": "ubuntu-linux"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "10.04", 
+              "name": "ubuntu-linux"
+            }
+          }
+        ]
+      }, 
+      "key": {
+        "version": "2.2", 
+        "name": "apache-linux"
+      }, 
+      "input_ports": {
+        "host": {
+          "os_user_name": {
+            "type": "string"
+          }, 
+          "hostname": {
+            "type": "string"
+          }, 
+          "sudo_password": {
+            "type": "password"
+          }
+        }
+      }, 
+      "output_ports": {
+        "apache": {
+          "controller_exe": {
+            "type": "string", 
+            "fixed-value": "/etc/init.d/apache2"
+          }, 
+          "cgi_dir": {
+            "type": "string", 
+            "fixed-value": "/usr/lib/cgi-bin"
+          }, 
+          "htpasswd_exe": {
+            "type": "string", 
+            "fixed-value": "/usr/bin/htpasswd"
+          }, 
+          "apache_group": {
+            "type": "string", 
+            "fixed-value": "www-data"
+          }, 
+          "apache_user": {
+            "type": "string", 
+            "fixed-value": "www-data"
+          }, 
+          "additional_config_dir": {
+            "type": "string", 
+            "fixed-value": "/etc/apache2/conf.d/"
+          }, 
+          "module_lib": {
+            "type": "string", 
+            "fixed-value": "/usr/lib/apache2/modules/mod_fastcgi.so"
+          }, 
+          "config_file": {
+            "type": "path", 
+            "fixed-value": "/etc/apache2/apache2.conf"
+          }, 
+          "log_dir": {
+            "type": "path", 
+            "fixed-value": "/var/log/apache2"
+          }
+        }
+      }, 
+      "config_port": {}
+    }, 
+    {
+      "display_name": "Apache2 (MacPorts)", 
+      "input_ports": {
+        "host": {
+          "os_user_name": {
+            "type": "string"
+          }, 
+          "hostname": {
+            "type": "string"
+          }, 
+          "sudo_password": {
+            "type": "password"
+          }
+        }, 
+        "macports": {
+          "macports_exe": "path"
+        }
+      }, 
+      "environment": {
+        "all-of": [
+          {
+            "port_mapping": {
+              "macports": "macports"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "1.9"
+              }, 
+              "name": "macports"
+            }
+          }
+        ]
+      }, 
+      "key": {
+        "version": "2.2", 
+        "name": "apache-macports"
+      }, 
+      "inside": {
+        "one-of": [
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "10.5", 
+                "less-than": "10.7"
+              }, 
+              "name": "mac-osx"
+            }
+          }
+        ]
+      }, 
+      "output_ports": {
+        "apache": {
+          "controller_exe": {
+            "type": "path", 
+            "fixed-value": "/opt/local/apache2/bin/apachectl"
+          }, 
+          "cgi_dir": {
+            "type": "string", 
+            "fixed-value": "/opt/local/apache2/cgi-bin"
+          }, 
+          "htpasswd_exe": {
+            "type": "string", 
+            "fixed-value": "/opt/local/apache2/bin/htpasswd"
+          }, 
+          "apache_group": {
+            "type": "string", 
+            "fixed-value": "_www"
+          }, 
+          "apache_user": {
+            "type": "string", 
+            "fixed-value": "_www"
+          }, 
+          "additional_config_dir": {
+            "type": "string", 
+            "fixed-value": "/opt/local/apache2/conf/engage_extra"
+          }, 
+          "module_config_dir": {
+            "type": "string", 
+            "fixed-value": "/opt/local/apache2/conf/engage_modules"
+          }, 
+          "log_dir": {
+            "type": "path", 
+            "fixed-value": "/opt/local/apache2/logs"
+          }, 
+          "config_file": {
+            "type": "path", 
+            "fixed-value": "/opt/local/apache2/conf/httpd.conf"
+          }
+        }
+      }, 
+      "config_port": {}
+    }, 
+    {
+      "display_name": "Celery 2.3", 
+      "input_ports": {
+        "python": {
+          "home": "string"
+        }, 
+        "pip": {
+          "pipbin": "string"
+        }, 
+        "host": {
+          "genforma_home": "path"
+        }, 
+        "broker": {
+          "BROKER_PORT": "tcp_port", 
+          "broker": "string", 
+          "BROKER_HOST": "string"
+        }, 
+        "setuptools": {
+          "easy_install": "string"
+        }
+      }, 
+      "environment": {
+        "all-of": [
+          {
+            "port_mapping": {
+              "setuptools": "setuptools"
+            }, 
+            "key": {
+              "version": "0.6", 
+              "name": "setuptools"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "pip": "pip"
+            }, 
+            "key": {
+              "version": "any", 
+              "name": "pip"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "python": "python"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "2.3"
+              }, 
+              "name": "python"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "broker": "broker"
+            }, 
+            "key": {
+              "version": "2.4", 
+              "name": "rabbitmq"
+            }
+          }
+        ]
+      }, 
+      "key": {
+        "version": "2.3", 
+        "name": "Celery"
+      }, 
+      "inside": {
+        "one-of": [
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "10.5", 
+                "less-than": "10.7"
+              }, 
+              "name": "mac-osx"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "9.10", 
+              "name": "ubuntu-linux"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "10.04", 
+              "name": "ubuntu-linux"
+            }
+          }
+        ]
+      }, 
+      "output_ports": {
+        "celery": {
+          "username": {
+            "type": "string", 
+            "fixed-value": "${config_port.username}"
+          }, 
+          "vhost": {
+            "source": "config_port.vhost", 
+            "type": "string"
+          }, 
+          "password": {
+            "source": "config_port.password", 
+            "type": "password"
+          }, 
+          "broker": {
+            "type": "string", 
+            "fixed-value": "${input_ports.broker.broker}"
+          }
+        }
+      }, 
+      "config_port": {
+        "username": {
+          "default": "engage_celery", 
+          "type": "string"
+        }, 
+        "vhost": {
+          "default": "engage_celery_vhost", 
+          "type": "string"
+        }, 
+        "password": {
+          "default": "engage_129", 
+          "type": "password"
+        }
+      }
+    }, 
+    {
+      "environment": {
+        "all-of": [
+          {
+            "port_mapping": {
+              "python": "python"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "2.3"
+              }, 
+              "name": "python"
+            }
+          }
+        ]
+      }, 
+      "input_ports": {
+        "python": {
+          "PYTHONPATH": "string", 
+          "home": "string"
+        }, 
+        "host": {}
+      }, 
+      "display_name": "psycopg2 PostgreSQL connector for Python", 
+      "inside": {
+        "one-of": [
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "10.5", 
+                "less-than": "10.7"
+              }, 
+              "name": "mac-osx"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "9.10", 
+              "name": "ubuntu-linux"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "10.04", 
+              "name": "ubuntu-linux"
+            }
+          }
+        ]
+      }, 
+      "key": {
+        "version": "2.4", 
+        "name": "psycopg2"
+      }
+    }, 
+    {
+      "display_name": "Rabbitmq 2.4", 
+      "input_ports": {
+        "host": {
+          "genforma_home": "path", 
+          "hostname": "string"
+        }
+      }, 
+      "key": {
+        "version": "2.4", 
+        "name": "rabbitmq"
+      }, 
+      "inside": {
+        "one-of": [
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "10.5", 
+                "less-than": "10.7"
+              }, 
+              "name": "mac-osx"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "9.10", 
+              "name": "ubuntu-linux"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "10.04", 
+              "name": "ubuntu-linux"
+            }
+          }
+        ]
+      }, 
+      "output_ports": {
+        "broker": {
+          "BROKER_PORT": {
+            "type": "tcp_port", 
+            "fixed-value": "${config_port.port}"
+          }, 
+          "broker": {
+            "type": "string", 
+            "fixed-value": "rabbitmqctl"
+          }, 
+          "BROKER_HOST": {
+            "type": "string", 
+            "fixed-value": "${config_port.host}"
+          }
+        }
+      }, 
+      "config_port": {
+        "host": {
+          "default": "127.0.0.1", 
+          "type": "string"
+        }, 
+        "port": {
+          "default": "5672", 
+          "type": "tcp_port"
+        }
+      }
+    }, 
+    {
+      "display_name": "Python 2.5", 
+      "input_ports": {
+        "host": {
+          "genforma_home": "path", 
+          "cpu_arch": "string", 
+          "os_type": "string", 
+          "hostname": "string", 
+          "os_user_name": "string"
+        }
+      }, 
+      "key": {
+        "version": "2.5", 
+        "name": "python"
+      }, 
+      "inside": {
+        "port_mapping": {
+          "host": "host"
+        }, 
+        "key": {
+          "version": {
+            "greater-than-or-equal": "10.5", 
+            "less-than": "10.6"
+          }, 
+          "name": "mac-osx"
+        }
+      }, 
+      "output_ports": {
+        "python": {
+          "home": {
+            "source": "config_port.PYTHON_HOME", 
+            "type": "string"
+          }, 
+          "version": {
+            "type": "string", 
+            "fixed-value": "2.5"
+          }, 
+          "type": {
+            "type": "string", 
+            "fixed-value": "python"
+          }, 
+          "python_bin_dir": {
+            "source": "config_port.PYTHON_BIN_DIR", 
+            "type": "string"
+          }, 
+          "PYTHONPATH": {
+            "source": "config_port.PYTHONPATH", 
+            "type": "string"
+          }
+        }
+      }, 
+      "config_port": {
+        "PYTHONPATH": {
+          "default": "${input_ports.host.genforma_home}/python/lib/python2.5/site-packages/", 
+          "type": "string"
+        }, 
+        "PYTHON_BIN_DIR": {
+          "default": "${input_ports.host.genforma_home}/python/bin", 
+          "type": "string"
+        }, 
+        "PYTHON_HOME": {
+          "default": "${input_ports.host.genforma_home}/python/bin/python", 
+          "type": "string"
+        }
+      }
+    }, 
+    {
+      "display_name": "Python 2.6", 
+      "input_ports": {
+        "host": {
+          "genforma_home": "path", 
+          "cpu_arch": "string", 
+          "os_type": "string", 
+          "hostname": "string", 
+          "os_user_name": "string"
+        }
+      }, 
+      "key": {
+        "version": "2.6", 
+        "name": "python"
+      }, 
+      "inside": {
+        "one-of": [
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "10.5", 
+                "less-than": "10.7"
+              }, 
+              "name": "mac-osx"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "9.10", 
+              "name": "ubuntu-linux"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "10.04", 
+              "name": "ubuntu-linux"
+            }
+          }
+        ]
+      }, 
+      "output_ports": {
+        "python": {
+          "home": {
+            "source": "config_port.PYTHON_HOME", 
+            "type": "string"
+          }, 
+          "version": {
+            "type": "string", 
+            "fixed-value": "2.6"
+          }, 
+          "type": {
+            "type": "string", 
+            "fixed-value": "python"
+          }, 
+          "python_bin_dir": {
+            "source": "config_port.PYTHON_BIN_DIR", 
+            "type": "string"
+          }, 
+          "PYTHONPATH": {
+            "source": "config_port.PYTHONPATH", 
+            "type": "string"
+          }
+        }
+      }, 
+      "config_port": {
+        "PYTHONPATH": {
+          "default": "${input_ports.host.genforma_home}/python/lib/python2.6/site-packages/", 
+          "type": "string"
+        }, 
+        "PYTHON_BIN_DIR": {
+          "default": "${input_ports.host.genforma_home}/python/bin", 
+          "type": "string"
+        }, 
+        "PYTHON_HOME": {
+          "default": "${input_ports.host.genforma_home}/python/bin/python", 
+          "type": "string"
+        }
+      }
+    }, 
+    {
+      "display_name": "Python 2.7", 
+      "input_ports": {
+        "host": {
+          "genforma_home": "path", 
+          "cpu_arch": "string", 
+          "os_type": "string", 
+          "hostname": "string", 
+          "os_user_name": "string"
+        }
+      }, 
+      "key": {
+        "version": "2.7", 
+        "name": "python"
+      }, 
+      "inside": {
+        "one-of": [
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "10.5", 
+                "less-than": "10.7"
+              }, 
+              "name": "mac-osx"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "9.10", 
+              "name": "ubuntu-linux"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "10.04", 
+              "name": "ubuntu-linux"
+            }
+          }
+        ]
+      }, 
+      "output_ports": {
+        "python": {
+          "home": {
+            "source": "config_port.PYTHON_HOME", 
+            "type": "string"
+          }, 
+          "version": {
+            "type": "string", 
+            "fixed-value": "2.7"
+          }, 
+          "type": {
+            "type": "string", 
+            "fixed-value": "python"
+          }, 
+          "python_bin_dir": {
+            "source": "config_port.PYTHON_BIN_DIR", 
+            "type": "string"
+          }, 
+          "PYTHONPATH": {
+            "source": "config_port.PYTHONPATH", 
+            "type": "string"
+          }
+        }
+      }, 
+      "config_port": {
+        "PYTHONPATH": {
+          "default": "${input_ports.host.genforma_home}/python/lib/python2.7/site-packages/", 
+          "type": "string"
+        }, 
+        "PYTHON_BIN_DIR": {
+          "default": "${input_ports.host.genforma_home}/python/bin", 
+          "type": "string"
+        }, 
+        "PYTHON_HOME": {
+          "default": "${input_ports.host.genforma_home}/python/bin/python", 
+          "type": "string"
+        }
+      }
+    }, 
+    {
+      "display_name": "WSGI (Python webserver gateway) module for Apache, Linux version", 
+      "input_ports": {
+        "apache": {}, 
+        "python": {
+          "home": "string", 
+          "python_bin_dir": "string", 
+          "PYTHONPATH": "string"
+        }, 
+        "host": {
+          "sudo_password": {
+            "type": "password"
+          }
+        }
+      }, 
+      "environment": {
+        "all-of": [
+          {
+            "port_mapping": {
+              "python": "python"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "2.6"
+              }, 
+              "name": "python"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "apache": "apache"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "2.2"
+              }, 
+              "name": "apache-linux"
+            }
+          }
+        ]
+      }, 
+      "key": {
+        "version": "3.2-2", 
+        "name": "libapache2-mod-wsgi-linux"
+      }, 
+      "inside": {
+        "one-of": [
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "9.10", 
+              "name": "ubuntu-linux"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "10.04", 
+              "name": "ubuntu-linux"
+            }
+          }
+        ]
+      }, 
+      "output_ports": {
+        "apt_cfg": {
+          "package_name": {
+            "type": "string", 
+            "fixed-value": "libapache2-mod-wsgi"
+          }
+        }, 
+        "mod_wsgi": {
+          "config_file_path": {
+            "type": "string", 
+            "fixed-value": "/etc/apache2/mods-enabled/wsgi.conf"
+          }
+        }
+      }
+    }, 
+    {
+      "display_name": "WSGI (Python webserver gateway) module for Apache, MacPorts version", 
+      "input_ports": {
+        "apache": {
+          "config_file": "path", 
+          "controller_exe": "path", 
+          "module_config_dir": "path"
+        }, 
+        "python": {
+          "home": "string", 
+          "version": "string", 
+          "python_bin_dir": "string", 
+          "PYTHONPATH": "string"
+        }, 
+        "host": {
+          "sudo_password": {
+            "type": "password"
+          }
+        }, 
+        "macports": {
+          "macports_exe": "path"
+        }
+      }, 
+      "environment": {
+        "all-of": [
+          {
+            "port_mapping": {
+              "python": "python"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "2.5"
+              }, 
+              "name": "python"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "apache": "apache"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "2.2"
+              }, 
+              "name": "apache-macports"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "macports": "macports"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "1.9"
+              }, 
+              "name": "macports"
+            }
+          }
+        ]
+      }, 
+      "key": {
+        "version": "3.3", 
+        "name": "apache2-mod-wsgi-macports"
+      }, 
+      "inside": {
+        "one-of": [
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "10.5", 
+                "less-than": "10.7"
+              }, 
+              "name": "mac-osx"
+            }
+          }
+        ]
+      }, 
+      "output_ports": {
+        "wsgi": {
+          "config_file_path": {
+            "type": "path", 
+            "fixed-value": "${input_ports.apache.module_config_dir}/mod_wsgi.conf"
+          }
+        }, 
+        "port_cfg": {
+          "package_name": {
+            "type": "string", 
+            "fixed-value": "mod_wsgi"
+          }
+        }
+      }
+    }, 
+    {
+      "display_name": "MySQL server (Ubuntu version)", 
+      "input_ports": {
+        "host": {
+          "cpu_arch": "string", 
+          "sudo_password": "password", 
+          "log_directory": "path", 
+          "genforma_home": "path", 
+          "os_user_name": "string", 
+          "hostname": "string", 
+          "os_type": "string"
+        }
+      }, 
+      "key": {
+        "version": "5.1", 
+        "name": "mysql-apt"
+      }, 
+      "inside": {
+        "one-of": [
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "9.10", 
+              "name": "ubuntu-linux"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "10.04", 
+              "name": "ubuntu-linux"
+            }
+          }
+        ]
+      }, 
+      "output_ports": {
+        "mysql_admin": {
+          "mysqladmin_exe": {
+            "type": "path", 
+            "fixed-value": "/usr/bin/mysqladmin"
+          }, 
+          "mysql_user": {
+            "type": "string", 
+            "fixed-value": "mysql"
+          }, 
+          "pid_file_template": {
+            "type": "string", 
+            "fixed-value": "/var/lib/mysql/%(hostname)s.pid"
+          }, 
+          "mysql_client_exe": {
+            "type": "path", 
+            "fixed-value": "/usr/bin/mysql"
+          }, 
+          "mysql_config_exe": {
+            "type": "path", 
+            "fixed-value": "/usr/bin/mysql_config"
+          }, 
+          "mysqldump_exe": {
+            "type": "path", 
+            "fixed-value": "/usr/bin/mysqldump"
+          }, 
+          "admin_password": {
+            "source": "config_port.mysql_admin_password", 
+            "type": "password"
+          }, 
+          "mysql_startup_logfile": {
+            "type": "path", 
+            "fixed-value": "${input_ports.host.log_directory}/mysql_startup.log"
+          }, 
+          "mysql_server_cwd": {
+            "type": "path", 
+            "fixed-value": "/usr/bin"
+          }, 
+          "mysql_server_script": {
+            "type": "path", 
+            "fixed-value": "/usr/bin/mysqld_safe"
+          }
+        }, 
+        "mysql": {
+          "host": {
+            "source": "input_ports.host.hostname", 
+            "type": "string"
+          }, 
+          "port": {
+            "type": "tcp_port", 
+            "fixed-value": 3306
+          }
+        }
+      }, 
+      "config_port": {
+        "mysql_admin_password": {
+          "default": "mysql-apt/admin_pw", 
+          "type": "password"
+        }
+      }
+    }, 
+    {
+      "display_name": "MySQL connector for Django", 
+      "input_ports": {
+        "host": {
+          "genforma_home": "path", 
+          "hostname": "string", 
+          "log_directory": "path"
+        }, 
+        "mysql_admin": {
+          "mysqladmin_exe": "path", 
+          "mysql_config_exe": "path", 
+          "pid_file_template": "string", 
+          "mysql_client_exe": "path", 
+          "mysql_user": "string", 
+          "mysqldump_exe": "path", 
+          "admin_password": "password", 
+          "mysql_startup_logfile": "path", 
+          "mysql_server_cwd": "path", 
+          "mysql_server_script": "path"
+        }, 
+        "mysql": {
+          "host": "string", 
+          "port": "tcp_port"
+        }
+      }, 
+      "environment": {
+        "all-of": [
+          {
+            "one-of": [
+              {
+                "port_mapping": {
+                  "mysql_admin": "mysql_admin", 
+                  "mysql": "mysql"
+                }, 
+                "key": {
+                  "version": {
+                    "greater-than-or-equal": "5.1"
+                  }, 
+                  "name": "mysql-macports"
+                }
+              }, 
+              {
+                "port_mapping": {
+                  "mysql_admin": "mysql_admin", 
+                  "mysql": "mysql"
+                }, 
+                "key": {
+                  "version": {
+                    "greater-than-or-equal": "5.1"
+                  }, 
+                  "name": "mysql-apt"
+                }
+              }
+            ]
+          }, 
+          {
+            "key": {
+              "version": {
+                "greater-than-or-equal": "1.2"
+              }, 
+              "name": "mysql-python"
+            }
+          }
+        ]
+      }, 
+      "key": {
+        "version": "5.1", 
+        "name": "mysql-connector-for-django"
+      }, 
+      "inside": {
+        "one-of": [
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "10.5", 
+                "less-than": "10.7"
+              }, 
+              "name": "mac-osx"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "9.10", 
+              "name": "ubuntu-linux"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "10.04", 
+              "name": "ubuntu-linux"
+            }
+          }
+        ]
+      }, 
+      "output_ports": {
+        "django_db": {
+          "ENGINE": {
+            "type": "string", 
+            "fixed-value": "django.db.backends.mysql"
+          }, 
+          "NAME": {
+            "source": "config_port.NAME", 
+            "type": "string"
+          }, 
+          "HOST": {
+            "type": "string", 
+            "fixed-value": ""
+          }, 
+          "USER": {
+            "source": "config_port.USER", 
+            "type": "string"
+          }, 
+          "PASSWORD": {
+            "source": "config_port.PASSWORD", 
+            "type": "password"
+          }, 
+          "PORT": {
+            "source": "input_ports.mysql.port", 
+            "type": "tcp_port"
+          }
+        }
+      }, 
+      "config_port": {
+        "PASSWORD": {
+          "default": "mysql-connector-for-django/PASSWORD", 
+          "type": "password"
+        }, 
+        "NAME": {
+          "default": "django", 
+          "type": "string"
+        }, 
+        "USER": {
+          "default": "django", 
+          "type": "string"
+        }
+      }
+    }, 
+    {
+      "display_name": "MySQL server (MacPorts version)", 
+      "input_ports": {
+        "host": {
+          "cpu_arch": "string", 
+          "sudo_password": "password", 
+          "log_directory": "path", 
+          "genforma_home": "path", 
+          "os_user_name": "string", 
+          "hostname": "string", 
+          "os_type": "string"
+        }, 
+        "macports": {
+          "macports_exe": "path"
+        }
+      }, 
+      "environment": {
+        "all-of": [
+          {
+            "port_mapping": {
+              "macports": "macports"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "1.9"
+              }, 
+              "name": "macports"
+            }
+          }
+        ]
+      }, 
+      "key": {
+        "version": "5.1", 
+        "name": "mysql-macports"
+      }, 
+      "inside": {
+        "one-of": [
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "10.5", 
+                "less-than": "10.7"
+              }, 
+              "name": "mac-osx"
+            }
+          }
+        ]
+      }, 
+      "output_ports": {
+        "mysql_admin": {
+          "mysqladmin_exe": {
+            "type": "path", 
+            "fixed-value": "/opt/local/bin/mysqladmin5"
+          }, 
+          "mysql_config_exe": {
+            "type": "path", 
+            "fixed-value": "/opt/local/lib/mysql5/bin/mysql_config"
+          }, 
+          "pid_file_template": {
+            "type": "string", 
+            "fixed-value": "/opt/local/var/db/mysql5/%(hostname)s.pid"
+          }, 
+          "mysql_client_exe": {
+            "type": "path", 
+            "fixed-value": "/opt/local/bin/mysql5"
+          }, 
+          "mysql_user": {
+            "type": "string", 
+            "fixed-value": "_mysql"
+          }, 
+          "mysqldump_exe": {
+            "type": "path", 
+            "fixed-value": "/opt/local/bin/mysqldump5"
+          }, 
+          "admin_password": {
+            "source": "config_port.mysql_admin_password", 
+            "type": "password"
+          }, 
+          "mysql_startup_logfile": {
+            "type": "path", 
+            "fixed-value": "${input_ports.host.log_directory}/mysql_startup.log"
+          }, 
+          "mysql_server_cwd": {
+            "type": "path", 
+            "fixed-value": "/opt/local"
+          }, 
+          "mysql_server_script": {
+            "type": "path", 
+            "fixed-value": "/opt/local/lib/mysql5/bin/mysqld_safe"
+          }
+        }, 
+        "mysql": {
+          "host": {
+            "source": "input_ports.host.hostname", 
+            "type": "string"
+          }, 
+          "port": {
+            "type": "tcp_port", 
+            "fixed-value": 3306
+          }
+        }
+      }, 
+      "config_port": {
+        "startup_on_boot": {
+          "default": "no", 
+          "type": "string"
+        }, 
+        "mysql_admin_password": {
+          "default": "mysql-macports/admin_pw", 
+          "type": "password"
+        }
+      }
+    }, 
+    {
+      "display_name": "PostgreSQL connector for Django", 
+      "input_ports": {
+        "host": {
+          "genforma_home": "path", 
+          "hostname": "string"
+        }
+      }, 
+      "environment": {
+        "all-of": [
+          {
+            "key": {
+              "version": {
+                "greater-than-or-equal": "2.4"
+              }, 
+              "name": "psycopg2"
+            }
+          }
+        ]
+      }, 
+      "key": {
+        "version": "8.4", 
+        "name": "postgresql-connector-for-django"
+      }, 
+      "inside": {
+        "one-of": [
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "10.5", 
+                "less-than": "10.7"
+              }, 
+              "name": "mac-osx"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "9.10", 
+              "name": "ubuntu-linux"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "10.04", 
+              "name": "ubuntu-linux"
+            }
+          }
+        ]
+      }, 
+      "output_ports": {
+        "django_db": {
+          "ENGINE": {
+            "type": "string", 
+            "fixed-value": "django.db.backends.postgresql_psycopg2"
+          }, 
+          "NAME": {
+            "source": "config_port.NAME", 
+            "type": "string"
+          }, 
+          "HOST": {
+            "source": "config_port.HOST", 
+            "type": "string"
+          }, 
+          "USER": {
+            "source": "config_port.USER", 
+            "type": "string"
+          }, 
+          "PASSWORD": {
+            "source": "config_port.PASSWORD", 
+            "type": "password"
+          }, 
+          "PORT": {
+            "source": "config_port.PORT", 
+            "type": "tcp_port"
+          }
+        }
+      }, 
+      "config_port": {
+        "USER": "string", 
+        "HOST": "string", 
+        "PASSWORD": {
+          "default": "postgreql-connector-for-django/PASSWORD", 
+          "type": "password"
+        }, 
+        "PORT": {
+          "default": 5432, 
+          "type": "tcp_port"
+        }, 
+        "NAME": "string"
+      }
+    }, 
+    {
+      "display_name": "Ubuntu Linux 9.10", 
+      "key": {
+        "version": "9.10", 
+        "name": "ubuntu-linux"
+      }, 
+      "output_ports": {
+        "host": {
+          "cpu_arch": {
+            "source": "config_port.cpu_arch", 
+            "type": "string"
+          }, 
+          "sudo_password": {
+            "source": "config_port.sudo_password", 
+            "type": "password"
+          }, 
+          "log_directory": {
+            "source": "config_port.log_directory", 
+            "type": "path"
+          }, 
+          "genforma_home": {
+            "source": "config_port.genforma_home", 
+            "type": "path"
+          }, 
+          "os_user_name": {
+            "source": "config_port.os_user_name", 
+            "type": "string"
+          }, 
+          "hostname": {
+            "source": "config_port.hostname", 
+            "type": "hostname"
+          }, 
+          "private_ip": {
+            "source": "config_port.private_ip", 
+            "type": "string"
+          }, 
+          "os_type": {
+            "type": "string", 
+            "fixed-value": "linux"
+          }
+        }
+      }, 
+      "config_port": {
+        "cpu_arch": {
+          "default": "i386", 
+          "type": "string"
+        }, 
+        "sudo_password": {
+          "default": "foo", 
+          "type": "string"
+        }, 
+        "log_directory": {
+          "default": "${config_port.genforma_home}/log", 
+          "type": "path"
+        }, 
+        "genforma_home": {
+          "default": "/home/${config_port.os_user_name}/apps", 
+          "type": "path"
+        }, 
+        "os_user_name": "string", 
+        "hostname": {
+          "default": "localhost", 
+          "type": "hostname"
+        }, 
+        "private_ip": {
+          "default": null, 
+          "type": "string"
+        }
+      }
+    }, 
+    {
+      "display_name": "Django celery adapter", 
+      "input_ports": {
+        "celery_conn": {
+          "username": "string", 
+          "vhost": "string", 
+          "password": "password", 
+          "broker": "string"
+        }, 
+        "host": {}, 
+        "broker": {
+          "BROKER_PORT": "tcp_port", 
+          "broker": "string", 
+          "BROKER_HOST": "string"
+        }
+      }, 
+      "environment": {
+        "all-of": [
+          {
+            "port_mapping": {
+              "broker": "broker"
+            }, 
+            "key": {
+              "version": "2.4", 
+              "name": "rabbitmq"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "celery_conn": "celery"
+            }, 
+            "key": {
+              "version": "2.3", 
+              "name": "Celery"
+            }
+          }, 
+          {
+            "key": {
+              "version": "any", 
+              "name": "django-celery"
+            }
+          }
+        ]
+      }, 
+      "key": {
+        "version": "any", 
+        "name": "celery-django-adapter"
+      }, 
+      "inside": {
+        "one-of": [
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "10.5", 
+                "less-than": "10.7"
+              }, 
+              "name": "mac-osx"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "9.10", 
+              "name": "ubuntu-linux"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "10.04", 
+              "name": "ubuntu-linux"
+            }
+          }
+        ]
+      }, 
+      "output_ports": {
+        "celery": {
+          "BROKER_PASSWORD": {
+            "source": "config_port.BROKER_PASSWORD", 
+            "type": "string"
+          }, 
+          "BROKER_USER": {
+            "source": "config_port.BROKER_USER", 
+            "type": "string"
+          }, 
+          "provider": {
+            "type": "string", 
+            "fixed-value": "celery"
+          }, 
+          "broker": {
+            "type": "string", 
+            "fixed-value": "rabbitmq"
+          }, 
+          "BROKER_VHOST": {
+            "source": "config_port.BROKER_VHOST", 
+            "type": "string"
+          }, 
+          "BROKER_HOST": {
+            "source": "config_port.BROKER_HOST", 
+            "type": "string"
+          }, 
+          "BROKER_PORT": {
+            "source": "config_port.BROKER_PORT", 
+            "type": "tcp_port"
+          }
+        }
+      }, 
+      "config_port": {
+        "BROKER_PORT": {
+          "default": "${input_ports.broker.BROKER_PORT}", 
+          "type": "tcp_port"
+        }, 
+        "BROKER_PASSWORD": {
+          "default": "${input_ports.celery_conn.password}", 
+          "type": "string"
+        }, 
+        "BROKER_USER": {
+          "default": "${input_ports.celery_conn.username}", 
+          "type": "string"
+        }, 
+        "BROKER_VHOST": {
+          "default": "${input_ports.celery_conn.vhost}", 
+          "type": "string"
+        }, 
+        "BROKER_HOST": {
+          "default": "${input_ports.broker.BROKER_HOST}", 
+          "type": "string"
+        }
+      }
+    }, 
+    {
+      "environment": {
+        "all-of": [
+          {
+            "key": {
+              "version": "2.3", 
+              "name": "Celery"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "broker": "broker"
+            }, 
+            "key": {
+              "version": "2.4", 
+              "name": "rabbitmq"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "setuptools": "setuptools"
+            }, 
+            "key": {
+              "version": "0.6", 
+              "name": "setuptools"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "pip": "pip"
+            }, 
+            "key": {
+              "version": "any", 
+              "name": "pip"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "python": "python"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "2.3"
+              }, 
+              "name": "python"
+            }
+          }
+        ]
+      }, 
+      "input_ports": {
+        "python": {
+          "home": "string"
+        }, 
+        "pip": {
+          "pipbin": "string"
+        }, 
+        "host": {
+          "genforma_home": "path"
+        }, 
+        "broker": {
+          "broker": {
+            "type": "string"
+          }
+        }, 
+        "setuptools": {
+          "easy_install": "string"
+        }
+      }, 
+      "display_name": "Django-celery", 
+      "inside": {
+        "one-of": [
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "10.5", 
+                "less-than": "10.7"
+              }, 
+              "name": "mac-osx"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "9.10", 
+              "name": "ubuntu-linux"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "10.04", 
+              "name": "ubuntu-linux"
+            }
+          }
+        ]
+      }, 
+      "key": {
+        "version": "any", 
+        "name": "django-celery"
+      }
+    }, 
+    {
+      "key": {
+        "version": "any", 
+        "name": "django-dummy-cache-adapter"
+      }, 
+      "inside": {
+        "one-of": [
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "10.5", 
+                "less-than": "10.7"
+              }, 
+              "name": "mac-osx"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "9.10", 
+              "name": "ubuntu-linux"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "10.04", 
+              "name": "ubuntu-linux"
+            }
+          }
+        ]
+      }, 
+      "display_name": "dummy cache resource", 
+      "input_ports": {
+        "host": {}
+      }, 
+      "output_ports": {
+        "ocache": {
+          "home": {
+            "type": "path", 
+            "fixed-value": "__dummy__"
+          }, 
+          "host": {
+            "type": "string", 
+            "fixed-value": "dummy.host"
+          }, 
+          "port": {
+            "type": "tcp_port", 
+            "fixed_value": 0
+          }, 
+          "provider": {
+            "type": "string", 
+            "fixed-value": "dummy"
+          }
+        }
+      }
+    }, 
+    {
+      "display_name": "Dummy celery adapter for django", 
+      "input_ports": {
+        "host": {}, 
+        "broker": {
+          "broker": "string"
+        }
+      }, 
+      "key": {
+        "version": "any", 
+        "name": "django-dummy-celery-adapter"
+      }, 
+      "inside": {
+        "one-of": [
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "10.5", 
+                "less-than": "10.7"
+              }, 
+              "name": "mac-osx"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "9.10", 
+              "name": "ubuntu-linux"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "10.04", 
+              "name": "ubuntu-linux"
+            }
+          }
+        ]
+      }, 
+      "output_ports": {
+        "celery": {
+          "BROKER_PASSWORD": {
+            "source": "config_port.BROKER_PASSWORD", 
+            "type": "string"
+          }, 
+          "BROKER_USER": {
+            "source": "config_port.BROKER_USER", 
+            "type": "string"
+          }, 
+          "provider": {
+            "type": "string", 
+            "fixed-value": "dummy"
+          }, 
+          "broker": {
+            "type": "string", 
+            "fixed-value": "dummy"
+          }, 
+          "BROKER_VHOST": {
+            "source": "config_port.BROKER_VHOST", 
+            "type": "string"
+          }, 
+          "BROKER_HOST": {
+            "source": "config_port.BROKER_HOST", 
+            "type": "tcp_port"
+          }, 
+          "BROKER_PORT": {
+            "source": "config_port.BROKER_PORT", 
+            "type": "tcp_port"
+          }
+        }
+      }, 
+      "config_port": {
+        "BROKER_PORT": {
+          "default": 0, 
+          "type": "tcp_port"
+        }, 
+        "BROKER_PASSWORD": {
+          "default": "", 
+          "type": "string"
+        }, 
+        "BROKER_USER": {
+          "default": "", 
+          "type": "string"
+        }, 
+        "BROKER_VHOST": {
+          "default": "", 
+          "type": "string"
+        }, 
+        "BROKER_HOST": {
+          "default": "localhost", 
+          "type": "string"
+        }
+      }
+    }, 
+    {
+      "display_name": "memcached adapter for django", 
+      "inside": {
+        "one-of": [
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "10.5", 
+                "less-than": "10.7"
+              }, 
+              "name": "mac-osx"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "9.10", 
+              "name": "ubuntu-linux"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "10.04", 
+              "name": "ubuntu-linux"
+            }
+          }
+        ]
+      }, 
+      "environment": {
+        "all-of": [
+          {
+            "port_mapping": {
+              "python": "python"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "2.6"
+              }, 
+              "name": "python"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "setuptools": "setuptools"
+            }, 
+            "key": {
+              "version": "0.6", 
+              "name": "setuptools"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "pip": "pip"
+            }, 
+            "key": {
+              "version": "any", 
+              "name": "pip"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "cache": "cache"
+            }, 
+            "key": {
+              "version": "1.4", 
+              "name": "memcached"
+            }
+          }, 
+          {
+            "key": {
+              "version": "any", 
+              "name": "python-memcached"
+            }
+          }
+        ]
+      }, 
+      "key": {
+        "version": "any", 
+        "name": "memcached-django-adapter"
+      }, 
+      "input_ports": {
+        "pip": {}, 
+        "python": {}, 
+        "host": {}, 
+        "cache": {
+          "home": {
+            "type": "path"
+          }, 
+          "host": {
+            "type": "string"
+          }, 
+          "port": {
+            "type": "tcp_port"
+          }, 
+          "provider": {
+            "type": "string"
+          }
+        }, 
+        "setuptools": {}
+      }, 
+      "output_ports": {
+        "ocache": {
+          "home": {
+            "source": "input_ports.cache.home", 
+            "type": "path"
+          }, 
+          "host": {
+            "source": "input_ports.cache.host", 
+            "type": "string"
+          }, 
+          "port": {
+            "source": "input_ports.cache.port", 
+            "type": "tcp_port"
+          }, 
+          "provider": {
+            "source": "input_ports.cache.provider", 
+            "type": "string"
+          }
+        }
+      }
+    }, 
+    {
+      "display_name": "Pip", 
+      "inside": {
+        "one-of": [
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "10.5", 
+                "less-than": "10.7"
+              }, 
+              "name": "mac-osx"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "9.10", 
+              "name": "ubuntu-linux"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "10.04", 
+              "name": "ubuntu-linux"
+            }
+          }
+        ]
+      }, 
+      "environment": {
+        "all-of": [
+          {
+            "port_mapping": {
+              "setuptools": "setuptools"
+            }, 
+            "key": {
+              "version": "0.6", 
+              "name": "setuptools"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "python": "python"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "2.3"
+              }, 
+              "name": "python"
+            }
+          }
+        ]
+      }, 
+      "key": {
+        "version": "any", 
+        "name": "pip"
+      }, 
+      "input_ports": {
+        "python": {
+          "home": "string", 
+          "python_bin_dir": "path"
+        }, 
+        "host": {
+          "genforma_home": "path"
+        }, 
+        "setuptools": {
+          "easy_install": "string"
+        }
+      }, 
+      "output_ports": {
+        "pip": {
+          "pipbin": {
+            "type": "path", 
+            "fixed-value": "${input_ports.python.python_bin_dir}/pip"
+          }
+        }
+      }
+    }, 
+    {
+      "environment": {
+        "all-of": [
+          {
+            "port_mapping": {
+              "python": "python"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "2.6"
+              }, 
+              "name": "python"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "pip": "pip"
+            }, 
+            "key": {
+              "version": "any", 
+              "name": "pip"
+            }
+          }
+        ]
+      }, 
+      "input_ports": {
+        "python": {
+          "home": "string"
+        }, 
+        "pip": {
+          "pipbin": "string"
+        }, 
+        "host": {}, 
+        "setuptools": {
+          "easy_install": "string"
+        }
+      }, 
+      "display_name": "python-memcached interface", 
+      "inside": {
+        "one-of": [
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": {
+                "greater-than-or-equal": "10.5", 
+                "less-than": "10.7"
+              }, 
+              "name": "mac-osx"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "9.10", 
+              "name": "ubuntu-linux"
+            }
+          }, 
+          {
+            "port_mapping": {
+              "host": "host"
+            }, 
+            "key": {
+              "version": "10.04", 
+              "name": "ubuntu-linux"
+            }
+          }
+        ]
+      }, 
+      "key": {
+        "version": "any", 
+        "name": "python-memcached"
+      }
+    }
+  ]
+}

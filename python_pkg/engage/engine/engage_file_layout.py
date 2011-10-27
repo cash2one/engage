@@ -229,7 +229,7 @@ class BaseFileLayout(object):
         raise NotImplementedError()
     def get_log_directory(self):
         raise NotImplementedError()
-    def get_install_spec_file(self, config_option_no):
+    def get_install_spec_file(self, config_option_no=None):
         raise NotImplementedError()
     def get_preprocessed_resource_file(self):
         """The resource definition file is preprocessed before being used
@@ -316,10 +316,14 @@ class DeployedFileLayout(BaseFileLayout):
             self._check_for_directory(self.log_directory)
         return self.log_directory
 
-    def get_install_spec_file(self, config_option_num):
+    def get_install_spec_file(self, config_option_num=None):
         """ We don't check for the filename in advance, as it might not yet have been created"""
-        filename = os.path.join(self._get_deployment_config_directory(),
-                                self.get_installer_config().install_spec_options[config_option_num]['file_name'])
+        if config_option_num:
+            filename = os.path.join(self._get_deployment_config_directory(),
+                                    self.get_installer_config().install_spec_options[config_option_num]['file_name'])
+        else:
+            filename = os.path.join(self._get_deployment_config_directory(),
+                                    "install_spec.json")
         return filename
 
     def get_preprocessed_resource_file(self):
@@ -397,10 +401,14 @@ class SrcFileLayout(BaseFileLayout):
                 os.makedirs(self.log_directory)
         return self.log_directory
 
-    def get_install_spec_file(self, config_option_num):
+    def get_install_spec_file(self, config_option_num=None):
         """ We don't check for the filename in advance, as it might not yet have been created"""
-        filename = os.path.join(self._get_build_output_directory(),
-                                self.get_installer_config().install_spec_options[config_option_num]['file_name'])
+        if config_option_num:
+            filename = os.path.join(self._get_build_output_directory(),
+                                    self.get_installer_config().install_spec_options[config_option_num]['file_name'])
+        else:
+            filename = os.path.join(self._get_build_output_directory(),
+                                    "install_spec.json")
         return filename
 
     def get_preprocessed_resource_file(self):
@@ -474,10 +482,14 @@ class DistFileLayout(BaseFileLayout):
                 os.makedirs(self.log_directory)
         return self.log_directory
 
-    def get_install_spec_file(self, config_option_num):
+    def get_install_spec_file(self, config_option_num=None):
         """ We don't check for the filename in advance, as it might not yet have been created"""
-        filename = os.path.join(self.build_output_directory,
-                                self.get_installer_config().install_spec_options[config_option_num]['file_name'])
+        if config_option_num:
+            filename = os.path.join(self.build_output_directory,
+                                    self.get_installer_config().install_spec_options[config_option_num]['file_name'])
+        else:
+            filename = os.path.join(self.build_output_directory,
+                                    "install_spec.json")
         return filename
 
     def get_preprocessed_resource_file(self):

@@ -25,11 +25,14 @@ test: config-engine download-packages
 docs:
 	@if [[ `which sphinx-build` == "" ]]; then echo "Need to install Sphinx before building docs"; exit 1; fi
 	cd $(ENGAGE_CODE_HOME)/docs/users_guide; make html
+	cd $(ENGAGE_CODE_HOME)/docs/dev_guide; make html
 
 clean:
 	cd $(ENGAGE_CODE_HOME)/config_src; make clean
 	rm -rf $(ENGAGE_CODE_HOME)/test_output
 	cd $(ENGAGE_CODE_HOME)/docs/users_guide; make clean
+	cd $(ENGAGE_CODE_HOME)/docs/dev_guide; make clean
+	cd $(ENGAGE_CODE_HOME)/python_pkg; rm -rf ./build ./dist ./engage.egg-info
 
 
 # The clean-all target also deletes the downloaded packages

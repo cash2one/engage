@@ -914,25 +914,27 @@
         ]
       }
     },
-    { "key": {"name":"java-virtual-machine", "version":"1.6"},
-      "display_name":"JDK 1.6",
-      "config_port": {
-        "JAVA_HOME": "string"
-      },
+    { "key": {"name":"java-virtual-machine-abstract", "version":"1.6"},
+      "display_name":"JDK 1.6 (abstract)",
       "input_ports": {
-        "host" : {
-          "hostname": "hostname",
-          "os_type": "string",
-          "os_user_name": "string",
-          "cpu_arch": "string"
+        "host": {},
+        "jvm": {
+          "type": "string",
+          "home": "path"
         }
       },
       "output_ports": {
         "jvm": {
-          "type": {"type":"string", "fixed-value":"jvm"},
-          "home": {"type":"string", "source":"config_port.JAVA_HOME"}
+          "type": {"type":"string", "source":"input_ports.jvm.type"},
+          "home": {"type":"path", "source":"input_ports.jvm.home"}
         }
       }, 
+      "environment": {
+        "one-of": [
+          { "key": {"name":"java-virtual-machine-macosx", "version":"1.6"},
+            "port_mapping":{"jvm":"jvm"}}
+        ]
+      },
       "inside": {
         "one-of": [
           { "key": {"name":"mac-osx", "version":{"greater-than":"10.5",
@@ -945,18 +947,47 @@
         ]
       }
     },
-    { "key": {"name": "apache-tomcat", "version": "6.0.24"},
-      "display_name": "Apache Tomcat 6.0.24",
+    { "key": {"name":"java-virtual-machine-macosx", "version":"1.6"},
+      "display_name":"JDK 1.6 for macosx",
+      "config_port": {
+        "JAVA_HOME": {"type":"string",
+                      "default":"/System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK/Home"}
+      },
+      "input_ports": {
+        "host" : {
+          "hostname": "hostname",
+          "os_type": "string",
+          "os_user_name": "string",
+          "cpu_arch": "string"
+        }
+      },
+      "output_ports": {
+        "jvm": {
+          "type": {"type":"string", "fixed-value":"jdk"},
+          "home": {"type":"string", "source":"config_port.JAVA_HOME"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}}
+        ]
+      }
+    },
+    { "key": {"name": "apache-tomcat", "version": "6.0"},
+      "display_name": "Apache Tomcat 6.0",
       "config_port": {
         "admin_user": {"type":"username", "default":"admin",
                        "display_name":"Adminstration user"},
-        "admin_password": {"type":"password", "default": "admin",
+        "admin_password": {"type":"password",
+                           "default": "apache-tomcat/admin_password",
                            "display_name":"Adminstrator's password"},
         "manager_port": {"type":"tcp_port", "default":8080,
                          "display_name":"TCP/IP Port"},
         "home" : {"type":"path",
                   "display_name": "Install directory",
-                  "default":"${input_ports.host.genforma_home}/tomcat-6.0.24"}
+                  "default":"${input_ports.host.genforma_home}/tomcat-6.0"}
       },
       "input_ports": {
         "host" : {
@@ -966,7 +997,7 @@
           "cpu_arch": "string",
           "genforma_home": "path"
         },
-        "java": {
+        "jvm": {
           "type": "string",
           "home": "string"
         }
@@ -981,8 +1012,8 @@
           "manager_port": {"type":"tcp_port",
                            "source":"config_port.manager_port"},
           "home": {"type":"path", "source":"config_port.home"},
-          "environment_vars": {"type":[{"name":"string", "value":"string"}]},
-          "genforma_home": {"type":"path", "source":"input_ports.host.genforma_home"}
+          "genforma_home": {"type":"path", "source":"input_ports.host.genforma_home"},
+          "environment_vars": {"type":[{"name":"string", "value":"string"}]}
         }
       },
       "inside": {
@@ -997,9 +1028,9 @@
         ]
       },
       "environment": {
-          "key": {"name":"java-virtual-machine",
+          "key": {"name":"java-virtual-machine-abstract",
                     "version":{"greater-than-or-equal":"1.5"}},
-          "port_mapping": {"java":"jvm"}
+          "port_mapping": {"jvm":"jvm"}
       }
     },
     { "key": {"name":"python", "version":"2.7"},
@@ -1300,9 +1331,11 @@
         "version_control" : { "type": "string", "default" : "git" },
         "password_file" : { "type" : "string", "default" : "${input_ports.host.genforma_home}/tracproject/trac.auth" },
         "administrator" : { "type" : "string", "default" : "admin" },
-        "admin_password" : { "type" : "password"},
+        "admin_password" : { "type" : "password",
+                             "default":"trac-project/admin_password"},
         "smtp_user" : { "type" : "string", "default" : "rupak.majumdar@gmail.com" },
-        "smtp_password" : { "type" : "password"},
+        "smtp_password" : { "type" : "password",
+                            "default":"trac-project/smtp_password"},
 	"smtp_server" : { "type":"string", "default": "smtp.gmail.com" },
 	"smtp_server_port" : { "type":"string", "default": "25" },
         "host" : { "type":"string", "default": "${input_ports.host.hostname}"},
@@ -1388,9 +1421,9 @@
         "repository" : { "type": "string", "default" : "${input_ports.repository.repo}" },
         "password_file" : { "type" : "string", "default" : "${input_ports.host.genforma_home}/tracproject/trac.auth" },
         "administrator" : { "type" : "string", "default" : "admin" },
-        "admin_password" : { "type" : "password"},
+        "admin_password" : { "type" : "password", "default":"trac-pm/admin_password"},
         "smtp_user" : { "type" : "string", "default" : "rupak.majumdar@gmail.com" },
-        "smtp_password" : { "type" : "password"},
+        "smtp_password" : { "type" : "password", "default":"trac_pm/smtp_password"},
 	"smtp_server" : { "type":"string", "default": "smtp.gmail.com" },
 	"smtp_server_port" : { "type":"string", "default": "25" },
         "host" : { "type":"string", "default": "${input_ports.host.hostname}"},
@@ -1507,7 +1540,7 @@
         }
       },
       "environment": {
-          "key": {"name":"java-virtual-machine",
+          "key": {"name":"java-virtual-machine-abstract",
                     "version":{"greater-than-or-equal":"1.5"}},
           "port_mapping": {"java":"jvm"}
       }
@@ -1558,11 +1591,11 @@
         }
       },
       "inside": {
-        "key": {"name": "apache-tomcat", "version": "6.0.24"},
+        "key": {"name": "apache-tomcat", "version": "6.0"},
         "port_mapping": {"tomcat": "tomcat"}
       },
       "environment": {
-          "key": {"name":"java-virtual-machine",
+          "key": {"name":"java-virtual-machine-abstract",
                     "version":{"greater-than-or-equal":"1.5"}},
           "port_mapping": {"java":"jvm"}
       },
@@ -1882,7 +1915,8 @@
       "config_port": {
         "NAME": "string",
         "USER": "string",
-        "PASSWORD": "password",
+        "PASSWORD": {"type":"password",
+                     "default":"postgreql-connector-for-django/PASSWORD"},
         "HOST": "string",
         "PORT": {"type":"tcp_port", "default":5432}
       },
@@ -1922,7 +1956,8 @@
       "config_port": {
         "NAME": {"type":"string", "default":"django"},
         "USER": {"type":"string", "default": "django"},
-        "PASSWORD": {"type":"password"}
+        "PASSWORD": {"type":"password",
+                     "default":"mysql-connector-for-django/PASSWORD"}
       },
       "input_ports": {
         "host": { "genforma_home": "path", "hostname":"string",
@@ -1939,7 +1974,9 @@
           "mysqldump_exe": "path",
           "mysql_server_script": "path",
           "mysql_user":"string",
-          "pid_file_template":"string"
+          "pid_file_template":"string",
+          "mysql_server_cwd":"path",
+          "mysql_startup_logfile":"path"
         }
       },
       "output_ports": {
@@ -3750,7 +3787,7 @@
     { "key": {"name":"mysql-apt", "version":"5.1"},
       "display_name": "MySQL server (Ubuntu version)",
       "config_port": {
-        "mysql_admin_password": {"type":"password"}
+        "mysql_admin_password": {"type":"password", "default":"mysql-apt/admin_pw"}
       },
       "input_ports": { 
         "host" : {
@@ -3783,7 +3820,9 @@
           "mysql_config_exe": {"type":"path",
                                "fixed-value": "/usr/bin/mysql_config"},
           "pid_file_template":{"type":"string",
-                               "fixed-value":"/var/lib/mysql/%(hostname)s.pid"}
+                               "fixed-value":"/var/lib/mysql/%(hostname)s.pid"},
+          "mysql_server_cwd":{"type":"path", "fixed-value":"/usr/bin"},
+          "mysql_startup_logfile":{"type":"path", "fixed-value":"${input_ports.host.log_directory}/mysql_startup.log"}
         }
       },
       "inside": {
@@ -3798,7 +3837,7 @@
     { "key": {"name":"mysql-macports", "version":"5.1"},
       "display_name": "MySQL server (MacPorts version)",
       "config_port": {
-        "mysql_admin_password": {"type":"password"},
+        "mysql_admin_password": {"type":"password", "default":"mysql-macports/admin_pw"},
         "startup_on_boot": {"type":"string", "default":"no"}
       },
       "input_ports": { 

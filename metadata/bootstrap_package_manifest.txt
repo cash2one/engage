@@ -7,6 +7,6 @@ apache-libcloud-0.5.2.tar.bz2 optional
 python-cloudfiles-1.7.9.1.tar.gz optional
 argparse-1.2.1.tar.gz optional
 nose-1.0.0.tar.gz optional
-monit-5.2.5-macosx10.6-x64.tar.gz required macosx64
-monit-5.2.5.tar.gz required macosx
-monit-5.2.5-linux-x64.tar.gz required linux64
+monit-5.3.1-macosx-universal.tar.gz required macosx64
+monit-5.3.1.tar.gz required macosx
+monit-5.3.1-linux-x64.tar.gz required linux64

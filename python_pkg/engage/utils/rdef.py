@@ -503,6 +503,16 @@ def create_property_reference(qprop, used_in_prop):
 def _is_string(obj):
     return isinstance(obj, str) or isinstance(obj, unicode)
 
+prop_type_to_python_type = {
+    "string": unicode,
+    "password":unicode,
+    "path":unicode,
+    "hostname":unicode,
+    "tcp_port":int,
+    "int":int,
+    "boolean":bool
+}
+
 class PortProperty(object):
     def __init__(self, name, json, parent):
         self.name = name
@@ -523,7 +533,7 @@ class PortProperty(object):
             if json.has_key("fixed-value") and _is_string(json["fixed-value"]):
                 self.referenced_prop_values.extend(_find_prop_refs_in_template_string(json["fixed-value"]))
 
-    def validate(self, parent_resource, vr):
+    def validate(self, parent_resource, port_type, vr):
         for qprop in self.referenced_prop_values:
             try:
                 prop_ref = create_property_reference(qprop, self.qualified_name)
@@ -531,7 +541,13 @@ class PortProperty(object):
             except PropRefError, msg:
                 print "ERROR: " + msg.__str__()
                 vr.add_error()
-                                                   
+        if self.prop_type=="password" and \
+           port_type==Port.CONFIG and \
+           not (isinstance(self.json, dict) and self.json.has_key("default") and \
+                _is_string(self.json["default"])):
+            print "WARNING: password property %s does not have a default value" % \
+                self.qualified_name
+            vr.add_warning()
 
 
 class Port(object):
@@ -552,7 +568,7 @@ class Port(object):
 
     def validate(self, parent_resource, vr):
         for prop_def in self.properties.values():
-            prop_def.validate(parent_resource, vr)
+            prop_def.validate(parent_resource, self.port_type, vr)
             
 
 class Resource(object):
@@ -622,8 +638,23 @@ class Resource(object):
         for port in self.input_ports.values():
             port.validate(self, vr)
         for port in self.output_ports.values():
-            port.validate(self, vr)        
+            port.validate(self, vr)
 
+    def get_password_properties(self):
+        """Return a map from property names to property values, where
+        the properties are config properties of type password. These
+        properties must be supplied by the user.
+
+        Note that property names may map to None, if there's no default value.
+        """
+        pw_properties = {}
+        for (name, prop_def) in self.config_port.properties.items():
+            if prop_def.prop_type=="password":
+                if prop_def.json.has_key("default"):
+                    pw_properties[name] = prop_def.json["default"]
+                else:
+                    pw_properties[name] = None
+        return pw_properties
 
 def _add_to_map_of_sets(map, key, entry):
     if map.has_key(key):
@@ -684,6 +715,16 @@ class ResourceGraph(object):
     def len(self):
         return len(self.res_map.keys())
 
+    def has_resource(self, key):
+        return self.res_map.has_key(key.__repr__())
+
+    def get_resource(self, key):
+        k = key.__repr__()
+        if not self.res_map.has_key(k):
+            raise Exception("Graph does not contain resource %s" % k)
+        else:
+            return self.res_map[k]
+        
     def validate(self):
         """Validate the graph, returning a pair of the number of errors and
         warnings

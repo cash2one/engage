@@ -1,0 +1,188 @@
+[
+  {
+    "properties": {
+      "use_as_install_target": true, 
+      "installed": true
+    }, 
+    "id": "master-host", 
+    "key": {
+      "version": "10.04", 
+      "name": "ubuntu-linux"
+    }, 
+    "config_port": {
+      "cpu_arch": "x86_64", 
+      "sudo_password": "GenForma/genforma/sudo_password", 
+      "log_directory": "/home/genforma/apps/log", 
+      "genforma_home": "/home/genforma/apps", 
+      "os_user_name": "genforma", 
+      "hostname": "demotest.genforma.com", 
+      "private_ip": "10.177.32.230"
+    }
+  }, 
+  {
+    "inside": {
+      "port_mapping": {
+        "host": "host"
+      }, 
+      "id": "master-host", 
+      "key": {
+        "version": "10.04", 
+        "name": "ubuntu-linux"
+      }
+    }, 
+    "id": "python-master-host", 
+    "key": {
+      "version": "2.6", 
+      "name": "python"
+    }, 
+    "properties": {
+      "installed": true
+    }
+  }, 
+  {
+    "environment": [
+      {
+        "port_mapping": {
+          "python": "python"
+        }, 
+        "id": "python-master-host", 
+        "key": {
+          "version": "2.6", 
+          "name": "python"
+        }
+      }
+    ], 
+    "inside": {
+      "port_mapping": {
+        "host": "host"
+      }, 
+      "id": "master-host", 
+      "key": {
+        "version": "10.04", 
+        "name": "ubuntu-linux"
+      }
+    }, 
+    "id": "setuptools-master-host", 
+    "key": {
+      "version": "0.6", 
+      "name": "setuptools"
+    }, 
+    "properties": {
+      "installed": true
+    }
+  }, 
+  {
+    "inside": {
+      "port_mapping": {
+        "host": "host"
+      }, 
+      "id": "master-host", 
+      "key": {
+        "version": "10.04", 
+        "name": "ubuntu-linux"
+      }
+    }, 
+    "config_port": {
+      "app_admin_password": "foobar", 
+      "email_password": "foobar_email"
+    }, 
+    "id": "website-1", 
+    "key": {
+      "version": "1.0", 
+      "name": "genForma-Website"
+    }, 
+    "properties": {
+      "app_module_name": "gfmainsite", 
+      "app_short_name": "gfwebsite", 
+      "initialize_database": true
+    }
+  }, 
+  {
+    "inside": {
+      "port_mapping": {
+        "django": "django"
+      }, 
+      "id": "website-1", 
+      "key": {
+        "version": "1.0", 
+        "name": "genForma-Website"
+      }
+    }, 
+    "id": "gearman-adapter-1", 
+    "key": {
+      "version": "1.0", 
+      "name": "gearman-django-adapter"
+    }
+  }, 
+  {
+    "inside": {
+      "port_mapping": {
+        "host": "host"
+      }, 
+      "id": "master-host", 
+      "key": {
+        "version": "10.04", 
+        "name": "ubuntu-linux"
+      }
+    }, 
+    "id": "gfwebsite-server-comps-1", 
+    "key": {
+      "version": "1.0", 
+      "name": "gfwebsite-server-comps"
+    }
+  }, 
+  {
+    "inside": {
+      "port_mapping": {
+        "host": "host"
+      }, 
+      "id": "master-host", 
+      "key": {
+        "version": "10.04", 
+        "name": "ubuntu-linux"
+      }
+    }, 
+    "id": "sqlite-connector", 
+    "key": {
+      "version": "1.0", 
+      "name": "sqlite-connector-for-django"
+    }
+  }, 
+  {
+    "inside": {
+      "port_mapping": {
+        "host": "host"
+      }, 
+      "id": "master-host", 
+      "key": {
+        "version": "10.04", 
+        "name": "ubuntu-linux"
+      }
+    }, 
+    "id": "django-webserver-config", 
+    "key": {
+      "version": "1.0", 
+      "name": "django-apache-webserver"
+    }
+  }, 
+  {
+    "inside": {
+      "port_mapping": {
+        "host": "host"
+      }, 
+      "id": "master-host", 
+      "key": {
+        "version": "10.04", 
+        "name": "ubuntu-linux"
+      }
+    }, 
+    "id": "backend-settings", 
+    "key": {
+      "version": "1.0", 
+      "name": "genforma-website-backend-settings-production"
+    }, 
+    "config_port": {
+      "cloud_provider": "rackspace"
+    }
+  }
+]

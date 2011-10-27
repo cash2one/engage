@@ -233,7 +233,7 @@
         }
       ]
     },
-    { "key": { "name": "java-virtual-machine", "version":"1.6"},
+    { "key": { "name": "java-virtual-machine-abstract", "version":"1.6"},
       "mgr_module_name": "engage.drivers.genforma.dummy_resource_manager"
     },
     { "key":{"name":"nginx", "version":"0.8"},

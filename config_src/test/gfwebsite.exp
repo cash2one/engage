@@ -1,0 +1,1444 @@
+[
+  { "id": "master-host",
+    "key": {"name": "ubuntu-linux", "version": "10.04"},
+    "properties": {
+      "installed": true,
+      "use_as_install_target": true
+    },
+    "config_port": {
+      "cpu_arch": "x86_64",
+      "genforma_home": "/home/genforma/apps",
+      "hostname": "demotest.genforma.com",
+      "log_directory": "/home/genforma/apps/log",
+      "os_user_name": "genforma",
+      "private_ip": "10.177.32.230",
+      "sudo_password": "GenForma/genforma/sudo_password"
+    },
+    "output_ports": {
+      "host": {
+        "cpu_arch": "x86_64",
+        "genforma_home": "/home/genforma/apps",
+        "hostname": "demotest.genforma.com",
+        "log_directory": "/home/genforma/apps/log",
+        "os_type": "linux",
+        "os_user_name": "genforma",
+        "private_ip": "10.177.32.230",
+        "sudo_password": "GenForma/genforma/sudo_password"
+      }
+    }
+  },
+  { "id": "__g++__4_2__31",
+    "key": {"name": "g++", "version": "4.2"},
+    "input_ports": {
+      "host": {
+        "cpu_arch": "x86_64",
+        "genforma_home": "/home/genforma/apps",
+        "hostname": "demotest.genforma.com",
+        "log_directory": "/home/genforma/apps/log",
+        "os_type": "linux",
+        "os_user_name": "genforma",
+        "private_ip": "10.177.32.230",
+        "sudo_password": "GenForma/genforma/sudo_password"
+      }
+    },
+    "inside": {
+      "id": "master-host",
+      "key": {"name": "ubuntu-linux", "version": "10.04"},
+      "port_mapping": {
+        "host": "host"
+      }
+    }
+  },
+  { "id": "__provision_secrets__1_0__21",
+    "key": {"name": "provision-secrets", "version": "1.0"},
+    "input_ports": {
+      "host": {
+        "cpu_arch": "x86_64",
+        "genforma_home": "/home/genforma/apps",
+        "hostname": "demotest.genforma.com",
+        "log_directory": "/home/genforma/apps/log",
+        "os_type": "linux",
+        "os_user_name": "genforma",
+        "private_ip": "10.177.32.230",
+        "sudo_password": "GenForma/genforma/sudo_password"
+      }
+    },
+    "output_ports": {
+      "archive_info": {
+        "extract_path": "~/.provision"
+      }
+    },
+    "inside": {
+      "id": "master-host",
+      "key": {"name": "ubuntu-linux", "version": "10.04"},
+      "port_mapping": {
+        "host": "host"
+      }
+    }
+  },
+  { "id": "__apache_linux__2_2__18",
+    "key": {"name": "apache-linux", "version": "2.2"},
+    "input_ports": {
+      "host": {
+        "cpu_arch": "x86_64",
+        "genforma_home": "/home/genforma/apps",
+        "hostname": "demotest.genforma.com",
+        "log_directory": "/home/genforma/apps/log",
+        "os_type": "linux",
+        "os_user_name": "genforma",
+        "private_ip": "10.177.32.230",
+        "sudo_password": "GenForma/genforma/sudo_password"
+      }
+    },
+    "output_ports": {
+      "apache": {
+        "additional_config_dir": "/etc/apache2/conf.d/",
+        "apache_group": "www-data",
+        "apache_user": "www-data",
+        "cgi_dir": "/usr/lib/cgi-bin",
+        "config_file": "/etc/apache2/apache2.conf",
+        "controller_exe": "/etc/init.d/apache2",
+        "htpasswd_exe": "/usr/bin/htpasswd",
+        "log_dir": "/var/log/apache2",
+        "module_lib": "/usr/lib/apache2/modules/mod_fastcgi.so"
+      }
+    },
+    "inside": {
+      "id": "master-host",
+      "key": {"name": "ubuntu-linux", "version": "10.04"},
+      "port_mapping": {
+        "host": "host"
+      }
+    }
+  },
+  { "id": "sqlite-connector",
+    "key": {"name": "sqlite-connector-for-django", "version": "1.0"},
+    "config_port": {
+      "database_file_name": "/home/genforma/apps/database/django.db"
+    },
+    "input_ports": {
+      "host": {
+        "cpu_arch": "x86_64",
+        "genforma_home": "/home/genforma/apps",
+        "hostname": "demotest.genforma.com",
+        "log_directory": "/home/genforma/apps/log",
+        "os_type": "linux",
+        "os_user_name": "genforma",
+        "private_ip": "10.177.32.230",
+        "sudo_password": "GenForma/genforma/sudo_password"
+      }
+    },
+    "output_ports": {
+      "django_db": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "HOST": "",
+        "NAME": "/home/genforma/apps/database/django.db",
+        "PASSWORD": null,
+        "PORT": null,
+        "USER": ""
+      }
+    },
+    "inside": {
+      "id": "master-host",
+      "key": {"name": "ubuntu-linux", "version": "10.04"},
+      "port_mapping": {
+        "host": "host"
+      }
+    }
+  },
+  { "id": "python-master-host",
+    "key": {"name": "python", "version": "2.6"},
+    "properties": {
+      "installed": true
+    },
+    "config_port": {
+      "PYTHONPATH": "/home/genforma/apps/python/lib/python2.6/site-packages/",
+      "PYTHON_BIN_DIR": "/home/genforma/apps/python/bin",
+      "PYTHON_HOME": "/home/genforma/apps/python/bin/python"
+    },
+    "input_ports": {
+      "host": {
+        "cpu_arch": "x86_64",
+        "genforma_home": "/home/genforma/apps",
+        "hostname": "demotest.genforma.com",
+        "log_directory": "/home/genforma/apps/log",
+        "os_type": "linux",
+        "os_user_name": "genforma",
+        "private_ip": "10.177.32.230",
+        "sudo_password": "GenForma/genforma/sudo_password"
+      }
+    },
+    "output_ports": {
+      "python": {
+        "PYTHONPATH": "/home/genforma/apps/python/lib/python2.6/site-packages/",
+        "home": "/home/genforma/apps/python/bin/python",
+        "python_bin_dir": "/home/genforma/apps/python/bin",
+        "type": "python",
+        "version": "2.6"
+      }
+    },
+    "inside": {
+      "id": "master-host",
+      "key": {"name": "ubuntu-linux", "version": "10.04"},
+      "port_mapping": {
+        "host": "host"
+      }
+    }
+  },
+  { "id": "__libapache2_mod_wsgi_linux__3_2_2__16",
+    "key": {"name": "libapache2-mod-wsgi-linux", "version": "3.2-2"},
+    "input_ports": {
+      "apache": {
+        "additional_config_dir": "/etc/apache2/conf.d/",
+        "apache_group": "www-data",
+        "apache_user": "www-data",
+        "cgi_dir": "/usr/lib/cgi-bin",
+        "config_file": "/etc/apache2/apache2.conf",
+        "controller_exe": "/etc/init.d/apache2",
+        "htpasswd_exe": "/usr/bin/htpasswd",
+        "log_dir": "/var/log/apache2",
+        "module_lib": "/usr/lib/apache2/modules/mod_fastcgi.so"
+      },
+      "host": {
+        "cpu_arch": "x86_64",
+        "genforma_home": "/home/genforma/apps",
+        "hostname": "demotest.genforma.com",
+        "log_directory": "/home/genforma/apps/log",
+        "os_type": "linux",
+        "os_user_name": "genforma",
+        "private_ip": "10.177.32.230",
+        "sudo_password": "GenForma/genforma/sudo_password"
+      },
+      "python": {
+        "PYTHONPATH": "/home/genforma/apps/python/lib/python2.6/site-packages/",
+        "home": "/home/genforma/apps/python/bin/python",
+        "python_bin_dir": "/home/genforma/apps/python/bin",
+        "type": "python",
+        "version": "2.6"
+      }
+    },
+    "output_ports": {
+      "apt_cfg": {
+        "package_name": "libapache2-mod-wsgi"
+      },
+      "mod_wsgi": {
+        "config_file_path": "/etc/apache2/mods-enabled/wsgi.conf"
+      }
+    },
+    "inside": {
+      "id": "master-host",
+      "key": {"name": "ubuntu-linux", "version": "10.04"},
+      "port_mapping": {
+        "host": "host"
+      }
+    },
+    "environment": [
+      {
+        "id": "__apache_linux__2_2__18",
+        "key": {"name": "apache-linux", "version": "2.2"},
+        "port_mapping": {
+          "apache": "apache"
+        }
+      },
+      {
+        "id": "python-master-host",
+        "key": {"name": "python", "version": "2.6"},
+        "port_mapping": {
+          "python": "python"
+        }
+      }
+    ]
+  },
+  { "id": "__gearman__1_5__15",
+    "key": {"name": "gearman", "version": "1.5"},
+    "input_ports": {
+      "host": {
+        "cpu_arch": "x86_64",
+        "genforma_home": "/home/genforma/apps",
+        "hostname": "demotest.genforma.com",
+        "log_directory": "/home/genforma/apps/log",
+        "os_type": "linux",
+        "os_user_name": "genforma",
+        "private_ip": "10.177.32.230",
+        "sudo_password": "GenForma/genforma/sudo_password"
+      },
+      "python": {
+        "PYTHONPATH": "/home/genforma/apps/python/lib/python2.6/site-packages/",
+        "home": "/home/genforma/apps/python/bin/python",
+        "python_bin_dir": "/home/genforma/apps/python/bin",
+        "type": "python",
+        "version": "2.6"
+      }
+    },
+    "output_ports": {
+      "gearman": {
+        "home": "/home/genforma/apps/gearman_package"
+      }
+    },
+    "inside": {
+      "id": "master-host",
+      "key": {"name": "ubuntu-linux", "version": "10.04"},
+      "port_mapping": {
+        "host": "host"
+      }
+    },
+    "environment": [
+      {
+        "id": "python-master-host",
+        "key": {"name": "python", "version": "2.6"},
+        "port_mapping": {
+          "python": "python"
+        }
+      },
+      {
+        "id": "__g++__4_2__31",
+        "key": {"name": "g++", "version": "4.2"}
+      }
+    ]
+  },
+  { "id": "setuptools-master-host",
+    "key": {"name": "setuptools", "version": "0.6"},
+    "properties": {
+      "installed": true
+    },
+    "input_ports": {
+      "host": {
+        "cpu_arch": "x86_64",
+        "genforma_home": "/home/genforma/apps",
+        "hostname": "demotest.genforma.com",
+        "log_directory": "/home/genforma/apps/log",
+        "os_type": "linux",
+        "os_user_name": "genforma",
+        "private_ip": "10.177.32.230",
+        "sudo_password": "GenForma/genforma/sudo_password"
+      },
+      "python": {
+        "PYTHONPATH": "/home/genforma/apps/python/lib/python2.6/site-packages/",
+        "home": "/home/genforma/apps/python/bin/python",
+        "python_bin_dir": "/home/genforma/apps/python/bin",
+        "type": "python",
+        "version": "2.6"
+      }
+    },
+    "output_ports": {
+      "setuptools": {
+        "easy_install": "/home/genforma/apps/python/bin/easy_install"
+      }
+    },
+    "inside": {
+      "id": "master-host",
+      "key": {"name": "ubuntu-linux", "version": "10.04"},
+      "port_mapping": {
+        "host": "host"
+      }
+    },
+    "environment": [
+      {
+        "id": "python-master-host",
+        "key": {"name": "python", "version": "2.6"},
+        "port_mapping": {
+          "python": "python"
+        }
+      }
+    ]
+  },
+  { "id": "django-webserver-config",
+    "key": {"name": "django-apache-webserver", "version": "1.0"},
+    "config_port": {
+      "hostname": "demotest.genforma.com",
+      "port": 80
+    },
+    "input_ports": {
+      "apache": {
+        "additional_config_dir": "/etc/apache2/conf.d/",
+        "apache_group": "www-data",
+        "apache_user": "www-data",
+        "cgi_dir": "/usr/lib/cgi-bin",
+        "config_file": "/etc/apache2/apache2.conf",
+        "controller_exe": "/etc/init.d/apache2",
+        "htpasswd_exe": "/usr/bin/htpasswd",
+        "log_dir": "/var/log/apache2",
+        "module_lib": "/usr/lib/apache2/modules/mod_fastcgi.so"
+      },
+      "host": {
+        "cpu_arch": "x86_64",
+        "genforma_home": "/home/genforma/apps",
+        "hostname": "demotest.genforma.com",
+        "log_directory": "/home/genforma/apps/log",
+        "os_type": "linux",
+        "os_user_name": "genforma",
+        "private_ip": "10.177.32.230",
+        "sudo_password": "GenForma/genforma/sudo_password"
+      }
+    },
+    "output_ports": {
+      "webserver_config": {
+        "additional_config_dir": "/etc/apache2/conf.d/",
+        "config_file": "/etc/apache2/apache2.conf",
+        "controller_exe": "/etc/init.d/apache2",
+        "file_owner_group": "www-data",
+        "listen_host": "demotest.genforma.com",
+        "listen_port": 80,
+        "log_dir": "/var/log/apache2",
+        "webserver_type": "apache"
+      }
+    },
+    "inside": {
+      "id": "master-host",
+      "key": {"name": "ubuntu-linux", "version": "10.04"},
+      "port_mapping": {
+        "host": "host"
+      }
+    },
+    "environment": [
+      {
+        "id": "__apache_linux__2_2__18",
+        "key": {"name": "apache-linux", "version": "2.2"},
+        "port_mapping": {
+          "apache": "apache"
+        }
+      },
+      {
+        "id": "__libapache2_mod_wsgi_linux__3_2_2__16",
+        "key": {"name": "libapache2-mod-wsgi-linux", "version": "3.2-2"}
+      }
+    ]
+  },
+  { "id": "__pycrypto__2_3__37",
+    "key": {"name": "pycrypto", "version": "2.3"},
+    "input_ports": {
+      "host": {
+        "cpu_arch": "x86_64",
+        "genforma_home": "/home/genforma/apps",
+        "hostname": "demotest.genforma.com",
+        "log_directory": "/home/genforma/apps/log",
+        "os_type": "linux",
+        "os_user_name": "genforma",
+        "private_ip": "10.177.32.230",
+        "sudo_password": "GenForma/genforma/sudo_password"
+      },
+      "python": {
+        "PYTHONPATH": "/home/genforma/apps/python/lib/python2.6/site-packages/",
+        "home": "/home/genforma/apps/python/bin/python",
+        "python_bin_dir": "/home/genforma/apps/python/bin",
+        "type": "python",
+        "version": "2.6"
+      },
+      "setuptools": {
+        "easy_install": "/home/genforma/apps/python/bin/easy_install"
+      }
+    },
+    "output_ports": {
+      "pkg_info": {
+        "provides_pkg": "Crypto",
+        "test_module": "Crypto.Cipher.AES"
+      }
+    },
+    "inside": {
+      "id": "master-host",
+      "key": {"name": "ubuntu-linux", "version": "10.04"},
+      "port_mapping": {
+        "host": "host"
+      }
+    },
+    "environment": [
+      {
+        "id": "__g++__4_2__31",
+        "key": {"name": "g++", "version": "4.2"}
+      },
+      {
+        "id": "python-master-host",
+        "key": {"name": "python", "version": "2.6"},
+        "port_mapping": {
+          "python": "python"
+        }
+      },
+      {
+        "id": "setuptools-master-host",
+        "key": {"name": "setuptools", "version": "0.6"},
+        "port_mapping": {
+          "setuptools": "setuptools"
+        }
+      }
+    ]
+  },
+  { "id": "__apache_libcloud__0_5__35",
+    "key": {"name": "apache-libcloud", "version": "0.5"},
+    "input_ports": {
+      "host": {
+        "cpu_arch": "x86_64",
+        "genforma_home": "/home/genforma/apps",
+        "hostname": "demotest.genforma.com",
+        "log_directory": "/home/genforma/apps/log",
+        "os_type": "linux",
+        "os_user_name": "genforma",
+        "private_ip": "10.177.32.230",
+        "sudo_password": "GenForma/genforma/sudo_password"
+      },
+      "python": {
+        "PYTHONPATH": "/home/genforma/apps/python/lib/python2.6/site-packages/",
+        "home": "/home/genforma/apps/python/bin/python",
+        "python_bin_dir": "/home/genforma/apps/python/bin",
+        "type": "python",
+        "version": "2.6"
+      },
+      "setuptools": {
+        "easy_install": "/home/genforma/apps/python/bin/easy_install"
+      }
+    },
+    "inside": {
+      "id": "master-host",
+      "key": {"name": "ubuntu-linux", "version": "10.04"},
+      "port_mapping": {
+        "host": "host"
+      }
+    },
+    "environment": [
+      {
+        "id": "python-master-host",
+        "key": {"name": "python", "version": "2.6"},
+        "port_mapping": {
+          "python": "python"
+        }
+      },
+      {
+        "id": "setuptools-master-host",
+        "key": {"name": "setuptools", "version": "0.6"},
+        "port_mapping": {
+          "setuptools": "setuptools"
+        }
+      }
+    ]
+  },
+  { "id": "__cloudfiles__1_7__34",
+    "key": {"name": "cloudfiles", "version": "1.7"},
+    "input_ports": {
+      "host": {
+        "cpu_arch": "x86_64",
+        "genforma_home": "/home/genforma/apps",
+        "hostname": "demotest.genforma.com",
+        "log_directory": "/home/genforma/apps/log",
+        "os_type": "linux",
+        "os_user_name": "genforma",
+        "private_ip": "10.177.32.230",
+        "sudo_password": "GenForma/genforma/sudo_password"
+      },
+      "python": {
+        "PYTHONPATH": "/home/genforma/apps/python/lib/python2.6/site-packages/",
+        "home": "/home/genforma/apps/python/bin/python",
+        "python_bin_dir": "/home/genforma/apps/python/bin",
+        "type": "python",
+        "version": "2.6"
+      },
+      "setuptools": {
+        "easy_install": "/home/genforma/apps/python/bin/easy_install"
+      }
+    },
+    "inside": {
+      "id": "master-host",
+      "key": {"name": "ubuntu-linux", "version": "10.04"},
+      "port_mapping": {
+        "host": "host"
+      }
+    },
+    "environment": [
+      {
+        "id": "python-master-host",
+        "key": {"name": "python", "version": "2.6"},
+        "port_mapping": {
+          "python": "python"
+        }
+      },
+      {
+        "id": "setuptools-master-host",
+        "key": {"name": "setuptools", "version": "0.6"},
+        "port_mapping": {
+          "setuptools": "setuptools"
+        }
+      }
+    ]
+  },
+  { "id": "__argparse__1_1__33",
+    "key": {"name": "argparse", "version": "1.1"},
+    "input_ports": {
+      "host": {
+        "cpu_arch": "x86_64",
+        "genforma_home": "/home/genforma/apps",
+        "hostname": "demotest.genforma.com",
+        "log_directory": "/home/genforma/apps/log",
+        "os_type": "linux",
+        "os_user_name": "genforma",
+        "private_ip": "10.177.32.230",
+        "sudo_password": "GenForma/genforma/sudo_password"
+      },
+      "python": {
+        "PYTHONPATH": "/home/genforma/apps/python/lib/python2.6/site-packages/",
+        "home": "/home/genforma/apps/python/bin/python",
+        "python_bin_dir": "/home/genforma/apps/python/bin",
+        "type": "python",
+        "version": "2.6"
+      },
+      "setuptools": {
+        "easy_install": "/home/genforma/apps/python/bin/easy_install"
+      }
+    },
+    "inside": {
+      "id": "master-host",
+      "key": {"name": "ubuntu-linux", "version": "10.04"},
+      "port_mapping": {
+        "host": "host"
+      }
+    },
+    "environment": [
+      {
+        "id": "python-master-host",
+        "key": {"name": "python", "version": "2.6"},
+        "port_mapping": {
+          "python": "python"
+        }
+      },
+      {
+        "id": "setuptools-master-host",
+        "key": {"name": "setuptools", "version": "0.6"},
+        "port_mapping": {
+          "setuptools": "setuptools"
+        }
+      }
+    ]
+  },
+  { "id": "__python_httplib2__0_6__25",
+    "key": {"name": "python-httplib2", "version": "0.6"},
+    "input_ports": {
+      "host": {
+        "cpu_arch": "x86_64",
+        "genforma_home": "/home/genforma/apps",
+        "hostname": "demotest.genforma.com",
+        "log_directory": "/home/genforma/apps/log",
+        "os_type": "linux",
+        "os_user_name": "genforma",
+        "private_ip": "10.177.32.230",
+        "sudo_password": "GenForma/genforma/sudo_password"
+      },
+      "python": {
+        "PYTHONPATH": "/home/genforma/apps/python/lib/python2.6/site-packages/",
+        "home": "/home/genforma/apps/python/bin/python",
+        "python_bin_dir": "/home/genforma/apps/python/bin",
+        "type": "python",
+        "version": "2.6"
+      },
+      "setuptools": {
+        "easy_install": "/home/genforma/apps/python/bin/easy_install"
+      }
+    },
+    "inside": {
+      "id": "master-host",
+      "key": {"name": "ubuntu-linux", "version": "10.04"},
+      "port_mapping": {
+        "host": "host"
+      }
+    },
+    "environment": [
+      {
+        "id": "python-master-host",
+        "key": {"name": "python", "version": "2.6"},
+        "port_mapping": {
+          "python": "python"
+        }
+      },
+      {
+        "id": "setuptools-master-host",
+        "key": {"name": "setuptools", "version": "0.6"},
+        "port_mapping": {
+          "setuptools": "setuptools"
+        }
+      }
+    ]
+  },
+  { "id": "__pip__any__4",
+    "key": {"name": "pip", "version": "any"},
+    "input_ports": {
+      "host": {
+        "cpu_arch": "x86_64",
+        "genforma_home": "/home/genforma/apps",
+        "hostname": "demotest.genforma.com",
+        "log_directory": "/home/genforma/apps/log",
+        "os_type": "linux",
+        "os_user_name": "genforma",
+        "private_ip": "10.177.32.230",
+        "sudo_password": "GenForma/genforma/sudo_password"
+      },
+      "python": {
+        "PYTHONPATH": "/home/genforma/apps/python/lib/python2.6/site-packages/",
+        "home": "/home/genforma/apps/python/bin/python",
+        "python_bin_dir": "/home/genforma/apps/python/bin",
+        "type": "python",
+        "version": "2.6"
+      },
+      "setuptools": {
+        "easy_install": "/home/genforma/apps/python/bin/easy_install"
+      }
+    },
+    "output_ports": {
+      "pip": {
+        "pipbin": "/home/genforma/apps/python/bin/pip"
+      }
+    },
+    "inside": {
+      "id": "master-host",
+      "key": {"name": "ubuntu-linux", "version": "10.04"},
+      "port_mapping": {
+        "host": "host"
+      }
+    },
+    "environment": [
+      {
+        "id": "python-master-host",
+        "key": {"name": "python", "version": "2.6"},
+        "port_mapping": {
+          "python": "python"
+        }
+      },
+      {
+        "id": "setuptools-master-host",
+        "key": {"name": "setuptools", "version": "0.6"},
+        "port_mapping": {
+          "setuptools": "setuptools"
+        }
+      }
+    ]
+  },
+  { "id": "__Django__1_2__3",
+    "key": {"name": "Django", "version": "1.2"},
+    "input_ports": {
+      "host": {
+        "cpu_arch": "x86_64",
+        "genforma_home": "/home/genforma/apps",
+        "hostname": "demotest.genforma.com",
+        "log_directory": "/home/genforma/apps/log",
+        "os_type": "linux",
+        "os_user_name": "genforma",
+        "private_ip": "10.177.32.230",
+        "sudo_password": "GenForma/genforma/sudo_password"
+      },
+      "python": {
+        "PYTHONPATH": "/home/genforma/apps/python/lib/python2.6/site-packages/",
+        "home": "/home/genforma/apps/python/bin/python",
+        "python_bin_dir": "/home/genforma/apps/python/bin",
+        "type": "python",
+        "version": "2.6"
+      },
+      "setuptools": {
+        "easy_install": "/home/genforma/apps/python/bin/easy_install"
+      }
+    },
+    "inside": {
+      "id": "master-host",
+      "key": {"name": "ubuntu-linux", "version": "10.04"},
+      "port_mapping": {
+        "host": "host"
+      }
+    },
+    "environment": [
+      {
+        "id": "setuptools-master-host",
+        "key": {"name": "setuptools", "version": "0.6"},
+        "port_mapping": {
+          "setuptools": "setuptools"
+        }
+      },
+      {
+        "id": "python-master-host",
+        "key": {"name": "python", "version": "2.6"},
+        "port_mapping": {
+          "python": "python"
+        }
+      }
+    ]
+  },
+  { "id": "__paramiko__1_7__36",
+    "key": {"name": "paramiko", "version": "1.7"},
+    "input_ports": {
+      "host": {
+        "cpu_arch": "x86_64",
+        "genforma_home": "/home/genforma/apps",
+        "hostname": "demotest.genforma.com",
+        "log_directory": "/home/genforma/apps/log",
+        "os_type": "linux",
+        "os_user_name": "genforma",
+        "private_ip": "10.177.32.230",
+        "sudo_password": "GenForma/genforma/sudo_password"
+      },
+      "python": {
+        "PYTHONPATH": "/home/genforma/apps/python/lib/python2.6/site-packages/",
+        "home": "/home/genforma/apps/python/bin/python",
+        "python_bin_dir": "/home/genforma/apps/python/bin",
+        "type": "python",
+        "version": "2.6"
+      },
+      "setuptools": {
+        "easy_install": "/home/genforma/apps/python/bin/easy_install"
+      }
+    },
+    "inside": {
+      "id": "master-host",
+      "key": {"name": "ubuntu-linux", "version": "10.04"},
+      "port_mapping": {
+        "host": "host"
+      }
+    },
+    "environment": [
+      {
+        "id": "__pycrypto__2_3__37",
+        "key": {"name": "pycrypto", "version": "2.3"}
+      },
+      {
+        "id": "python-master-host",
+        "key": {"name": "python", "version": "2.6"},
+        "port_mapping": {
+          "python": "python"
+        }
+      },
+      {
+        "id": "setuptools-master-host",
+        "key": {"name": "setuptools", "version": "0.6"},
+        "port_mapping": {
+          "setuptools": "setuptools"
+        }
+      }
+    ]
+  },
+  { "id": "__python_oauth2__1_2__5",
+    "key": {"name": "python-oauth2", "version": "1.2"},
+    "input_ports": {
+      "host": {
+        "cpu_arch": "x86_64",
+        "genforma_home": "/home/genforma/apps",
+        "hostname": "demotest.genforma.com",
+        "log_directory": "/home/genforma/apps/log",
+        "os_type": "linux",
+        "os_user_name": "genforma",
+        "private_ip": "10.177.32.230",
+        "sudo_password": "GenForma/genforma/sudo_password"
+      },
+      "python": {
+        "PYTHONPATH": "/home/genforma/apps/python/lib/python2.6/site-packages/",
+        "home": "/home/genforma/apps/python/bin/python",
+        "python_bin_dir": "/home/genforma/apps/python/bin",
+        "type": "python",
+        "version": "2.6"
+      },
+      "setuptools": {
+        "easy_install": "/home/genforma/apps/python/bin/easy_install"
+      }
+    },
+    "inside": {
+      "id": "master-host",
+      "key": {"name": "ubuntu-linux", "version": "10.04"},
+      "port_mapping": {
+        "host": "host"
+      }
+    },
+    "environment": [
+      {
+        "id": "__python_httplib2__0_6__25",
+        "key": {"name": "python-httplib2", "version": "0.6"}
+      },
+      {
+        "id": "python-master-host",
+        "key": {"name": "python", "version": "2.6"},
+        "port_mapping": {
+          "python": "python"
+        }
+      },
+      {
+        "id": "setuptools-master-host",
+        "key": {"name": "setuptools", "version": "0.6"},
+        "port_mapping": {
+          "setuptools": "setuptools"
+        }
+      }
+    ]
+  },
+  { "id": "__Django_South__0_7_3__10",
+    "key": {"name": "Django-South", "version": "0.7.3"},
+    "input_ports": {
+      "host": {
+        "cpu_arch": "x86_64",
+        "genforma_home": "/home/genforma/apps",
+        "hostname": "demotest.genforma.com",
+        "log_directory": "/home/genforma/apps/log",
+        "os_type": "linux",
+        "os_user_name": "genforma",
+        "private_ip": "10.177.32.230",
+        "sudo_password": "GenForma/genforma/sudo_password"
+      },
+      "python": {
+        "PYTHONPATH": "/home/genforma/apps/python/lib/python2.6/site-packages/",
+        "home": "/home/genforma/apps/python/bin/python",
+        "python_bin_dir": "/home/genforma/apps/python/bin",
+        "type": "python",
+        "version": "2.6"
+      },
+      "setuptools": {
+        "easy_install": "/home/genforma/apps/python/bin/easy_install"
+      }
+    },
+    "inside": {
+      "id": "master-host",
+      "key": {"name": "ubuntu-linux", "version": "10.04"},
+      "port_mapping": {
+        "host": "host"
+      }
+    },
+    "environment": [
+      {
+        "id": "__Django__1_2__3",
+        "key": {"name": "Django", "version": "1.2"}
+      },
+      {
+        "id": "python-master-host",
+        "key": {"name": "python", "version": "2.6"},
+        "port_mapping": {
+          "python": "python"
+        }
+      },
+      {
+        "id": "setuptools-master-host",
+        "key": {"name": "setuptools", "version": "0.6"},
+        "port_mapping": {
+          "setuptools": "setuptools"
+        }
+      }
+    ]
+  },
+  { "id": "__provision__0_9__20",
+    "key": {"name": "provision", "version": "0.9"},
+    "input_ports": {
+      "host": {
+        "cpu_arch": "x86_64",
+        "genforma_home": "/home/genforma/apps",
+        "hostname": "demotest.genforma.com",
+        "log_directory": "/home/genforma/apps/log",
+        "os_type": "linux",
+        "os_user_name": "genforma",
+        "private_ip": "10.177.32.230",
+        "sudo_password": "GenForma/genforma/sudo_password"
+      },
+      "python": {
+        "PYTHONPATH": "/home/genforma/apps/python/lib/python2.6/site-packages/",
+        "home": "/home/genforma/apps/python/bin/python",
+        "python_bin_dir": "/home/genforma/apps/python/bin",
+        "type": "python",
+        "version": "2.6"
+      },
+      "setuptools": {
+        "easy_install": "/home/genforma/apps/python/bin/easy_install"
+      }
+    },
+    "output_ports": {
+      "provision": {
+        "deploy_script_path": "/home/genforma/apps/python/bin/deploy-node",
+        "destroy_script_path": "/home/genforma/apps/python/bin/destroy-node"
+      }
+    },
+    "inside": {
+      "id": "master-host",
+      "key": {"name": "ubuntu-linux", "version": "10.04"},
+      "port_mapping": {
+        "host": "host"
+      }
+    },
+    "environment": [
+      {
+        "id": "__paramiko__1_7__36",
+        "key": {"name": "paramiko", "version": "1.7"}
+      },
+      {
+        "id": "__apache_libcloud__0_5__35",
+        "key": {"name": "apache-libcloud", "version": "0.5"}
+      },
+      {
+        "id": "__cloudfiles__1_7__34",
+        "key": {"name": "cloudfiles", "version": "1.7"}
+      },
+      {
+        "id": "__argparse__1_1__33",
+        "key": {"name": "argparse", "version": "1.1"}
+      },
+      {
+        "id": "python-master-host",
+        "key": {"name": "python", "version": "2.6"},
+        "port_mapping": {
+          "python": "python"
+        }
+      },
+      {
+        "id": "setuptools-master-host",
+        "key": {"name": "setuptools", "version": "0.6"},
+        "port_mapping": {
+          "setuptools": "setuptools"
+        }
+      }
+    ]
+  },
+  { "id": "backend-settings",
+    "key": {"name": "genforma-website-backend-settings-production", "version": "1.0"},
+    "config_port": {
+      "cloud_provider": "rackspace"
+    },
+    "input_ports": {
+      "host": {
+        "cpu_arch": "x86_64",
+        "genforma_home": "/home/genforma/apps",
+        "hostname": "demotest.genforma.com",
+        "log_directory": "/home/genforma/apps/log",
+        "os_type": "linux",
+        "os_user_name": "genforma",
+        "private_ip": "10.177.32.230",
+        "sudo_password": "GenForma/genforma/sudo_password"
+      },
+      "provision": {
+        "deploy_script_path": "/home/genforma/apps/python/bin/deploy-node",
+        "destroy_script_path": "/home/genforma/apps/python/bin/destroy-node"
+      },
+      "provision_secrets": {
+        "extract_path": "~/.provision"
+      }
+    },
+    "output_ports": {
+      "backend_settings": {
+        "backend_settings_file": "/home/genforma/apps/website_backend_settings/backend_settings.py",
+        "cloud_provider": "rackspace",
+        "config_files_dir": "/var/www/deploy-data",
+        "config_files_group": "www-data",
+        "configuration_name": "production",
+        "provision_provider_config": "~/.provision/rackspace"
+      }
+    },
+    "inside": {
+      "id": "master-host",
+      "key": {"name": "ubuntu-linux", "version": "10.04"},
+      "port_mapping": {
+        "host": "host"
+      }
+    },
+    "environment": [
+      {
+        "id": "__provision_secrets__1_0__21",
+        "key": {"name": "provision-secrets", "version": "1.0"},
+        "port_mapping": {
+          "provision_secrets": "archive_info"
+        }
+      },
+      {
+        "id": "__provision__0_9__20",
+        "key": {"name": "provision", "version": "0.9"},
+        "port_mapping": {
+          "provision": "provision"
+        }
+      }
+    ]
+  },
+  { "id": "__setup_static_files_script_for_genforma_website__1_0__9",
+    "key": {"name": "setup-static-files-script-for-genforma-website", "version": "1.0"},
+    "input_ports": {
+      "backend_settings": {
+        "backend_settings_file": "/home/genforma/apps/website_backend_settings/backend_settings.py",
+        "cloud_provider": "rackspace",
+        "config_files_dir": "/var/www/deploy-data",
+        "config_files_group": "www-data",
+        "configuration_name": "production",
+        "provision_provider_config": "~/.provision/rackspace"
+      },
+      "host": {
+        "cpu_arch": "x86_64",
+        "genforma_home": "/home/genforma/apps",
+        "hostname": "demotest.genforma.com",
+        "log_directory": "/home/genforma/apps/log",
+        "os_type": "linux",
+        "os_user_name": "genforma",
+        "private_ip": "10.177.32.230",
+        "sudo_password": "GenForma/genforma/sudo_password"
+      }
+    },
+    "output_ports": {
+      "file_info": {
+        "file_group": "www-data",
+        "file_path": "/var/www/deploy-data/setup_django_static_files.py"
+      }
+    },
+    "inside": {
+      "id": "master-host",
+      "key": {"name": "ubuntu-linux", "version": "10.04"},
+      "port_mapping": {
+        "host": "host"
+      }
+    },
+    "environment": [
+      {
+        "id": "backend-settings",
+        "key": {"name": "genforma-website-backend-settings-production", "version": "1.0"},
+        "port_mapping": {
+          "backend_settings": "backend_settings"
+        }
+      }
+    ]
+  },
+  { "id": "__app_upgrade_script_for_genforma_website__1_0__8",
+    "key": {"name": "app-upgrade-script-for-genforma-website", "version": "1.0"},
+    "input_ports": {
+      "backend_settings": {
+        "backend_settings_file": "/home/genforma/apps/website_backend_settings/backend_settings.py",
+        "cloud_provider": "rackspace",
+        "config_files_dir": "/var/www/deploy-data",
+        "config_files_group": "www-data",
+        "configuration_name": "production",
+        "provision_provider_config": "~/.provision/rackspace"
+      },
+      "host": {
+        "cpu_arch": "x86_64",
+        "genforma_home": "/home/genforma/apps",
+        "hostname": "demotest.genforma.com",
+        "log_directory": "/home/genforma/apps/log",
+        "os_type": "linux",
+        "os_user_name": "genforma",
+        "private_ip": "10.177.32.230",
+        "sudo_password": "GenForma/genforma/sudo_password"
+      }
+    },
+    "output_ports": {
+      "file_info": {
+        "file_group": "www-data",
+        "file_path": "/var/www/deploy-data/app_upgrade.sh"
+      }
+    },
+    "inside": {
+      "id": "master-host",
+      "key": {"name": "ubuntu-linux", "version": "10.04"},
+      "port_mapping": {
+        "host": "host"
+      }
+    },
+    "environment": [
+      {
+        "id": "backend-settings",
+        "key": {"name": "genforma-website-backend-settings-production", "version": "1.0"},
+        "port_mapping": {
+          "backend_settings": "backend_settings"
+        }
+      }
+    ]
+  },
+  { "id": "__app_install_script_for_genforma_website__1_0__7",
+    "key": {"name": "app-install-script-for-genforma-website", "version": "1.0"},
+    "input_ports": {
+      "backend_settings": {
+        "backend_settings_file": "/home/genforma/apps/website_backend_settings/backend_settings.py",
+        "cloud_provider": "rackspace",
+        "config_files_dir": "/var/www/deploy-data",
+        "config_files_group": "www-data",
+        "configuration_name": "production",
+        "provision_provider_config": "~/.provision/rackspace"
+      },
+      "host": {
+        "cpu_arch": "x86_64",
+        "genforma_home": "/home/genforma/apps",
+        "hostname": "demotest.genforma.com",
+        "log_directory": "/home/genforma/apps/log",
+        "os_type": "linux",
+        "os_user_name": "genforma",
+        "private_ip": "10.177.32.230",
+        "sudo_password": "GenForma/genforma/sudo_password"
+      }
+    },
+    "output_ports": {
+      "file_info": {
+        "file_group": "www-data",
+        "file_path": "/var/www/deploy-data/app_install.sh"
+      }
+    },
+    "inside": {
+      "id": "master-host",
+      "key": {"name": "ubuntu-linux", "version": "10.04"},
+      "port_mapping": {
+        "host": "host"
+      }
+    },
+    "environment": [
+      {
+        "id": "backend-settings",
+        "key": {"name": "genforma-website-backend-settings-production", "version": "1.0"},
+        "port_mapping": {
+          "backend_settings": "backend_settings"
+        }
+      }
+    ]
+  },
+  { "id": "__FC_archive_for_genforma_website__1_0__6",
+    "key": {"name": "FC-archive-for-genforma-website", "version": "1.0"},
+    "input_ports": {
+      "backend_settings": {
+        "backend_settings_file": "/home/genforma/apps/website_backend_settings/backend_settings.py",
+        "cloud_provider": "rackspace",
+        "config_files_dir": "/var/www/deploy-data",
+        "config_files_group": "www-data",
+        "configuration_name": "production",
+        "provision_provider_config": "~/.provision/rackspace"
+      },
+      "host": {
+        "cpu_arch": "x86_64",
+        "genforma_home": "/home/genforma/apps",
+        "hostname": "demotest.genforma.com",
+        "log_directory": "/home/genforma/apps/log",
+        "os_type": "linux",
+        "os_user_name": "genforma",
+        "private_ip": "10.177.32.230",
+        "sudo_password": "GenForma/genforma/sudo_password"
+      }
+    },
+    "output_ports": {
+      "file_info": {
+        "file_group": "www-data",
+        "file_path": "/var/www/deploy-data/fc-1.0.tar.gz"
+      }
+    },
+    "inside": {
+      "id": "master-host",
+      "key": {"name": "ubuntu-linux", "version": "10.04"},
+      "port_mapping": {
+        "host": "host"
+      }
+    },
+    "environment": [
+      {
+        "id": "backend-settings",
+        "key": {"name": "genforma-website-backend-settings-production", "version": "1.0"},
+        "port_mapping": {
+          "backend_settings": "backend_settings"
+        }
+      }
+    ]
+  },
+  { "id": "website-1",
+    "key": {"name": "genForma-Website", "version": "1.0"},
+    "properties": {
+      "app_module_name": "gfmainsite",
+      "app_short_name": "gfwebsite",
+      "initialize_database": true
+    },
+    "config_port": {
+      "admin_email": "admin@genforma.com",
+      "admin_name": "genForma Administrator",
+      "app_admin_password": "foobar",
+      "email_from": "info@genforma.com",
+      "email_host": "smtp.gmail.com",
+      "email_host_user": "genforma",
+      "email_password": "foobar_email",
+      "email_port": 25,
+      "home": "/home/genforma/apps/genforma_website",
+      "log_directory": "/home/genforma/apps/log/django",
+      "time_zone": "America/Los_Angeles",
+      "websvr_hostname": "demotest.genforma.com",
+      "websvr_port": 80
+    },
+    "input_ports": {
+      "django_db": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "HOST": "",
+        "NAME": "/home/genforma/apps/database/django.db",
+        "PASSWORD": null,
+        "PORT": null,
+        "USER": ""
+      },
+      "host": {
+        "cpu_arch": "x86_64",
+        "genforma_home": "/home/genforma/apps",
+        "hostname": "demotest.genforma.com",
+        "log_directory": "/home/genforma/apps/log",
+        "os_type": "linux",
+        "os_user_name": "genforma",
+        "private_ip": "10.177.32.230",
+        "sudo_password": "GenForma/genforma/sudo_password"
+      },
+      "pip": {
+        "pipbin": "/home/genforma/apps/python/bin/pip"
+      },
+      "python": {
+        "PYTHONPATH": "/home/genforma/apps/python/lib/python2.6/site-packages/",
+        "home": "/home/genforma/apps/python/bin/python",
+        "python_bin_dir": "/home/genforma/apps/python/bin",
+        "type": "python",
+        "version": "2.6"
+      },
+      "webserver_config": {
+        "additional_config_dir": "/etc/apache2/conf.d/",
+        "config_file": "/etc/apache2/apache2.conf",
+        "controller_exe": "/etc/init.d/apache2",
+        "file_owner_group": "www-data",
+        "listen_host": "demotest.genforma.com",
+        "listen_port": 80,
+        "log_dir": "/var/log/apache2",
+        "webserver_type": "apache"
+      }
+    },
+    "output_ports": {
+      "django": {
+        "home": "/home/genforma/apps/genforma_website",
+        "layout_cfg_file": "/home/genforma/apps/genforma_website/file_layout.json",
+        "log_directory": "/home/genforma/apps/log/django"
+      }
+    },
+    "inside": {
+      "id": "master-host",
+      "key": {"name": "ubuntu-linux", "version": "10.04"},
+      "port_mapping": {
+        "host": "host"
+      }
+    },
+    "environment": [
+      {
+        "id": "django-webserver-config",
+        "key": {"name": "django-apache-webserver", "version": "1.0"},
+        "port_mapping": {
+          "webserver_config": "webserver_config"
+        }
+      },
+      {
+        "id": "sqlite-connector",
+        "key": {"name": "sqlite-connector-for-django", "version": "1.0"},
+        "port_mapping": {
+          "django_db": "django_db"
+        }
+      },
+      {
+        "id": "backend-settings",
+        "key": {"name": "genforma-website-backend-settings-production", "version": "1.0"}
+      },
+      {
+        "id": "__Django_South__0_7_3__10",
+        "key": {"name": "Django-South", "version": "0.7.3"}
+      },
+      {
+        "id": "__setup_static_files_script_for_genforma_website__1_0__9",
+        "key": {"name": "setup-static-files-script-for-genforma-website", "version": "1.0"}
+      },
+      {
+        "id": "__app_upgrade_script_for_genforma_website__1_0__8",
+        "key": {"name": "app-upgrade-script-for-genforma-website", "version": "1.0"}
+      },
+      {
+        "id": "__app_install_script_for_genforma_website__1_0__7",
+        "key": {"name": "app-install-script-for-genforma-website", "version": "1.0"}
+      },
+      {
+        "id": "__FC_archive_for_genforma_website__1_0__6",
+        "key": {"name": "FC-archive-for-genforma-website", "version": "1.0"}
+      },
+      {
+        "id": "__python_oauth2__1_2__5",
+        "key": {"name": "python-oauth2", "version": "1.2"}
+      },
+      {
+        "id": "__pip__any__4",
+        "key": {"name": "pip", "version": "any"},
+        "port_mapping": {
+          "pip": "pip"
+        }
+      },
+      {
+        "id": "__Django__1_2__3",
+        "key": {"name": "Django", "version": "1.2"}
+      },
+      {
+        "id": "python-master-host",
+        "key": {"name": "python", "version": "2.6"},
+        "port_mapping": {
+          "python": "python"
+        }
+      }
+    ]
+  },
+  { "id": "gfwebsite-server-comps-1",
+    "key": {"name": "gfwebsite-server-comps", "version": "1.0"},
+    "input_ports": {
+      "django": {
+        "home": "/home/genforma/apps/genforma_website",
+        "layout_cfg_file": "/home/genforma/apps/genforma_website/file_layout.json",
+        "log_directory": "/home/genforma/apps/log/django"
+      },
+      "gearman": {
+        "home": "/home/genforma/apps/gearman_package"
+      },
+      "host": {
+        "cpu_arch": "x86_64",
+        "genforma_home": "/home/genforma/apps",
+        "hostname": "demotest.genforma.com",
+        "log_directory": "/home/genforma/apps/log",
+        "os_type": "linux",
+        "os_user_name": "genforma",
+        "private_ip": "10.177.32.230",
+        "sudo_password": "GenForma/genforma/sudo_password"
+      }
+    },
+    "inside": {
+      "id": "master-host",
+      "key": {"name": "ubuntu-linux", "version": "10.04"},
+      "port_mapping": {
+        "host": "host"
+      }
+    },
+    "environment": [
+      {
+        "id": "__gearman__1_5__15",
+        "key": {"name": "gearman", "version": "1.5"},
+        "port_mapping": {
+          "gearman": "gearman"
+        }
+      },
+      {
+        "id": "website-1",
+        "key": {"name": "genForma-Website", "version": "1.0"},
+        "port_mapping": {
+          "django": "django"
+        }
+      }
+    ]
+  },
+  { "id": "gearman-adapter-1",
+    "key": {"name": "gearman-django-adapter", "version": "1.0"},
+    "input_ports": {
+      "django": {
+        "home": "/home/genforma/apps/genforma_website",
+        "layout_cfg_file": "/home/genforma/apps/genforma_website/file_layout.json",
+        "log_directory": "/home/genforma/apps/log/django"
+      },
+      "python": {
+        "PYTHONPATH": "/home/genforma/apps/python/lib/python2.6/site-packages/",
+        "home": "/home/genforma/apps/python/bin/python",
+        "python_bin_dir": "/home/genforma/apps/python/bin",
+        "type": "python",
+        "version": "2.6"
+      }
+    },
+    "inside": {
+      "id": "website-1",
+      "key": {"name": "genForma-Website", "version": "1.0"},
+      "port_mapping": {
+        "django": "django"
+      }
+    },
+    "environment": [
+      {
+        "id": "__gearman__1_5__15",
+        "key": {"name": "gearman", "version": "1.5"}
+      },
+      {
+        "id": "python-master-host",
+        "key": {"name": "python", "version": "2.6"},
+        "port_mapping": {
+          "python": "python"
+        }
+      }
+    ]
+  }
+]

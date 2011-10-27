@@ -50,13 +50,16 @@ if SDIST_TEST_OUTPUT_DIR:
     ENGAGE_DIR = os.path.abspath(join(BUILD_DIR, ".."))
     assert os.path.exists(ENGAGE_DIR), \
            "Something is very wrong, engage directory %s does not exist" % ENGAGE_DIR
-    DEMO_DIR = os.path.abspath(join(BUILD_DIR, "demos/packaged_apps"))
 else:
     logger.info("Running from build_output")
     BUILD_DIR = join(find_dir('build_output'))
     assert BUILD_DIR, "Unable to find build_output directory, searching up from %s" % THIS_DIR
     ENGAGE_DIR = join(BUILD_DIR, 'engage')
-    DEMO_DIR = os.path.normpath(join(BUILD_DIR, '../../demos/packaged_apps'))
+
+_demo_parent = os.path.abspath(find_dir("demos"))
+assert _demo_parent, "Unable to find demos directory, searching up from %s" % THIS_DIR
+DEMO_DIR = os.path.join(_demo_parent, "packaged_apps")
+assert os.path.exists(DEMO_DIR), "packaged apps directory %s does not exist" % DEMO_DIR
 
 
 def assert_context(engage_dir):
