@@ -24,10 +24,11 @@ dist_root = os.path.abspath(os.path.dirname(__file__))
 dist_root_parent = os.path.abspath(os.path.join(dist_root, ".."))
 
 class EngageExtension(object):
-    def __init__(self, path, name, version):
+    def __init__(self, path, name, version, update):
         self.path = path
         self.name = name
         self.version = version
+        self.update = update
 
     def _copy_dir(self, src_dirname, target, dry_run=False):
         src_dir = os.path.join(self.path, src_dirname)
@@ -36,9 +37,18 @@ class EngageExtension(object):
         if os.path.exists(src_dir):
             logger.info("Copying %s to %s" % (src_dirname, dest_dir))
             if os.path.exists(dest_dir):
-                raise Exception("Target directory %s already exists" % dest_dir)
+                if self.update:
+                    logger.warn("removing old version of %s" % dest_dir)
+                    if not dry_run:
+                        shutil.rmtree(dest_dir)
+                else:
+                    raise Exception("Target directory %s already exists" % dest_dir)
             if not dry_run:
                 shutil.copytree(src_dir, dest_dir)
+        elif self.update and os.path.exists(dest_dir):
+            logger.warn("removing old version of %s" % dest_dir)
+            if not dry_run:
+                shutil.rmtree(dest_dir)
     
     def install(self, dist_root, dry_run=False):
         if not dry_run:
@@ -64,7 +74,8 @@ class EngageExtension(object):
                 logger.debug("Copying %s to %s" % (fname, dest_file))
                 shutil.copyfile(src_file, dest_file)
         # update the extension file
-        installed_extensions.append(self.name)
+        if self.name not in installed_extensions:
+            installed_extensions.append(self.name)
         extension_versions[self.name] = self.version
         extns_file = os.path.join(dest_engage_pkg_dir, "extensions.py")
         logger.info("Updating extensions file %s" % extns_file)
@@ -97,7 +108,7 @@ class EngageExtension(object):
                     updated_versions = True
                 else:
                     sys.stdout.write(line + "\n")
-        if (not updated_list) or (not updated_versions):
+        if ((not updated_list) or (not updated_versions)):
             raise Exception("Extension registration file %s did not have correct format, unable to complete update" % extns_file)
         logger.info("Successfully installed extension %s" % self.name)
                                         
@@ -107,6 +118,9 @@ def process_args(argv):
         parser = OptionParser(usage=usage)
         parser.add_option("--dry-run", action="store_true",
                           help="If specified, don't make changes, just log what would be done",
+                          default=False)
+        parser.add_option("--update", "-u", action="store_true",
+                          help="If specified, override any existing version of the extension",
                           default=False)
         (options, args) = parser.parse_args(args=argv)
         if len(args)==0:
@@ -120,7 +134,7 @@ def process_args(argv):
         extension_name = os.path.basename(extension_path)
         if os.path.basename(dist_root_parent)=="src":
             parser.error("Cannot install extension into source tree %s, run from distribution tree" % dist_root)
-        if extension_name in installed_extensions:
+        if extension_name in installed_extensions and not options.update:
             parser.error("Extension %s already installed" % extension_name)
         version_file = os.path.join(extension_path, "version.txt")
         if not os.path.exists(version_file):
@@ -128,7 +142,7 @@ def process_args(argv):
         with open(version_file, "rb") as vf:
             extension_version = vf.read().rstrip()
         ext = EngageExtension(extension_path, extension_name,
-                              extension_version)
+                              extension_version, options.update)
         return (ext, options)
 
 

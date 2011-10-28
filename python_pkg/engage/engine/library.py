@@ -39,6 +39,7 @@ Each package entry has the following properties:
  type:          one of Reference, File, or Archive
  package_class: name of the class implementing this package
  location:      used by the package to identify where the package may be found
+ platforms:     if present, a list of platforms for which this is available
  
 If the type is File or Archive, then the following additional properties are
 present:
@@ -73,12 +74,14 @@ import zipfile
 import shutil
 import urllib
 import re
+import copy
 
 from engage.engine.json_metadata_utils import MetadataContainer, get_json_property, \
                                               get_opt_json_property
 import engage.utils.file as fileutils
 import engage.utils.path
 import engage.utils.system_info as system_info
+from engage.extensions import installed_extensions
 from engage.utils.log_setup import setup_engine_logger
 from engage.utils.user_error import UserError, InstErrInf, convert_exc_to_user_error
 
@@ -127,6 +130,8 @@ class PackageReadError(Exception):
     pass
 
 
+_my_platform = system_info.get_platform()
+
 class Package(object):
     """Base class for managing the package for a software resource.
     """
@@ -135,18 +140,33 @@ class Package(object):
     FILE_TYPE = "File"
     ARCHIVE_TYPE = "Archive"
     
-    def __init__(self, type, location, package_properties):
+    def __init__(self, type, location, platforms, package_properties):
         """Subclasses are responsible for obtaining reference to package_properties"""
         assert (type == Package.REFERENCE_TYPE) or (type == Package.FILE_TYPE) or \
                (type == Package.ARCHIVE_TYPE)
         self.type = type
         self.location = location
+        self.platforms = platforms
 
+    def _is_available_on_this_platform(self):
+        """Returns true if the value of the platforms property
+        permits this package, false otherwise. Used by subclasses
+        in implementing is_available().
+        """
+        if self.platforms!=None:
+            if _my_platform in self.platforms:
+                return True
+            else: return False
+        else:
+            return True # if not specified, must work for all
+        
     def is_available(self):
         """Returns True if the package is currently available, False
-        otherwise.
+        otherwise. Subclasses must handle the platforms property if they
+        intend to honor it.
         """
-        pass
+        raise Exception("is_available not implemented for %s" %
+                        self.__class__.__name__)
 
     def to_json(self):
         return {u"type":self.type, u"location":self.location,
@@ -184,8 +204,9 @@ class HTTPDownloader(Downloader):
 
     def is_available(self):
         try:
+            get_logger().debug("Trying to get %s" % self.location)
             f = urllib.urlopen(self.location)
-            return f.info().getheader('content-length') > 0
+            return int(f.info().getheader('content-length')) > 0
         except:
             get_logger().exception('%s is unavailable' % self.location)
             return False
@@ -245,17 +266,30 @@ def register_package_class(type, classname, constructor):
 
 class FilePackage(Package):
     def __init__(self, type, location, filepath, downloader_class,
-                 package_properties):
+                 platforms, package_properties):
         assert (type == Package.FILE_TYPE) or (type == Package.ARCHIVE_TYPE)
-        Package.__init__(self, type, location, package_properties)
+        Package.__init__(self, type, location, platforms, package_properties)
         self.filepath = filepath
         self.downloader = downloader_class(location, filepath, package_properties)
 
     def is_available(self):
+        if not self._is_available_on_this_platform():
+            get_logger().debug("%s not available on platform" % self.location)
+            return False
         if os.path.exists(self.filepath):
+            get_logger().debug("%s is available" % self.location)
             return True
         else:
-            return self.downloader.is_available()
+            available = self.downloader.is_available()
+            if available:
+                get_logger().debug("%s is available" % self.location)
+            else:
+                if self.downloader.__class__ == Downloader:
+                    get_logger().debug("%s is not available locally and no downloader was defined for it" % self.location)
+                else:
+                    get_logger().debug("%s not downloadable (downloader was %s)" %
+                                      (self.location, self.downloader.__class__.__name__))
+            return available
             
     def get_file(self):
         """Download the file if necessary and return its full path on the local filesystem."""
@@ -282,10 +316,10 @@ class ArchivePackage(FilePackage):
            desired_common_dirname. Always returns the name of the common subdirectory.
     """
     def __init__(self, type, location, filepath, downloader_class,
-                 package_properties):
+                 platforms, package_properties):
         assert type == Package.ARCHIVE_TYPE
         FilePackage.__init__(self, type, location, filepath, downloader_class,
-                             package_properties)
+                             platforms, package_properties)
 
 
 
@@ -443,9 +477,9 @@ class GzippedTarFilePackage(ArchivePackage, GenericExtractor):
     """Package class where the package is stored in the local filesystem.
     """
     def __init__(self, type, location, filepath, downloader_class,
-                 package_properties):
+                 platforms, package_properties):
         ArchivePackage.__init__(self, type, location, filepath, downloader_class,
-                                package_properties)
+                                platforms, package_properties)
         self.format = "GzippedTarArchive"
 
     def _create_archive_object(self):
@@ -484,9 +518,9 @@ class ZipPackage(ArchivePackage, GenericExtractor):
     """Package class where the package is stored in the local filesystem.
     """
     def __init__(self, type, location, filepath, downloader_class,
-                 package_properties):
+                 platforms, package_properties):
         ArchivePackage.__init__(self, type, location, filepath, downloader_class,
-                                package_properties)
+                                platforms, package_properties)
         self.format = "ZipArchive"
 
     def _create_archive_object(self):
@@ -502,22 +536,23 @@ register_package_class(Package.ARCHIVE_TYPE, "ZipArchive", ZipPackage)
 class PythonInstallerPackage(Package):
     """Package class for library which can be downloaded from URL"""
 
-    def __init__(self, type, location, package_properties):
-        Package.__init__(self, type, location, package_properties)
+    def __init__(self, type, location, platforms, package_properties):
+        Package.__init__(self, type, location, platforms, package_properties)
 
     def is_available(self):
-	return True 
-        # download links are always available
+        return self._is_available_on_this_platform()
 
 class EasyInstallPythonPackage(PythonInstallerPackage):
-    def __init__(self, type, location, package_properties):
-        PythonInstallerPackage.__init__(self, type, location, package_properties)
+    def __init__(self, type, location, platforms, package_properties):
+        PythonInstallerPackage.__init__(self, type, location,
+                                        platforms, package_properties)
 
 register_package_class(Package.REFERENCE_TYPE, "EasyInstallLink", EasyInstallPythonPackage)
 
 class PipPythonPackage(PythonInstallerPackage):
-    def __init__(self, type, location, package_properties):
-        PythonInstallerPackage.__init__(self, type, location, package_properties)
+    def __init__(self, type, location, platforms, package_properties):
+        PythonInstallerPackage.__init__(self, type, location,
+                                        platforms, package_properties)
     def __repr__(self):
         return ('Pip package %s' % self.location)
 
@@ -525,29 +560,27 @@ register_package_class(Package.REFERENCE_TYPE, "PipLink", PipPythonPackage)
 
                      
 class MacPortsPackage(Package):
-    def __init__(self, type, location, package_properties):
-        Package.__init__(self, type, location, package_properties)
+    def __init__(self, type, location, platforms, package_properties):
+        if platforms==None:
+            platforms = ["macosx", "macosx4"]
+        Package.__init__(self, type, location,
+                         platforms, package_properties)
 
     def is_available(self):
-        platform = system_info.get_platform()
-        if platform=="macosx" or platform=="macosx64":
-            return True
-        else:
-            return False
+        return self._is_available_on_this_platform()
+
     def __repr__(self):
         return ('MacPorts package %s' % self.location)
 
 register_package_class(Package.REFERENCE_TYPE, "MacPorts", MacPortsPackage)
 
 class AptGetPackage(Package):
-    def __init__(self, type, location, package_properties):
-        Package.__init__(self, type, location, package_properties)
+    def __init__(self, type, location, platforms, package_properties):
+        if platforms==None:
+            platforms = ["linux", "linux64"]
+        Package.__init__(self, type, location, platforms, package_properties)
     def is_available(self):
-        platform = system_info.get_platform()
-        if platform=="linux" or platform=="linux64":
-            return True
-        else:
-            return False
+        return self._is_available_on_this_platform()
     def __repr__(self):
         return ('AptGet package %s' % self.location)
 
@@ -557,11 +590,11 @@ register_package_class(Package.REFERENCE_TYPE, "AptGet", AptGetPackage)
 class DummyPackage(Package):
     """Library package for installable components which don't have any software packages.
     """
-    def __init__(self, type, location, package_properties):
-        Package.__init__(self, type, location, package_properties)
+    def __init__(self, type, location, platforms, package_properties):
+        Package.__init__(self, type, location, platforms, package_properties)
 
     def is_available(self):
-        return True
+        return self._is_available_on_this_platform()
 
 register_package_class(Package.REFERENCE_TYPE, "DummyPackage", DummyPackage)
 
@@ -592,6 +625,8 @@ class LibraryEntry(object):
     def get_package(self):
         """Return the first available package or None if no packages in
         the list were available"""
+        if len(self.package_list)==0:
+            get_logger().debug("No packages found for resource %s" % self.key)
         for package in self.package_list:
             if package.is_available():
                 return package
@@ -600,7 +635,7 @@ class LibraryEntry(object):
     def get_manager_class(self):
         """Return the class (constructor function) for the manager class
         associated with this resource"""
-        #get_logger().debug('Module name is %s' % self.mgr_module_name)
+        get_logger().debug('Module name is %s' % self.mgr_module_name)
         mod = __import__(self.mgr_module_name)
         components = self.mgr_module_name.split('.')
         for comp in components[1:]:
@@ -619,8 +654,11 @@ class LibraryEntry(object):
         return json.dumps(self.to_json(), sort_keys=True, indent=1)
 
 
-def convert_resource_key_to_driver_module_name(key, prefix="engage.drivers.standard."):
-    return prefix + fileutils.mangle_resource_key(key) + ".driver"
+def convert_resource_key_to_driver_module_names(key, prefix="engage.drivers."):
+    candidates = []
+    for submodule in (["standard",] + installed_extensions):
+        candidates.append(prefix + submodule + "." + fileutils.mangle_resource_key(key) + ".driver")
+    return candidates
 
 
 class Library(object):
@@ -679,9 +717,6 @@ class InMemoryLibrary(Library):
             entry = _load_newstyle_entry(resource_md.key, "", self.cache_directory, self.package_properties)
             if entry!=None:
                 self.add_entry(entry)
-            else:
-                get_logger().error("Did not find library entry of resource type %s, tried module name %s" %
-                                   (resource_md.key.__repr__(), convert_resource_key_to_driver_module_name(resource_md.key)))
             return entry
 
     def to_json(self):
@@ -738,8 +773,26 @@ class FileLibrary(InMemoryLibrary):
         json[u"package_properties"] = self.package_properties
         return json
 
+# List of the package properties that are passed directly to the package
+# constructor. Anything else will be added to package_properties.
+standard_package_fields = [u"type", u"location", u"package_class",
+                           u"downloader", u"filename", u"platforms"]
+
+def _merge_package_properties(package_entry_json, global_package_properties):
+    """Combine the package-specific properties with package global properties.
+    """
+    props = copy.copy(global_package_properties)
+    for key in package_entry_json:
+        if key not in standard_package_fields:
+            props[key] = package_entry_json[key]
+    return props
+
 
 def _parse_package(json_repr, err_msg, cache_directory, package_properties):
+    local_package_properties = _merge_package_properties(json_repr,
+                                                         package_properties)
+    platforms = get_opt_json_property(u"platforms", json_repr, list,
+                                      err_msg, None)
     type = get_json_property(u"type", json_repr, unicode,
                              "%s package" % err_msg)
     location = get_json_property(u"location", json_repr, unicode, err_msg)
@@ -752,7 +805,8 @@ def _parse_package(json_repr, err_msg, cache_directory, package_properties):
         raise LibraryParseError, "%s wrong package type '%s', expecting '%s'" % \
               (err_msg, type, exp_pkg_type)
     if type == Package.REFERENCE_TYPE:
-        return constructor(type, location, package_properties)
+        return constructor(type, location, platforms,
+                           local_package_properties)
     else:
         if not json_repr.has_key(u"downloader") or json_repr[u"downloader"] == None:
             filename = location
@@ -767,7 +821,7 @@ def _parse_package(json_repr, err_msg, cache_directory, package_properties):
                                          "%s package" % err_msg)
         filepath = os.path.join(cache_directory, filename)
         return constructor(type, location, filepath, downloader_class,
-                           package_properties)
+                           platforms, local_package_properties)
 
 
 def _parse_entry(json_repr, err_msg, cache_directory, package_properties):
@@ -788,18 +842,28 @@ def _parse_entry(json_repr, err_msg, cache_directory, package_properties):
 def _load_newstyle_entry(key, err_msg, cache_directory, package_properties):
     """This is for library entries that are stored along with the drivers.
     """
-    driver_module_name = convert_resource_key_to_driver_module_name(key)
-    try:
-        _mod = __import__(driver_module_name, globals(), locals(), ['get_packages_filename'], -1)
-    except ImportError, e:
-        msg = "No module named %s" % driver_module_name
-        if e.__str__() == msg:
-            return None # driver module does not exist
-        else:
-            # driver module does exist, but there was a problem importing it
-            raise UserError(errors[DRIVER_IMPORT_ERROR],
-                            msg_args={"mod":driver_module_name,
-                                      "msg": e.__str__()})
+    _mod = None
+    driver_module_names = convert_resource_key_to_driver_module_names(key)
+    for driver_module_name in driver_module_names:
+        try:
+            get_logger().debug("Attempting to import %s" % driver_module_name)
+            _mod = __import__(driver_module_name, globals(), locals(), ['get_packages_filename'], -1)
+            break
+        except ImportError, e:
+            get_logger().debug("Could not import %s: %s" % (driver_module_name, str(e)))
+            #msg = "No module named %s" % driver_module_name
+            #if e.__str__() == msg:
+            #    continue # driver module does not exist
+            #else:
+            #    # driver module does exist, but there was a problem importing it
+            #    get_logger().exception("Error importing %s" % driver_module_name)
+            #    raise UserError(errors[DRIVER_IMPORT_ERROR],
+            #                    msg_args={"mod":driver_module_name,
+            #                              "msg": e.__str__()})
+    if _mod == None:
+        get_logger().error("Did not find library entry of resource type %s, tried module names %s" %
+                           (resource_md.key.__repr__(), driver_module_names))
+        return None
     package_file = _mod.get_packages_filename()
     if not os.path.exists(package_file):
         raise UserError(ERR_MISSING_PKG_JSON_FILE,
@@ -814,6 +878,7 @@ def _load_newstyle_entry(key, err_msg, cache_directory, package_properties):
     package_list = [_parse_package(package_json, err_msg,
                                    cache_directory, package_properties)
                     for package_json in package_list_json]
+    assert len(package_list)>0
     return LibraryEntry(key, {}, driver_module_name,
                         package_list)
 
@@ -1013,7 +1078,8 @@ def parse_library_files(file_layout):
         raise # just reraise user errors
     except:
         # wrap other exceptions in user errors
-        get_logger().exception("Error in parsing library file %s" % filename)
+        get_logger().exception("Error in parsing library file %s" %
+                               fl.get_preprocessed_library_file())
         user_error = \
           convert_exc_to_user_error(sys.exc_info(),
                                     errors[LIBRARY_PARSE_ERROR],
