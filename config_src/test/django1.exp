@@ -80,6 +80,7 @@
       "ocache": {
         "home": "__dummy__",
         "host": "dummy.host",
+        "port": 0,
         "provider": "dummy"
       }
     },
@@ -101,7 +102,6 @@
       "BROKER_VHOST": ""
     },
     "input_ports": {
-      "broker": { },
       "host": {
         "cpu_arch": "x86_64",
         "genforma_home": "/Users/jfischer/apps",
@@ -514,6 +514,7 @@
       "ocache": {
         "home": "__dummy__",
         "host": "dummy.host",
+        "port": 0,
         "provider": "dummy"
       },
       "pip": {

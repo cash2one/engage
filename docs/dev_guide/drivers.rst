@@ -42,3 +42,23 @@ Service Manager Reference
 
 .. automodule:: engage.drivers.service_manager
    :members:
+
+Mix-ins for Resource Managers
+-------------------------------
+A number of mix-in classes are defined to provide functionality commonly
+used by resource managers.
+
+Password repository mix-in
+~~~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: engage.drivers.password_repo_mixin.PasswordRepoMixin 
+   :members:
+
+File-based backup mix-in
+~~~~~~~~~~~~~~~~~~~~~~~~
+.. autoclass:: engage.drivers.backup_file_resource_mixin.BackupFileMixin
+ :members:
+
+Shared-resource mix-in
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. automodule:: engage.drivers.shared_resource_mixin
+   :members:

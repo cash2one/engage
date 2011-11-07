@@ -2,7 +2,7 @@
 Library of actions for use in resource managers.
 
 Goals
----------------
+-----
 The goal of this library is to:
  * Provide management of the config properties and other context needed
    by most installation and service management actions.
@@ -21,7 +21,7 @@ There are two main object types in this framework:
    (r() and rv()). This allows the context object to call either run() or dry_run()
    based on whether context was created with dry_run set or not. In addition,
    the r() and rv() methods handle logging and errors.
-   
+
 There are two categories of actions:
  1. Subclasses from the Action class are executed for effect and do not return
     a value.
@@ -36,70 +36,105 @@ Usually, this is done in an separate function (e.g. make_context) so that it can
 testing outside of the resource manager.
 
 The Context constructor takes the following parameters:
-  resource_config_props - this is the json of the resource instance
-  logger   - the logger object for the driver (obtained by
-             engage.utils.log_setup.setup_engage_logger)
-  filepath - the __file__ variable
-  sudo_password_fn - a function which returns the sudo password. You need
-             this if you are going to call any of the sudo_ actions. Typically,
-             this function is obtained by subclassing from
-             password_repo_mixin.PasswordRepoMixin.
-  dry_run  - if set to True, the dry_run method will be called for all actions.
-             This should have the effect of logging what would happen if you ran
-             the install, without actually making any of the external changes.
+
+ resource_config_props
+   this is the json of the resource instance
+
+ logger
+   the logger object for the driver (obtained by engage.utils.log_setup.setup_engage_logger)
+
+ filepath
+   the __file__ variable
+
+ sudo_password_fn
+   a function which returns the sudo password. You need this if you
+   are going to call any of the sudo\_ actions. Typically, this
+   function is obtained by subclassing from
+   password_repo_mixin.PasswordRepoMixin.
+
+ dry_run
+  if set to True, the dry_run method will be called for all actions.
+  This should have the effect of logging what would happen if you ran
+  the install, without actually making any of the external changes.
 
 Context object fields
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
 The context object has the following public fields:
-  props         - this field provides a representation of the resource instance
-                  JSON as a python object. For example, if the JSON contains
-                  {"input_ports":{"host":{"hostname":"localhost"}}}, you can
-                  access the hostname property as
-                  ctx.props.input_ports.host.hostname
-  logger        - the logger. This is used by actions
-  dry_run       - True if we are running in dry-run mode
-  substitutions - this is a map from qualified property names in the JSON resource
-                  instance to string values. For example, given the JSON example
-                  above, we would include the mapping
-                  "input_ports.host.hostname" => "localhost".
-                  This map is used for template substitutions (see the template and
-                  get_template_subst actions).
+
+  props
+    this field provides a representation of the resource instance JSON
+    as a python object. For example, if the JSON contains
+    {"input_ports":{"host":{"hostname":"localhost"}}}, you can access
+    the hostname property as ctx.props.input_ports.host.hostname
+
+  logger
+    the logger. This is used by actions
+
+  dry_run
+    True if we are running in dry-run mode
+
+  substitutions
+    this is a map from qualified property names in the JSON resource
+    instance to string values. For example, given the JSON example
+    above, we would include the mapping "input_ports.host.hostname" =>
+    "localhost".  This map is used for template substitutions (see the
+    template and get_template_subst actions).
 
 Context object methods
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
 The context object has the following methods:
-  add()        - Add a new key, value entry to the props and substitutions fields.
-                 This key can be a qualified name (e.g.
-                 "input_ports.host.hostname"), The add() method is useful when
-                 computing properties (e.g. via os.path.join).
-  checkp()     - Check that the specified qualified property name is present in the
-                 ctx.props field.
-  check_port() - Check that the specified properties are present in the specified
-                 port.
-  r()          - Run an action.
-  rv()         - Run a value action.
-  poll_rv()    - Run a value action multiple times until either a specified
-                 result is returned or a timeout occurs.
-  check_poll() - Run a value action until a predicate is true and return the
-                 last result. If timeout occurs, raise an error.
-  _get_sudo_password - This method is used by actions to get the super user
-                 password.
+
+  add()
+    Add a new key, value entry to the props and substitutions fields.
+    This key can be a qualified name (e.g.
+    "input_ports.host.hostname"), The add() method is useful when
+    computing properties (e.g. via os.path.join).
+
+  checkp()
+    Check that the specified qualified property name is present in the
+    ctx.props field.
+
+  check_port()
+    Check that the specified properties are present in the specified
+    port.
+
+  r()
+    Run an action.
+
+  rv()
+    Run a value action.
+
+  poll_rv()
+    Run a value action multiple times until either a specified
+    result is returned or a timeout occurs.
+
+  check_poll()
+    Run a value action until a predicate is true and return the last
+    result. If timeout occurs, raise an error.
+
+  _get_sudo_password
+    This method is used by actions to get the super user password.
 
 
 Action Naming Conventions
 -------------------------
 We use the following naming conventions:
-  "get_" is used for value actions.
 
-  "check_" is used for validation actions that subclass from Action. They throw a
-  user error if the check fails. When run in dry-run mode, they log a warning if
-  the check fails.
+  "get\_"
+    is used for value actions.
 
-  "ensure_" is used for actions that have an effect, but are itempotent. For example,
-  ensure_dir_exists will check for the presence of a directory and create it if it
-  does not already exist.
+  "check\_"
+    is used for validation actions that subclass from Action. They throw a
+    user error if the check fails. When run in dry-run mode, they log a warning if
+    the check fails.
 
-  "sudo_" is used for actions that are run as the super user.
+  "ensure\_"
+    is used for actions that have an effect, but are itempotent. For example,
+    ensure_dir_exists will check for the presence of a directory and create it if it
+    does not already exist.
+
+  "sudo\_"
+    is used for actions that are run as the super user.
 
 
 Defining Actions
@@ -169,8 +204,10 @@ The following actions are defined by this module:
  * instantiate_template_str <src_string> <target_path>
  * run_program <program_and_args> {cwd=None} {env_mapping=None} {input=None} {hide_input=False} {hide_command=False}
  * set_file_mode_bits <path> <mode_bits>
+ * move_old_file_version <file_path> {backup_name=None} {leave_old_backup_file=False}
  * start_server <cmd_and_args> <log_file> <pid_file> {cwd=None} {environment={}}
  * stop_server <pid_file> {timeout_tries=10} {force_stop=False}
+ * subst_in_file <filename> <pattern_list> {subst_in_place=False}
  * sudo_add_config_file_line <config-file> <line>
  * sudo_copy <copy_args>
  * sudo_mkdir <path> {create_intermediate_dirs=False}
@@ -520,10 +557,12 @@ class Context(object):
 
     def check_port(self, port_name, **kwargs):
         """Check the properties for a port.
-        
-        port_name -- qualified name of a port (e.g. 'config_port' or 'input_ports.apache')
-        **kwargs  -- properties defined for the port. keyword is the prop name,
-                     value is the type. If the type is str or unicode we allow either one.
+
+        port_name
+          qualified name of a port (e.g. 'config_port' or 'input_ports.apache')
+        kwargs
+          properties defined for the port. keyword is the prop name,
+          value is the type. If the type is str or unicode we allow either one.
         """
         for (prop, typ) in kwargs.items():
             if typ==str or typ==unicode:
@@ -531,7 +570,7 @@ class Context(object):
             else:
                 self.checkp(port_name + "." + prop, typ=typ)
         return self
-                            
+
     def r(self, action, *args, **kwargs):
         """Run the specified Action, providing it the given arguments.
         """
@@ -553,7 +592,7 @@ class Context(object):
                                   (action_and_args, e.__repr__()))
             raise convert_exc_to_user_error(sys.exc_info(), errors[ERR_UNEXPECTED_EXC_IN_ACTION],
                                             msg_args={"exc":e.__repr__(), "action":action_and_args,
-                                                      "id":self.props.id})            
+                                                      "id":self.props.id})
         return self
 
     def rv(self, value_action, *args, **kwargs):
@@ -622,7 +661,7 @@ class Context(object):
         raise UserError(errors[ERR_CHECK_POLL_TIMEOUT],
                         msg_args={"id":self.props.id,
                                   "action":value_action.NAME,
-                                  "time":time_output_tries*time_between_tries})
+                                  "time":timeout_tries*time_between_tries})
 
     def _get_sudo_password(self, action):
         """Method for actions to get the superuser password.
@@ -641,6 +680,7 @@ def make_action(fn):
     is passed the enclosing action object as first parameter.
 
     Example::
+
         @make_action
         def foo(self, x):
             self.ctx.logger.debug("In foo")
@@ -665,6 +705,7 @@ def make_value_action(fn):
     first parameter.
 
     Example::
+
         @make_value_action
         def foo(self, x):
             self.ctx.logger.debug("In foo")
@@ -912,6 +953,29 @@ class instantiate_template_str(Action):
         self._do_substitution(src_string, target_path)
 
 
+@make_value_action
+def subst_in_file(self, filename, pattern_list, subst_in_place=False):
+    """Scan the specified file and substitute patterns. pattern_list is
+    list of pairs, where the first element is a regular expressison pattern
+    and the second element is a either a string or a function. If the
+    second element is a string, then occurrances of the pattern in the file
+    are all replaced with the string. If the value is a function, then
+    this function is called with a match object and should return the
+    new value for the pattern. See the python documentation on re.sub() for
+    details.
+
+    If subst_in_place is True, then we leave only the modified file. If it
+    is False, we leave the orginal file at <filename>.orig.
+
+    Note that we set the permissions of the new file version to be the same
+    as those for the original file. This is important for executable files.
+
+    Returns the total number of substitutions made
+    """
+    return fileutils.subst_in_file(filename, pattern_list,
+                                   subst_in_place=subst_in_place)
+    
+
 @make_action
 def set_file_mode_bits(self, path, mode_bits):
     """Action: set the file's mode bits as specified.
@@ -1054,6 +1118,40 @@ def sudo_ensure_shared_perms(self, path, group_name, writable_to_group=False):
             sudo_password=self.ctx._get_sudo_password(self))
     fileutils.sudo_ensure_directory_group_reachable(path, group_name, self.ctx.logger,
                                                     self.ctx._get_sudo_password(self))
+
+@make_action
+def move_old_file_version(self, file_path, backup_name=None,
+                          leave_old_backup_file=False):
+    """Action: If the specified file exists, rename it to the backup name.
+    The default backup name is <filename>.orig. If the backup file already
+    exists, we delete it first, unless leave_old_backup_file is True.
+    In that case, we delete the file reference by file_path, keeping the
+    oldest backup.
+
+    If the file referenced by file_path does not exist, we do nothing.
+    """
+    def delete_file_or_dir(fpath):
+        if os.path.isdir(fpath):
+            self.ctx.logger.debug("rm -r %s" % fpath)
+            shutil.rmtree(fpath)
+        else:
+            self.ctx.logger.debug("rm %s" % fpath)
+            os.remove(fpath)
+            
+    if not backup_name:
+        backup_name = file_path + ".orig"
+    if not os.path.exists(file_path):
+        return # nothing to do
+    if os.path.exists(backup_name):
+        if leave_old_backup_file:
+            delete_file_or_dir(file_path)
+            return # we leave the older version
+        else:
+            delete_file_or_dir(backup_name)
+    
+    self.ctx.logger.debug("mv %s %s" % (file_path, backup_name))
+    os.rename(file_path, backup_name)
+
 
 @make_action
 def start_server(self, cmd_and_args, log_file, pid_file, cwd=None, environment={}):

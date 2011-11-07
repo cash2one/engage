@@ -181,7 +181,7 @@ class DeployRequest(object):
         if self.generate_pw_file:
             pw_repos = generate_pw_file(self.pw_file, self.pw_salt_file,
                                         self.ifl.get_preprocessed_resource_file(),
-                                        self.ifl.get_install_spec_file(),
+                                        self.ifl.get_install_script_file(),
                                         logger,
                                         dry_run=self.options.dry_run)
         else:

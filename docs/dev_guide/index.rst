@@ -15,6 +15,8 @@ Contents:
    tutorial
    drivers
    actions
+   specs
+   installers
    extensions
 
 Notice

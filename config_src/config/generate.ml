@@ -343,13 +343,7 @@ let typecheck () =
 
 
 let print_machine_and_instance (mid,(k,id)) =
-(*
-  let m = lookup_inst mid in
-*)
   let pp_state = R_pp.make_pp_state L.system_print_string in
-(*
-  R_pp.pp_resource_inst m pp_state ;
-*)
   R_pp.pp_key (fst mid) pp_state ; 
   L.system_print_string ("\nId: "^id ^" Key:");
   R_pp.pp_key k pp_state ;
@@ -857,7 +851,9 @@ let find_port_map_from_resource_ref rref k =
 
 let find_port_map rinst rdef k =
   L.log_debug L.ConsGen "find_port_map:::";
+(*
   R_pp.pp_resource_inst rinst (R_pp.make_pp_state L.system_print_string);
+*)
   L.log_debug L.ConsGen ("key = " ^k );
   let ip_map =
     match rinst.R.inside_ref with
@@ -873,9 +869,12 @@ let find_port_map rinst rdef k =
   in
   let peer_map =
     if env_map = None then
-      let l = List.map (fun rref -> find_port_map_from_resource_ref rref k) rinst.R.peer_refs in
-      try List.find (fun r -> not (r = None)) l
-      with Not_found -> None
+      begin
+	L.log_debug L.ConsGen ("In peer map with " ^ k);
+	let l = List.map (fun rref -> find_port_map_from_resource_ref rref k) rinst.R.peer_refs in
+	try List.find (fun r -> not (r = None)) l
+	with Not_found -> None
+      end
     else env_map
   in
   peer_map
@@ -977,9 +976,6 @@ let json_of_property_ref rinst rdef p =
       begin
         L.system_print_endline ("No initial value specified for " ^ p.R.property_name);
         (* if no initial value is specified, look into port mappings *)
-(*
-        Some (R.JsonScalar (R.String "<undefined>"))
-*)
 	None
       end
   | R.Includes ival
@@ -1115,90 +1111,79 @@ let find_env_refs n pmodel rinst (node_id_tbl, id_node_tbl) =
 	     ) elist
   with Not_found -> []
 
-let _f = fun rinst rdef ->
-  (fun k d smap ->
-    ignore (L.log_debug L.ConsGen ("In _f:: Key = " ^ k ^ "\n")) ;
-    (* Is key k mapped by a port mapping? *)
-    match (find_port_map rinst rdef k) with
-      Some (resource_key, resource_id, property_name) ->
-        begin
-	  L.log_debug L.ConsGen "Key is mapped to the following:";
-	  R_pp.pp_key resource_key (R_pp.make_pp_state L.system_print_string);
-	  L.log_debug L.ConsGen (" Id = " ^ resource_id);
-	  L.log_debug L.ConsGen (" property name = " ^ property_name);
-
-          let mapped_rdef = lookup_rdef resource_key in
-          let pr = find_property_by_name mapped_rdef property_name in
-          let ri = lookup_inst (resource_key, resource_id) in 
-          let pl = List.fold_left
-              (fun sofar p ->
-                L.system_print_endline ("This case: propname = "^p.R.property_name);
-                L.system_print_endline ("Looking up " ^ p.R.property_name ^ " from " );
-	        R_pp.pp_key mapped_rdef.R.key (R_pp.make_pp_state L.system_print_string);
-                let pval = json_of_property_ref ri mapped_rdef p in
-                match pval with
-                | None ->
-                   begin
-                     (* "Reverse" the direction for includes *)
-                     L.system_print_endline "Trying to find includes";
-                     let input_property_list = try
-                       R.SymbolMap.find  k rdef.R.input_port_defs 
-                     with Not_found -> assert false in
-                     List.iter (fun p' -> L.log_debug L.ConsGen p'.R.property_name) input_property_list;
-                     let incp = try 
-                       List.find (fun p' -> p'.R.property_name = p.R.property_name) input_property_list 
-                     with _ -> assert false in 
-                     L.log_debug L.ConsGen ("incp = " ^ incp.R.property_name);
-                     (match incp.R.property_val with
-                     | R.Includes _ -> 
-                        add_includes_list (k, rinst, resource_key, resource_id, property_name, incp);
-                        L.log_debug L.ConsGen ("add_includes_list called ");
-                     | _ -> L.log_warning L.ConsGen ("WARNING:: No value found for property " ^ p.R.property_name) );
-		     sofar
-(*
-                     let incpval = json_of_property_ref rinst rdef incp in
-                     (L.log_debug L.ConsGen "LOOKED UP VAL::" ;
-                     match incpval with None -> L.log_debug L.ConsGen "NONE";
-                     | Some j -> R_pp.pp_json j (R_pp.make_pp_state L.system_print_string));
-                     sofar
-                     with Not_found -> assert false
-*)
-                   end
-                | Some s -> R.SymbolMap.add p.R.property_name s sofar)
-              R.SymbolMap.empty pr
-          in
-          R.SymbolMap.add k pl smap
-              end
-    | None ->
-        (* key k is not mapped by a port mapping, so look up its value in
-           the install spec or resource def
-         *)
-	L.log_debug L.ConsGen ("Key " ^ k ^ " is not mapped. Looking up value in install spec or default value in resource def") ;
-        let pl = List.fold_left
-	    (fun sofar p ->
-              L.log_debug L.ConsGen ("Now looking for " ^ p.R.property_name) ; 
-              let pval = json_of_property_ref rinst rdef p in
-              match pval with
-                None   -> L.log_warning L.ConsGen ("WARNING: no mapping found for " ^ p.R.property_name ); sofar
-              | Some s -> 
-                let stref = ref "" in 
-                R_pp.pp_json_value s (R_pp.make_pp_state (R_pp.output_to_str stref));
-                L.log_debug L.ConsGen ("mapped to : " ^ !stref); 
-                R.SymbolMap.add p.R.property_name s sofar
-	    )
-	    R.SymbolMap.empty d
-        in
-        R.SymbolMap.add k pl smap )
 
 let map_input_ports rdef rinst =
   L.log_debug L.ConsGen ("In map_input_ports with key " ^ rinst.R.id);
-  R.SymbolMap.fold (_f rinst rdef)
+  let _input_port_worker k d smap =
+    ignore (L.log_debug L.ConsGen ("In _f:: Key = " ^ k ^ "\n")) ;
+    let ilist = try 
+      R.SymbolMap.find k rdef.R.input_port_defs
+    with Not_found -> assert false
+    in
+    match (find_port_map rinst rdef k) with
+    | Some (resource_key, resource_id, property_name) ->
+	begin
+	  L.log_debug L.ConsGen ("Port mapped from " ^ resource_id);
+	  let mapped_rdef = lookup_rdef resource_key in
+	  let ri = lookup_inst (resource_key, resource_id) in
+	  let pr = find_property_by_name mapped_rdef property_name in
+	  let rioports = R.SymbolMap.find property_name ri.R.output_ports in	  
+	  let pl = List.fold_left 
+	      (fun sofar p ->
+		L.log_debug L.ConsGen ("Now with property " ^ p.R.property_name);
+		(try
+		  let prop = 
+		    List.find (fun n -> n.R.property_name = p.R.property_name) ilist 
+		  in
+		  match prop.R.property_val with
+		  | R.Includes _ ->
+		      (* fix the output port of ri *)
+		      L.log_debug L.ConsGen ("property " ^property_name ^ ":" ^ p.R.property_name ^ " added to includes list");
+		      add_includes_list (k, rinst, resource_key, resource_id, property_name, prop)
+		  | _ -> ()
+		with Not_found -> ()); 
+		begin
+		  let jv = try
+		    R.SymbolMap.find p.R.property_name rioports 
+		  with Not_found -> assert false
+		  in
+		  R.SymbolMap.add p.R.property_name jv sofar
+		end
+	      ) R.SymbolMap.empty pr 
+	  in
+	  R.SymbolMap.add k pl smap
+	end
+    | None -> assert false
+  in
+  R.SymbolMap.fold _input_port_worker
     rdef.R.input_port_defs
     (R.SymbolMap.empty)
 
 let map_output_ports rdef rinst =
   L.log_debug L.ConsGen ("In map_output_ports with key " ^ rinst.R.id);
-  R.SymbolMap.fold (_f rinst rdef)
+  let _output_ports_worker k d smap =
+    let pl = List.fold_left
+	(fun sofar p ->
+          L.log_debug L.ConsGen ("Now looking for " ^ p.R.property_name) ; 
+          let pval = json_of_property_ref rinst rdef p in
+          match pval with
+            None   -> 
+	      begin
+		L.log_warning L.ConsGen ("WARNING: no mapping found for " ^ p.R.property_name ); 
+		match p.R.property_type with
+		  R.ListType _ -> R.SymbolMap.add p.R.property_name (R.JsonList []) sofar
+		| _ -> sofar
+	      end
+          | Some s -> 
+              let stref = ref "" in 
+              R_pp.pp_json_value s (R_pp.make_pp_state (R_pp.output_to_str stref));
+              L.log_debug L.ConsGen ("mapped to : " ^ !stref); 
+              R.SymbolMap.add p.R.property_name s sofar
+	) R.SymbolMap.empty d
+    in
+    R.SymbolMap.add k pl smap
+  in
+  R.SymbolMap.fold _output_ports_worker
     rdef.R.output_port_defs (R.SymbolMap.empty)
 
 let fill_in_config_ports rdef rinst =
@@ -1522,23 +1507,23 @@ class config_engine_factory
     in
     reset_includes_list();
     L.log_debug L.ConsGen ("[CAPI]Getting config ports of " ^ inst.R.id);
-      L.log_debug L.ConsGen ("Initializing inside, peer, environment, and input ports of " ^ inst.R.id);
-      let machine = get_machine inst in
-      let mid = machine.R.resource_key, machine.R.id in
-      let n = get_node (mid, (inst.R.resource_key, inst.R.id)) in
-      let inside = find_inside_ref n pmodel inst (node_id_tbl, id_node_tbl) in
-      let inst_2 = { inst with R.inside_ref = inside }   in
-      L.log_debug L.ConsGen "inside constraints filled" ;
-      let peers =  find_peer_refs  n pmodel inst_2 (node_id_tbl, id_node_tbl) in
-      let inst_3 = { inst_2 with R.peer_refs = peers } in
-      L.log_debug L.ConsGen "peer constraints filled" ;
-      let envs =   find_env_refs   n pmodel inst_3 (node_id_tbl, id_node_tbl) in
-      let inst_4 = { inst_3 with R.environment_refs = envs } in
-      L.log_debug L.ConsGen "env constraints filled" ;
-      let new_ip = map_input_ports rdef inst_4 in
-      let inst_5 = { inst_4 with R.input_ports = new_ip } in
-      L.log_debug L.ConsGen "input ports filled" ;
-      add_inst inst_5; 
+    L.log_debug L.ConsGen ("Initializing inside, peer, environment, and input ports of " ^ inst.R.id);
+    let machine = get_machine inst in
+    let mid = machine.R.resource_key, machine.R.id in
+    let n = get_node (mid, (inst.R.resource_key, inst.R.id)) in
+    let inside = find_inside_ref n pmodel inst (node_id_tbl, id_node_tbl) in
+    let inst_2 = { inst with R.inside_ref = inside }   in
+    L.log_debug L.ConsGen "inside constraints filled" ;
+    let peers =  find_peer_refs  n pmodel inst_2 (node_id_tbl, id_node_tbl) in
+    let inst_3 = { inst_2 with R.peer_refs = peers } in
+    L.log_debug L.ConsGen "peer constraints filled" ;
+    let envs =   find_env_refs   n pmodel inst_3 (node_id_tbl, id_node_tbl) in
+    let inst_4 = { inst_3 with R.environment_refs = envs } in
+    L.log_debug L.ConsGen "env constraints filled" ;
+    let new_ip = map_input_ports rdef inst_4 in
+    let inst_5 = { inst_4 with R.input_ports = new_ip } in
+    L.log_debug L.ConsGen "input ports filled" ;
+    add_inst inst_5; 
     L.log_debug L.ConsGen "Getting config ports" ;
     let cfgmap1 = R.SymbolMap.add "key" (json_of_key inst_5.R.resource_key) R.SymbolMap.empty in
     let cfgmap2 = R.SymbolMap.add "id" (R.JsonScalar (R.String inst_5.R.id) ) cfgmap1 in
@@ -1549,14 +1534,14 @@ class config_engine_factory
       | Some jmap -> R.SymbolMap.add "properties" (R.JsonMap jmap) cfgmap3
     in
     let cfgportvals = try get_config_ports false rdef inst_5
-      with ex -> L.system_print_endline (Printexc.to_string ex) ; assert false
+    with ex -> L.system_print_endline (Printexc.to_string ex) ; assert false
     in
     let cfgmap5 = R.SymbolMap.add "config_property_defs" cfgportvals cfgmap4 in
     let jsonval = R.JsonMap cfgmap5 in
     let sref = ref ""  in
     R_pp.pp_json_value jsonval (R_pp.make_pp_state (R_pp.output_to_str sref)) ;
     !sref
-
+      
   (* GUI API *)
   method set_config_ports_from_string jmapstring = 
   try
@@ -1598,7 +1583,7 @@ class config_engine_factory
           in
           let updated_inst = { inst with R.config_port = jcfgmap } in
           let updated_inst = fold_left_includes_list (set_includes_ports (lookup_rdef key)) updated_inst in
-          reset_includes_list ();
+          (* reset_includes_list (); *)
           L.log_always L.ConsGen "set_config_ports_from_string: Updated config ports" ;
           R_pp.pp_resource_inst updated_inst (R_pp.make_pp_state L.system_print_string) ;
           add_inst updated_inst
@@ -1625,27 +1610,12 @@ class config_engine_factory
     let (rdef, rinst) = (lookup_rdef key_of_jval, lookup_inst (key_of_jval, jid) ) in
     let machine = get_machine rinst in
     let mid = machine.R.resource_key, machine.R.id in
-(*
-    let n = get_node (mid, key_of_jval) in
-    let inside = find_inside_ref n pmodel rinst (node_id_tbl, id_node_tbl) in
-    let rinst_2 = { rinst with R.inside_ref = inside }   in
-    L.log_debug L.ConsGen "inside constraints filled" ;
-    let peers =  find_peer_refs  n pmodel rinst_2 (node_id_tbl, id_node_tbl) in
-    let rinst_3 = { rinst_2 with R.peer_refs = peers } in
-    L.log_debug L.ConsGen "peer constraints filled" ;
-    let envs =   find_env_refs   n pmodel rinst_3 (node_id_tbl, id_node_tbl) in
-    let rinst_4 = { rinst_3 with R.environment_refs = envs } in
-    L.log_debug L.ConsGen "env constraints filled" ;
-    let new_ip = map_input_ports rdef rinst_4 in
-    let rinst_5 = { rinst_4 with R.input_ports = new_ip } in
-    L.log_debug L.ConsGen "input ports filled" ;
-*)
     let rinst_5 = rinst in
     let new_op = map_output_ports rdef rinst_5 in
     let rinst_6 = { rinst_5 with R.output_ports = new_op } in
     L.log_debug L.ConsGen ("Includes list has size " ^(string_of_int (List.length (debug_get_includes_list())))) ;
     let rinst_7 = fold_left_includes_list (set_includes_ports rdef) rinst_6 in
-    reset_includes_list ();
+    (* reset_includes_list (); *)
     add_inst rinst_7;
     L.log_debug L.ConsGen "Added updated instance to instance database";
     ()

@@ -1,6 +1,7 @@
 """Interface to the ocaml configuration engine.
 """
 import os.path
+import json
 
 # fix path if necessary (if running from source or running as test)
 import fixup_python_path
@@ -32,17 +33,17 @@ def run_config_engine(installer_file_layout, install_spec_file):
                                           cwd=os.path.dirname(install_script_file))
     if rc != 0:
         logger.error("Config engine returned %d" % rc)
-        if os.path.exists(req.config_error_file):
+        if os.path.exists(config_error_file):
             # if the config engine wrote an error file, we parse that
             # error and raise it.
             try:
-                with open(req.config_error_file, "rb") as f:
+                with open(config_error_file, "rb") as f:
                     ue = parse_user_error(json.load(f),
                                           component=AREA_CONFIG)
                 raise ue
             except UserErrorParseExc, e:
                 logger.exception("Unable to parse user error file %s" %
-                                 req.config_error_file)
+                                 config_error_file)
         raise Exception("Configuration engine returned an error")
     if not os.path.exists(install_script_file):
         raise Exception("Configuration engine must have encountered a problem: install script %s was not generated" % install_script_file)

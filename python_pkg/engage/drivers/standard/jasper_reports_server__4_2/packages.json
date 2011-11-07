@@ -1,0 +1,9 @@
+
+[
+  { "type": "Archive",
+    "package_class": "ZipArchive",
+    "location": "http://iweb.dl.sourceforge.net/project/jasperserver/JasperServer/JasperServer%204.2.1/jasperreports-server-cp-4.2.1-bin.zip",
+    "filename": "jasperreports-server-cp-4.2.1-bin.zip",
+    "downloader": "HTTPDownloader"
+  }
+]

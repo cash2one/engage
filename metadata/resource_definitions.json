@@ -978,16 +978,29 @@
     { "key": {"name": "apache-tomcat", "version": "6.0"},
       "display_name": "Apache Tomcat 6.0",
       "config_port": {
-        "admin_user": {"type":"username", "default":"admin",
-                       "display_name":"Adminstration user"},
+        "gui_admin_user": {"type":"string", "default":"tomcat",
+                          "display_name":"Adminstration user for Tomcat HTML gui"},
+        "gui_admin_password": {"type":"password",
+                               "default": "apache-tomcat/admin_password",
+                               "display_name":"Adminstrator's password"},
+        "gui_admin_user": {"type":"string", "default":"tomcat",
+                          "display_name":"Adminstration user for Tomcat HTML gui"},
+        "gui_admin_password": {"type":"password",
+                               "default": "apache-tomcat/admin_password",
+                               "display_name":"Adminstrator's password"},
+        "admin_user": {"type":"string", "default":"manager",
+                          "display_name":"Adminstration user for Tomcat http script interface"},
         "admin_password": {"type":"password",
                            "default": "apache-tomcat/admin_password",
-                           "display_name":"Adminstrator's password"},
+                           "display_name":"Tomcat manager API password"},
         "manager_port": {"type":"tcp_port", "default":8080,
                          "display_name":"TCP/IP Port"},
         "home" : {"type":"path",
                   "display_name": "Install directory",
-                  "default":"${input_ports.host.genforma_home}/tomcat-6.0"}
+                  "default":"${input_ports.host.genforma_home}/tomcat-6.0"},
+        "pid_file": {"type":"path",
+                     "display_name": "PID file",
+                     "default":"${input_ports.host.genforma_home}/tomcat-6.0/logs/catalina.pid"}
       },
       "input_ports": {
         "host" : {
@@ -1013,7 +1026,8 @@
                            "source":"config_port.manager_port"},
           "home": {"type":"path", "source":"config_port.home"},
           "genforma_home": {"type":"path", "source":"input_ports.host.genforma_home"},
-          "environment_vars": {"type":[{"name":"string", "value":"string"}]}
+          "environment_vars": {"type":[{"name":"string", "value":"string"}]},
+          "pid_file": {"type":"path", "source":"config_port.pid_file"}
         }
       },
       "inside": {
@@ -1569,6 +1583,7 @@
           "manager_port": {"type":"tcp_port"},
           "home": {"type":"path"},
           "genforma_home": "path",
+          "pid_file": "path",
           "environment_vars": {
             "type":[{"name":"string", "value":"string"}],
             "includes":[{"name":"RUNTIME_PROPERTIES_FILE",
@@ -3085,7 +3100,7 @@
       "output_ports" : {
           "ocache": {
             "host" : { "type" : "string", "fixed-value" : "dummy.host" },
-            "port" : { "type" : "tcp_port", "fixed_value" : 0 },
+            "port" : { "type" : "tcp_port", "fixed-value" : 0 },
             "provider" : { "type" : "string", "fixed-value" : "dummy" },
             "home" : { "type":"path", "fixed-value":"__dummy__"}
           }
@@ -3620,8 +3635,7 @@
         "BROKER_VHOST" : { "type" : "string", "default" : "" }
       },
       "input_ports" : {
-        "host": {},
-        "broker" : { "broker" : "string" }
+        "host": {}
       },
       "output_ports" : {
          "celery" : { 
@@ -3946,6 +3960,118 @@
               "port_mapping": {"mysql":"mysql", "mysql_admin":"mysql_admin"}}
           ]}
         ]
+      }
+    },
+    {"key": {"name":"mysql-jdbc-driver-jarfile", "version":"5.1"},
+     "display_name": "JDBC driver for MySQL (jarfile)",
+      "input_ports": {
+        "host": { "genforma_home": "path", "hostname":"string" }
+      },
+      "output_ports": {
+        "archive_info": {
+          "extract_path": {
+            "type":"path",
+            "fixed-value":"${input_ports.host.genforma_home}/mysql-connector-java-5.1.18"
+          },
+          "jar_file_path": {
+            "type":"path",
+            "fixed-value":"${input_ports.host.genforma_home}/mysql-connector-java-5.1.18/mysql-connector-java-5.1.18-bin.jar"
+          }
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+        ]
+      }
+    },
+    { "key" : {"name": "jasper-reports-server", "version":"4.2"},
+      "display_name" : "Jasper Reports Server",
+      "config_port" : {
+        "home": {"type":"path", "default":"${input_ports.tomcat.genforma_home}/jasper_reports_server_4.2"}
+      },
+      "input_ports" : {
+         "mysql": {
+           "host": "string",
+           "port": "tcp_port"
+         },
+         "mysql_admin": {
+           "admin_password": "password"
+         },
+         "tomcat": {
+           "admin_user": "string",
+           "admin_password": "password",
+           "hostname": "hostname",
+           "manager_port": "tcp_port",
+           "home": "path",
+           "pid_file":"path",
+           "genforma_home": "path",
+           "environment_vars": {
+             "type":[{"name":"string", "value":"string"}],
+             "includes":[{"name":"JAVA_OPTS",
+                         "value":"-Xms1024m -Xmx2048m -XX:PermSize=32m -XX:MaxPermSize=128m -Xss2m -XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled"}]
+           }
+         },
+         "jdbc_driver_file": {
+           "jar_file_path":"path"
+         }
+      },
+      "output_ports": {
+        "jasper_server": {
+          "url": {"type":"string",
+                  "fixed-value":"http://${input_ports.tomcat.hostname}:${input_ports.tomcat.manager_port}/jasperserver"},
+          "app_path": {"type":"string", "fixed-value":"/jasperserver"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"apache-tomcat", "version":{"greater-than-or-equal":"6.0",
+                                                 "less-than":"7.0"}},
+            "port_mapping": {"tomcat":"tomcat"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"mysql-jdbc-driver-jarfile", "version":"5.1"},
+            "port_mapping": { "jdbc_driver_file": "archive_info" }
+          },
+        {"one-of": [
+            { "key": {"name":"mysql-macports",
+                      "version":{"greater-than-or-equal":"5.1"}},
+              "port_mapping": {"mysql":"mysql", "mysql_admin":"mysql_admin"}},
+            { "key": {"name":"mysql-apt",
+                      "version":{"greater-than-or-equal":"5.1"}},
+              "port_mapping": {"mysql":"mysql", "mysql_admin":"mysql_admin"}}
+          ]}]
+       }
+    },
+    { "key": {"name": "tomcat-war-file", "version":"1.0"},
+      "display_name": "Java web application for Tomcat",
+      "config_port" : {
+        "war_file_path": {"type":"path"}
+      },
+      "input_ports" : {
+         "tomcat": {
+           "admin_user": "string",
+           "admin_password": "password",
+           "hostname": "hostname",
+           "manager_port": "tcp_port",
+           "home": "path",
+           "genforma_home": "path"
+         }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"apache-tomcat", "version":{"greater-than-or-equal":"6.0",
+                                                 "less-than":"7.0"}},
+            "port_mapping": {"tomcat":"tomcat"}}
+          ]
       }
     }
   ]

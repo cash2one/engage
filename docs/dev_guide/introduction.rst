@@ -107,8 +107,7 @@ code has five main modules: ``engage.utils``, ``engage.drivers``, ``engage.mgt_b
 ``engage.engine``, and ``engage.tests``.  Cross-module dependencies
 are enforced as follows:
 
-  * ``utils`` cannot have any external dependencies, other than the
-     Python standard library
+  * ``utils`` cannot have any external dependencies, other than the Python standard library
   * ``drivers`` may depend only on code in ``utils`` (as well as dependencies within ``drivers`` itself)
   * ``mgt_backends`` may depend on ``utils`` and ``drivers``
   * ``engine`` may depend on ``utils``, ``drivers``, and  ``mgt_backends``
@@ -122,7 +121,7 @@ We look into more detail at the steps involved in extending Engage.
 Drivers
 ~~~~~~~~~~~~
 First, one determines whether additional drivers will be needed.  This
-can be done by listing all the components needed for the desired
+can be done by reviewing all the components needed for the desired
 application stack and mapping them to existing drivers. If any
 components do not have existing drivers, new drivers must be created.
 
@@ -134,10 +133,32 @@ More details on driver development may be found in :ref:`drivers`.
 
 Install Specification
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The *install specification*  describes a (partial) set of resources to
+be installed. The collection of resources listed in the install
+specification can be deployed using the ``deploy-spec`` tool.
+This tool expands the set of resources listed in the install spec to
+include all required dependencies, computes the values of
+configuration properties, and calls the Engage deployment engine to
+deploy the requested configuration.
+The section :ref:`specs` describes the format for install
+specifications and the ``deploy-spec`` tool.
 
 Installer
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Optionally, a collection of related  install specifications can be
+packaged together in an *installer*. Engage's ``install`` tool
+provides a command line interface for selecting from a set of install
+specifications (e.g development, test, and production), overriding the
+values of selected configuration parameters, and then deploying the
+resulting specification.  See the section :ref:`installers` for details.
 
 
 Extensions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+An *extension* is collection of Engage components, including drivers, appliacation
+packages, and installers combined in a specific structure. Engage
+provides a tool to add an extension to the Engage distribution,
+permitting the newly added components to be seemlessly  included in
+any deployments. This enables the independent development and
+distribution of content for Engage. Extensions are described in the
+section :ref:`extensions`.

@@ -26,14 +26,42 @@ class CommandError(Exception):
     pass
 
 
+STATUS_RUNNING = "Running"
+STATUS_STOPPED = "Stopped"
+STATUS_NOT_INSTALLED = "Not installed"
+STATUS_INSTALLED = "Installed" # used only when not a service
+STATUS_UNAVAILABLE = "Unavailable"
 
-def get_service_status(rm):
+def get_service_status(rm, resource_map, status_cache_map):
+    """Get the status of the service associated with
+    the resource manager. If the containing service is
+    not up, the status request could fail. To address this,
+    we check the containing service first and, if it is not up,
+    report the status as the inner service as unavalable. The
+    status_cache_map parameter is a map from resource ids to statuses.
+    It is updated by get_service_status() with any status values it
+    obtains (including recursive calls).
+    """
+    if rm.metadata.inside!=None:
+        inside_id = rm.metadata.inside.id
+        if not status_cache_map.has_key(inside_id):
+            # obtain the status of the containing resource
+            get_service_status(resource_map[inside_id], resource_map,
+                               status_cache_map)
+        if not (status_cache_map[inside_id]==STATUS_RUNNING or
+                status_cache_map[inside_id]==STATUS_INSTALLED):
+            status_cache_map[rm.metadata.id] = STATUS_UNAVAILABLE
+            return STATUS_UNAVAILABLE
+    
     if rm.is_installed()==False:
-        return "Not installed"
+        status_cache_map[rm.metadata.id] = STATUS_NOT_INSTALLED
+    elif not rm.is_service():
+        status_cache_map[rm.metadata.id] = STATUS_INSTALLED
     elif rm.is_running()==False:
-        return "Stopped"
+        status_cache_map[rm.metadata.id] = STATUS_STOPPED
     else:
-        return "Running"
+        status_cache_map[rm.metadata.id] = STATUS_RUNNING
+    return status_cache_map[rm.metadata.id]
 
 
 def dummy(command, command_args, mgr_pkg_list, resource_map, logger):
@@ -52,10 +80,12 @@ def list_resources(command, command_args, mgr_pkg_list, resource_map, logger, dr
 
 
 def status(command, command_args, mgr_pkg_list, resource_map, logger, dry_run):
+    status_cache = {}
     def print_status(rm):
         if not dry_run:
+            status = get_service_status(rm, resource_map, status_cache)
             print "%s (%s) Status: %s" % \
-                  (rm.id, rm.package_name, get_service_status(rm))
+                  (rm.id, rm.package_name, status)
         else:
             print "%s (%s) [dry_run]" % (rm.id, rm.package_name)
 

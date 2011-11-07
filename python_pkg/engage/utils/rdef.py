@@ -548,6 +548,9 @@ class PortProperty(object):
             print "WARNING: password property %s does not have a default value" % \
                 self.qualified_name
             vr.add_warning()
+        if isinstance(self.json, dict) and self.json.has_key(u"fixed_value"):
+            print "WARNING: definition for property %s has a field 'fixed_value'. Did you mean 'fixed-value'?" % self.qualified_name
+            vr.add_warning()
 
 
 class Port(object):

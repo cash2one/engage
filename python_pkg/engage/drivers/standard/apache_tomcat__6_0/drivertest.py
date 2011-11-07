@@ -22,8 +22,11 @@ _install_script = """
     "config_port": {
       "admin_password": "apache-tomcat/admin_password",
       "admin_user": "admin",
+      "gui_admin_password": "apache-tomcat/admin_password",
+      "gui_admin_user": "tomcat",
       "home": "${deployment_home}/tomcat-6.0",
-      "manager_port": 8080
+      "manager_port": 8080,
+      "pid_file":"${deployment_home}/tomcat-6.0/logs/catalina.pid"
     },
     "input_ports": {
       "host": {
@@ -49,7 +52,9 @@ _install_script = """
         "home": "${deployment_home}/tomcat-6.0",
         "hostname": "${hostname}",
         "manager_port": 8080,
-        "os_user_name": "${username}"
+        "os_user_name": "${username}",
+        "environment_vars":[],
+        "pid_file":"${deployment_home}/tomcat-6.0/logs/catalina.pid"
       }
     },
     "inside": {

@@ -234,7 +234,13 @@
       ]
     },
     { "key": { "name": "java-virtual-machine-abstract", "version":"1.6"},
-      "mgr_module_name": "engage.drivers.genforma.dummy_resource_manager"
+      "mgr_module_name": "engage.drivers.genforma.dummy_resource_manager",
+      "packages": [
+        { "type": "Reference",
+          "package_class": "DummyPackage",
+          "location": ""
+        }
+      ]
     },
     { "key":{"name":"nginx", "version":"0.8"},
       "mgr_module_name":"engage.drivers.genforma.nginx",
@@ -755,6 +761,17 @@
           "location": ""
         }
       ]
-    }
+    },
+   {"key": {"name": "mysql-jdbc-driver-jarfile", "version": "5.1"},
+    "mgr_module_name": "engage.drivers.genforma.extract_archive",
+    "packages": [
+        { "type": "Archive",
+          "package_class": "GzippedTarArchive",
+          "filename":"mysql-connector-java-5.1.18.tar.gz",
+          "location": "http://mysql.mirrors.pair.com/Downloads/Connector-J/mysql-connector-java-5.1.18.tar.gz",
+          "downloader": "HTTPDownloader"
+        }
+     ]
+   }
   ]
 }

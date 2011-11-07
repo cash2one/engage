@@ -3187,13 +3187,13 @@
             "type": "path", 
             "fixed-value": "__dummy__"
           }, 
+          "port": {
+            "type": "tcp_port", 
+            "fixed-value": 0
+          }, 
           "host": {
             "type": "string", 
             "fixed-value": "dummy.host"
-          }, 
-          "port": {
-            "type": "tcp_port", 
-            "fixed_value": 0
           }, 
           "provider": {
             "type": "string", 
@@ -3205,10 +3205,7 @@
     {
       "display_name": "Dummy celery adapter for django", 
       "input_ports": {
-        "host": {}, 
-        "broker": {
-          "broker": "string"
-        }
+        "host": {}
       }, 
       "key": {
         "version": "any", 

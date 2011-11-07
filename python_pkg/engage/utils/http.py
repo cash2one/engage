@@ -53,7 +53,11 @@ def check_url(hostname, port, request_path, logger, valid_response_codes=(httpli
 
 
 def make_request_with_basic_authentication(uri, realm, user, password,
-                                           auth_uri=None, tries=5):
+                                           auth_uri=None, tries=5,
+                                           data=None,
+                                           content_type=None,
+                                           request_method=None,
+                                           logger=None):
     if auth_uri==None: auth_uri = uri
     auth_handler = urllib2.HTTPBasicAuthHandler()
     auth_handler.add_password(realm=realm,
@@ -61,13 +65,20 @@ def make_request_with_basic_authentication(uri, realm, user, password,
                               user=user,
                               passwd=password)
     opener = urllib2.build_opener(auth_handler)
+    request = urllib2.Request(uri, data=data)
+    if content_type:
+        request.add_header('Content-Type', content_type)
+    if request_method:
+        request.get_method = lambda: request_method    
     current_try = 1
     # keep trying the connect. If we connect, break out of the loop.
     # If we get a non-timeout exception or exceeeded the try limit,
     # throw the exception
     while True:
         try:
-            conn = opener.open(uri, timeout=10.0)
+            if logger:
+                logger.debug("Making http request with basic authentication to %s" % uri)
+            conn = opener.open(request, timeout=10.0)
             break
         except urllib2.URLError, msg:
             if msg == "urlopen error timed out" and current_try < tries:

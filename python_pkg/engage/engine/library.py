@@ -562,7 +562,7 @@ register_package_class(Package.REFERENCE_TYPE, "PipLink", PipPythonPackage)
 class MacPortsPackage(Package):
     def __init__(self, type, location, platforms, package_properties):
         if platforms==None:
-            platforms = ["macosx", "macosx4"]
+            platforms = ["macosx", "macosx64"]
         Package.__init__(self, type, location,
                          platforms, package_properties)
 
