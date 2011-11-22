@@ -1,0 +1,29 @@
+[
+  {"id":"master-host",
+     "key": {"name":"dynamic-host", "version":"*"}
+  },
+  {
+    "id": "apache-tomcat",
+    "key": {"name":"apache-tomcat", "version":"6.0"},
+    "config_port": {
+      "manager_port": 8080
+    },
+    "inside": {
+      "id": "master-host",
+      "key": {"name":"dynamic-host", "version":"*"},
+      "port_mapping": {"host": "host"}
+    }
+  },
+  {
+    "id": "tomcat-app",
+    "key": {"name":"tomcat-war-file", "version":"1.0"},
+    "config_port": {
+      "war_file_path":"need to specify"
+    },
+    "inside": {
+      "id": "apache-tomcat",
+      "key": {"name":"apache-tomcat", "version":"6.0"},
+      "port_mapping": {"tomcat": "tomcat"}
+    }
+  }
+]

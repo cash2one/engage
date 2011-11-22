@@ -69,9 +69,11 @@ def main(argv):
     parser.add_option("--archive-name", "-a", dest="archive_name",
                       default=None,
                       help="Full path of generated archive file (defaults to <deployment_home>/engage/engage-dist.tar.gz)")
-    add_standard_cmdline_options(parser, uses_pw_file=False)
+    add_standard_cmdline_options(parser, uses_pw_file=False,
+                                 running_deployment=False)
     (options, args) = parser.parse_args(args=argv)
-    (file_layout, dh) = process_standard_options(options, parser, allow_overrides_of_dh=True)
+    (file_layout, dh) = process_standard_options(options, parser,
+                                                 allow_overrides_of_dh=True)
     if options.archive_name:
         archive_name = options.archive_name
     else:

@@ -1,0 +1,5 @@
+[{"name":"tomcat-war-file", "version":"1.0"},
+ {"name":"Django-App", "version":"1.0"},
+ {"name":"jasper-reports-server", "version":"4.2"},
+ {"name":"MoinMoin", "version":"1.9"}
+]

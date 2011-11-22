@@ -183,6 +183,8 @@ class Manager(service_manager.Manager, PasswordRepoMixin):
     def validate_pre_install(self):
         p = self.ctx.props
         self.ctx.r(check_installable_to_dir, p.config_port.home)
+        self.ctx.r(check_port_available, "127.0.0.1",
+                   p.config_port.manager_port)
 
     def is_installed(self):
         os.path.exists(self.ctx.props.config_port.home)

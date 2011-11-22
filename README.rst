@@ -9,23 +9,26 @@ configuration, and upgrades.
 
 How Engage Works
 =================
-Engage provides *installers*, which are simple command-line utilities to 
-install a given application stack. The possible components used in an
-application stack are modeled as *resources*. The metadata for resources is
-represented in JSON files and includes constraints on the dependences for
-each resource. These dependencies may be libraries, software packages,
-application containers, or services (possibly running remotely). When asked
-to install an application stack, Engage builds a set of constraints from
-its resource database, the user's inputs, and the local machine environment
-(operating system, installed software, etc.). These constraints are solved
-to provide a compatible set of resources to be installed. Each resource
-has an associated *driver*, which knows how to install and manage its resource.
-The application is installed by calling the drivers for each of the selected
-resources, in dependency order.
+Engage works off a simple JSON file, called an *install spec*, that
+lists the components you want installed, along with any non-default
+configuration parameters. The Engage *deployer* expands this list to
+include any required dependencies and computes the configuration
+values for each component. This expanded specification is used to
+drive the installation, configuration, and startup of your stack.
 
-The metadata from an installation is saved, including resources, their
-configuration values, and resource interrelationships. This data is used to
-support additional actions including upgrades, backups, and uninstall.
+Engage also provides *installers*, which are simple command-line utilities to 
+install a given pre-defined application stack.  Installers have been
+created for Django and (basic) Java Web Applications (WAR files). You
+can also create an installer for your own application stack.
+
+For both the deployer and installer, the metadata from a deployment is saved on the
+target system and
+then used to support additional actions including upgrades, backups, and uninstall.
+
+Engage is extensible. You can add individual components by writing
+*resource definitions*, metadata describing a component's
+configuration and dependencies, and *drivers*, Python classes which
+implement the actions for a component (install, start, stop, backup, etc.).
 
 Current Status
 --------------

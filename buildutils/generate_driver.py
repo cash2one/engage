@@ -109,6 +109,8 @@ def make_context(resource_json, sudo_password_fn, dry_run=False):
 # PasswordRepoMixin to the inheritance list.
 #
 class Manager(resource_manager.Manager):
+    # Uncomment the line below if this driver needs root access
+    ## REQUIRES_ROOT_ACCESS = True 
     def __init__(self, metadata, dry_run=False):
         package_name = "%s %s" % (metadata.key["name"],
                                   metadata.key["version"])

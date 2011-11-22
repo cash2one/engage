@@ -76,10 +76,13 @@ class UpgradeRollbackInProgress(UserError):
         self.resource_id = None
 
 
-def upgrade(backup_dir, file_layout, deployment_home, options, password_db=None, atomic_upgrade=True):
+def upgrade(backup_dir, file_layout, deployment_home, options,
+            atomic_upgrade=True):
     old_resources = get_old_resources(backup_dir)
-    mgrs_and_pkgs = cmdline_script_utils.get_mgrs_and_pkgs(file_layout, deployment_home, options,
-                                                           file_layout.get_install_script_file(), password_db)
+    mgrs_and_pkgs = cmdline_script_utils.get_mgrs_and_pkgs(file_layout,
+                                                           deployment_home,
+                                                           options,
+                                                           file_layout.get_install_script_file())
     undo_list = []
     for (m, p) in mgrs_and_pkgs:
         id = m.metadata.id

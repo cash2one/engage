@@ -34,10 +34,12 @@ class UpgradeRequest(object):
                           help="If specified, override the application_archive property in config choices file with this value")        
         parser.add_option("-s", "--subproc", action="store_true", dest="subproc",
                           default=False, help="Run in subprocess mode, getting master password from standard input")
-        parser.add_option("-p", "--python",
+        parser.add_option("-x", "--python",
                           default=None,
                           help="Use the specified python executable as basis for Python virtual environments",
                           dest="python_exe")
+        parser.add_option("-p", "--master-password-file", default=None,
+                          help="File containing master password (if not specified, will prompt from console if needed)")
 
         (self.options, args) = parser.parse_args(args=argv)
         if len(args) != 1:
@@ -58,6 +60,10 @@ class UpgradeRequest(object):
         if self.options.python_exe:
             if not os.path.exists(self.options.python_exe):
                 parser.error("Python executable %s does not exist" % self.options.python_exe)
+        if self.options.master_password_file:
+            if not os.path.exists(self.options.master_password_file):
+                parser.error("Master password file %s not found" %
+                             self.options.master_password_file)
 
         self.engage_home = os.path.join(self.deployment_home, "engage")
         if not os.path.isdir(self.engage_home):
@@ -72,12 +78,15 @@ class UpgradeRequest(object):
                 parser.error("Application archive file %s does not exist" % self.application_archive)
 
         if os.path.exists(os.path.join(self.config_dir, "pw_repository")):
-            if self.options.subproc:
+            if self.options.master_password_file:
+                with open(self.options.master_password_file, "rb") as f:
+                    self.master_pw = f.read().rstrip()
+            elif self.options.subproc:
                 self.master_pw = sys.stdin.read().rstrip()
             else:
                 while True:
-                    self.master_pw = getpass.getpass("Sudo password:")
-                    extra_pw = getpass.getpass("Re-enter sudo password:")
+                    self.master_pw = getpass.getpass("Master password:")
+                    extra_pw = getpass.getpass("Re-enter Master password:")
                     if self.master_pw==extra_pw:
                         break
                     else:
@@ -96,8 +105,6 @@ def _run_engage_command(req, command_name, command_args, logger, valid_rcs=[0]):
     args = [command]
     if req.master_pw:
         args.append("-s")
-    else:
-        args.append("-n")
     args.append("--log=%s" % req.options.loglevel)
     args.extend(command_args)
     rc = run_and_log_program(args, None, logger, req.engage_bin_dir,

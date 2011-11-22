@@ -16,6 +16,10 @@ def validate_layout(installer_name=None):
     logger.debug("configurator exe = %s" % r)
     r = l.get_password_file_directory()
     logger.debug("password file directory = %s" % r)
+    r = l.get_password_database_file()
+    logger.debug("password database file = %s" % r)
+    r = l.get_password_salt_file()
+    logger.debug("password salt file = %s" % r)
     r = l.get_install_spec_template_file(0)
     logger.debug("install spec template file = %s" % r)
     r = l.get_install_spec_file(0)
@@ -39,7 +43,7 @@ def validate_layout(installer_name=None):
 
 
 # we use this for testing
-KNOWN_INSTALLERS = ["django", "moinmoin"]
+KNOWN_INSTALLERS = ["django", "moinmoin", "tomcat", "jasper"]
 
 #    
 # We dynamically generate tests bases on what's presenting in the surrounding file system.

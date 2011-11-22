@@ -8,7 +8,7 @@
 	"sudo_password" : { "type" : "string", "default" : "fubar" },
         "cpu_arch" : {"type":"string", "default":"x86"},
         "private_ip": {"type":"string", "default":null},
-        "genforma_home": {"type":"path", "default":"/Users/${config_port.os_user_name}e/apps"},
+        "genforma_home": {"type":"path", "default":"/Users/${config_port.os_user_name}/apps"},
         "log_directory": {"type":"path", "default":"${config_port.genforma_home}/log"}
        },
       "output_ports": {
@@ -914,6 +914,34 @@
         ]
       }
     },
+    { "key": {"name":"java-virtual-machine-abstract", "version":"1.5"},
+      "display_name":"JDK 1.5 (abstract)",
+      "input_ports": {
+        "host": {},
+        "jvm": {
+          "type": "string",
+          "home": "path"
+        }
+      },
+      "output_ports": {
+        "jvm": {
+          "type": {"type":"string", "source":"input_ports.jvm.type"},
+          "home": {"type":"path", "source":"input_ports.jvm.home"}
+        }
+      },
+      "environment": {
+        "one-of": [
+          { "key": {"name":"java-virtual-machine-macosx", "version":"1.5"},
+            "port_mapping":{"jvm":"jvm"}}
+        ]
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":"10.5"},
+            "port_mapping": {"host":"host"}}
+        ]
+      }
+    },
     { "key": {"name":"java-virtual-machine-abstract", "version":"1.6"},
       "display_name":"JDK 1.6 (abstract)",
       "input_ports": {
@@ -932,6 +960,8 @@
       "environment": {
         "one-of": [
           { "key": {"name":"java-virtual-machine-macosx", "version":"1.6"},
+            "port_mapping":{"jvm":"jvm"}},
+          { "key": {"name":"java-virtual-machine-linux", "version":"1.6"},
             "port_mapping":{"jvm":"jvm"}}
         ]
       },
@@ -943,6 +973,33 @@
           { "key": {"name": "ubuntu-linux", "version":"9.10"},
             "port_mapping": {"host":"host"}},
           { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+        ]
+      }
+    },
+    { "key": {"name":"java-virtual-machine-macosx", "version":"1.5"},
+      "display_name":"JDK 1.5 for macosx",
+      "config_port": {
+        "JAVA_HOME": {"type":"string",
+                      "default":"/System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK/Home"}
+      },
+      "input_ports": {
+        "host" : {
+          "hostname": "hostname",
+          "os_type": "string",
+          "os_user_name": "string",
+          "cpu_arch": "string"
+        }
+      },
+      "output_ports": {
+        "jvm": {
+          "type": {"type":"string", "fixed-value":"jdk"},
+          "home": {"type":"string", "source":"config_port.JAVA_HOME"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":"10.5"},
             "port_mapping": {"host":"host"}}
         ]
       }
@@ -975,14 +1032,36 @@
         ]
       }
     },
+    { "key": {"name":"java-virtual-machine-linux", "version":"1.6"},
+      "display_name":"JVM 1.6 for Linux",
+      "config_port": {
+        "JAVA_HOME": {"type":"string",
+                      "default":"/usr/lib/jvm/java-6-openjdk/jre"}
+      },
+      "input_ports": {
+        "host" : {
+          "hostname": "hostname",
+          "os_type": "string",
+          "os_user_name": "string",
+          "cpu_arch": "string"
+        }
+      },
+      "output_ports": {
+        "jvm": {
+          "type": {"type":"string", "fixed-value":"jdk"},
+          "home": {"type":"string", "source":"config_port.JAVA_HOME"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"ubuntu-linux", "version":{"greater-than-or-equal":"10.04"}},
+            "port_mapping": {"host":"host"}}
+        ]
+      }
+    },
     { "key": {"name": "apache-tomcat", "version": "6.0"},
       "display_name": "Apache Tomcat 6.0",
       "config_port": {
-        "gui_admin_user": {"type":"string", "default":"tomcat",
-                          "display_name":"Adminstration user for Tomcat HTML gui"},
-        "gui_admin_password": {"type":"password",
-                               "default": "apache-tomcat/admin_password",
-                               "display_name":"Adminstrator's password"},
         "gui_admin_user": {"type":"string", "default":"tomcat",
                           "display_name":"Adminstration user for Tomcat HTML gui"},
         "gui_admin_password": {"type":"password",

@@ -13,12 +13,11 @@ setup(
     entry_points = {
         'console_scripts': [
             'svcctl = engage.engine.svcctl:main',
-            'install-backend = engage.engine.install_engine:call_from_console_script',
-            'install-from-spec = engage.engine.install_from_spec:call_from_console_script',
             'install = engage.engine.cmdline_install:call_from_console_script',
             'backup = engage.engine.backup:call_from_console_script',
-            'deploy-spec = engage.engine.deploy_spec:call_from_console_script',
-            'create-distribution = engage.engine.create_distribution:call_from_console_script'
+            'deployer = engage.engine.deploy_spec:call_from_console_script',
+            'create-distribution = engage.engine.create_distribution:call_from_console_script',
+            'password_manager = engage.engine.password:main',
             ]},
     install_requires=[],
     license='Apache V2.0',

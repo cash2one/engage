@@ -94,6 +94,7 @@ mysql-server-5.1 mysql-server/root_password_again password %(pw)s
     
 class Manager(SysVServiceMixin, PasswordRepoMixin,
               SharedResourceWithPwDbMixin, service_manager.Manager):
+    REQUIRES_ROOT_ACCESS = True
     def __init__(self, metadata, dry_run=False):
         package_name = "%s %s" % (metadata.key["name"],
                                   metadata.key["version"])

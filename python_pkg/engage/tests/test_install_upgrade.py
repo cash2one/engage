@@ -11,10 +11,21 @@ except:
 
 import engage.tests.test_common as tc
 from engage.engine.cmdline_install import APPLICATION_ARCHIVE_PROP
+from engage.engine.password import create_password_db
 
 join = os.path.join
 
 INSTALLERS = {
+    'tomcat': {
+        'hello': {
+            'install': {
+                APPLICATION_ARCHIVE_PROP: join(tc.DEMO_DIR, 'hello.war'),
+                'websvr_port': 8080, # for checking response
+                'manager_port': 8080,
+                'password_map': {'apache-tomcat/admin_password': 'testpass'}
+                },
+            }
+        },
     'django': {
         'mpifa': {
             'install': {
@@ -32,12 +43,12 @@ INSTALLERS = {
             },
 # JF 2011-10-04: Had to comment out because httlib2 isn't accessible from
 # Rackspace. It is included in django-blog2's requirements.txt file.
-##        'django-blog2': {
-##            'install': {
-##                APPLICATION_ARCHIVE_PROP: join(tc.DEMO_DIR, 'django-blog2.tgz')},
-##            'upgrade': {
-##                APPLICATION_ARCHIVE_PROP: join(tc.DEMO_DIR, 'django-blog2.tgz'),}
-##            }
+       'django-blog2': {
+           'install': {
+               APPLICATION_ARCHIVE_PROP: join(tc.DEMO_DIR, 'django-blog2.tgz')},
+           'upgrade': {
+               APPLICATION_ARCHIVE_PROP: join(tc.DEMO_DIR, 'django-blog2.tgz'),}
+           }
         }
     }
 
@@ -64,7 +75,12 @@ def app_is_available(config_map):
 
 def run_operations(installer_name, app_name):
     deploy_dir = tc.get_randomized_deploy_dir('test_install_', tc.BUILD_DIR)
-    for operation in OPERATIONS:
+    master_password_file = join(deploy_dir, 'master_password')
+
+    operations = INSTALLERS[installer_name][app_name].keys()
+    for operation in OPERATIONS: # retain correct order
+        if operation not in operations:
+            continue
         config_map = tc.get_config(INSTALLERS[installer_name][app_name][operation])
         config_map['Installer'] = installer_name
         config_map['Install directory'] = deploy_dir
@@ -72,20 +88,27 @@ def run_operations(installer_name, app_name):
         if operation == 'install':
             assert tc.port_is_available(tc.get_netloc(config_map))
             tc.bootstrap(deploy_dir)
-            config_path = tc.write_config_file(deploy_dir, config_map)
-            exit_code = tc.install(deploy_dir, config_path)
+            tc.write_master_password(master_password_file)
+            config_dir = tc.ensure_subdir(deploy_dir, 'config')
+            config_path = tc.write_config_file(config_dir, config_map)
+            if 'password_map' in config_map:
+                create_password_db(deploy_dir, tc.DEFAULT_MASTER_PASSWORD,
+                                   config_map['password_map'])
+            exit_code = tc.install(deploy_dir, config_path, master_password_file)
 
         elif operation == 'upgrade':
             exit_code = tc.upgrade(deploy_dir, tc.ENGAGE_DIR,
-                                   config_map[APPLICATION_ARCHIVE_PROP])
+                                   config_map[APPLICATION_ARCHIVE_PROP],
+                                   master_password_file)
 
         assert config_map['expected_exit_code'] == exit_code
         time.sleep(1) # allow for delayed start
         assert app_is_available(config_map)
-        if operation == 'upgrade' or len(OPERATIONS) == 1:
-            # don't shutdown on install unless it's the only operation
-            tc.stop(tc.get_init_script(config_map))
+        if operation == 'upgrade' or len(operations) == 1:
+            # only shutdown on install if it's the only operation
+            tc.stop(tc.get_init_script(config_map), master_password_file)
             assert tc.port_is_available(tc.get_netloc(config_map))
+    tc.logger.info('removing %s' % (deploy_dir))
     shutil.rmtree(deploy_dir)
 
 def test_install_upgrade_generator():
@@ -101,7 +124,7 @@ def test_install_upgrade_generator():
 
 
 # You can run this test file as a main script. By default,
-# this will execute all teh install upgrade tests. You can also
+# this will execute all the install_upgrade tests. You can also
 # run individual tests via the apps and installer command line options.
 if __name__ == "__main__":
     from optparse import OptionParser

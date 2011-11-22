@@ -233,6 +233,15 @@
         }
       ]
     },
+    { "key": { "name": "java-virtual-machine-abstract", "version":"1.5"},
+      "mgr_module_name": "engage.drivers.genforma.dummy_resource_manager",
+      "packages": [
+        { "type": "Reference",
+          "package_class": "DummyPackage",
+          "location": ""
+        }
+      ]
+    },
     { "key": { "name": "java-virtual-machine-abstract", "version":"1.6"},
       "mgr_module_name": "engage.drivers.genforma.dummy_resource_manager",
       "packages": [

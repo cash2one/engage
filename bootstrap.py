@@ -91,7 +91,7 @@ def main(argv):
                       action="store_true",
                       help="create a distribution archive",
                       dest="create_dist_archive", default=False)
-    parser.add_option("-p", "--python",
+    parser.add_option("-x", "--python",
                       default=None,
                       help="Use the specified python executable as basis for Python virtual environments",
                       dest="python_exe")

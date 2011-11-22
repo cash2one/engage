@@ -84,6 +84,8 @@ class BaseFileLayout(object):
         self.cache_directory = None
         self.deployment_config_directory = None
         self.log_directory = None
+        self.password_database_file = None
+        self.password_salt_file = None
 
     def _check_for_directory(self, dirname):
         if not os.path.isdir(dirname):
@@ -218,7 +220,22 @@ class BaseFileLayout(object):
         Return the list of such files that exist.
         """
         return self._get_extension_files("resource_library.json")
-    
+
+    def get_password_database_file(self):
+        if not self.password_database_file:
+            import engage.utils.pw_repository
+            self.password_database_file = \
+                os.path.join(self.get_password_file_directory(),
+                             engage.utils.pw_repository.REPOSITORY_FILE_NAME)
+        return self.password_database_file
+
+    def get_password_salt_file(self):
+        if not self.password_salt_file:
+            import engage.utils.pw_repository
+            self.password_salt_file = \
+                os.path.join(self.get_password_file_directory(),
+                             engage.utils.pw_repository.SALT_FILE_NAME)
+        return self.password_salt_file
 
     # Public apis implemented by subclasses
     def get_configurator_exe(self):

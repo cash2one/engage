@@ -84,6 +84,10 @@ def get_packages_filename():
 TIMEOUT_TRIES = 5
 TIME_BETWEEN_TRIES = 2.0
 
+# The follow defaults can be overridden in wokiserverconfig.py. We might want
+# to make this configurable at the driver level
+MOINMOIN_LOCALSERVER_PORT = 8080
+MOINMOIN_LOCALSERVER_HOSTNAME = "localhost"
 
 def make_context(resource_json, sudo_password_fn, dry_run=False):
     """This function sets up the context, validates the properties,
@@ -131,6 +135,9 @@ def run_validate_preinstall(ctx):
     if ctx.props.use_apache_authentication and \
        ctx.props.input_ports.webserver_adapter.type!="apache":
         raise UserError(errors[ERR_MUST_SELECT_APACHE])
+    if ctx.props.input_ports.webserver_adapter.type!="apache":
+        ctx.r(check_port_available, MOINMOIN_LOCALSERVER_HOSTNAME,
+              MOINMOIN_LOCALSERVER_PORT)
 
 
 def _setup_apache_config_files(ctx):

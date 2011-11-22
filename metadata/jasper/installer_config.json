@@ -1,0 +1,19 @@
+{
+  "resource_def_file_name": "resource_definitions.json",
+  "software_library_file_name": "resource_library.json",
+  "log_level": "Debug",
+  "application_name": "Jasper Reports Server",
+  "install_spec_options": [
+  {
+    "choice_name":"Local Jasper Server instance", "file_name": "jasper_install_spec.json",
+    "password_required": true,
+    "config_properties": [
+      { "resource": "apache-tomcat",
+        "name": "admin_password",
+        "type": "password",
+        "description":"Tomcat manager password"
+      }
+    ]
+   }
+  ] 
+}

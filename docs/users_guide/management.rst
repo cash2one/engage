@@ -1,6 +1,6 @@
 .. _svcctl:
 
-Managing Installed Applications
+Managing Deployed Applications
 ===============================
 
 Once an application is installed, the metadata created by Engage can
@@ -9,7 +9,7 @@ be used to manage the application. This is accomplished by the
 ``--help`` option.
 
 If any components installed require sudo access (e.g. MySQL or Apache), you will be prompted
-for you password. For more details on passwords, see :ref:`password-management`.
+for you password. For more details on passwords, see :doc:`passwords`.
 
 All examples in this section assume that the deployment home is ``~/apps``. If you have bootstrapped your
 deployment home to another directory, just adjust the example commands accordingly. The ``$`` in examples represents the shell prompt: the rest of the line is input entered by the user. Any lines not beginning with ``$`` are

@@ -190,6 +190,7 @@ def make_context(resource_json, sudo_password_fn, dry_run=False):
 
 
 class Manager(resource_manager.Manager, PasswordRepoMixin):
+    REQUIRES_ROOT_ACCESS = True
     def __init__(self, metadata, dry_run=False):
         package_name = "%s %s" % (metadata.key["name"],
                                   metadata.key["version"])

@@ -15,6 +15,7 @@ from engage.utils.log_setup import parse_log_options, \
                                    setup_engine_logger, FakeLogger
 from engage.engine.engage_file_layout import get_engine_layout_mgr
 import engage.utils.pw_repository as pw_repository
+import engage.engine.password as password
 import cmdline_script_utils
 from engage.utils.user_error import UserError, EngageErrInf, convert_exc_to_user_error
 import gettext
@@ -65,134 +66,104 @@ class CmdLineError(UserError):
         return self.user_msg
 
 
-class InstallEngineBase:
-    """API for the install engine. This is implemented by InstallEngine
-    as well as by test stubs for the installer.
-    """
-    def __init__(self):
-        pass
+class InstallEngine(object):
+    def __init__(self, engage_file_layout,
+                 installer_supplied_pw_key_list=None):
+        self.engage_file_layout = engage_file_layout
+        self.installer_supplied_pw_key_list = installer_supplied_pw_key_list
+        self.options = None
+        self.args = None
+        self.deployment_home = None
+        self.logger = None
+        self.pw_database = None
 
-    def run(self, install_soln_file, library_file):
-        pass
-
-
-class InstallEngine(InstallEngineBase):
-    def __init__(self, logger, arg_info, pw_database=None):
-        InstallEngineBase.__init__(self)
-        self.logger = logger
-        self.arg_info = arg_info
-        self.pw_database = pw_database
+    def parse_command_args(self, argv):
+        usage = "usage: %prog [options]"
+        parser = OptionParser(usage=usage)
+        cmdline_script_utils.add_standard_cmdline_options(parser)
+        parser.add_option("-m", "--multinode", action="store_true",
+                          dest="multinode",
+                          default=False,
+                          help="Installation requires multiple nodes")
+        (self.options, self.args) = parser.parse_args(args=argv)
+        if len(self.args) > 0:
+            parser.error("Extra arguments for install engine")
+        (dummy, self.deployment_home) = \
+          cmdline_script_utils.process_standard_options(self.options,
+                                                        parser,
+                                                        self.engage_file_layout)
+        self.logger = setup_engine_logger(__name__)
+            
 
     def _run_worker(self, multi_node=False):
         import install_plan
         import install_sequencer
         import install_context as ctx
-        if not os.path.exists(self.arg_info.install_soln_file):
+        efl = self.engage_file_layout
+        install_script_file = efl.get_install_script_file()
+        if not os.path.exists(install_script_file):
             raise CmdLineError(errors[ERR_BAD_SOLN_FILE],
-                               msg_args={"filename":
-                                         self.arg_info.install_soln_file})
-        if not os.path.exists(self.arg_info.library_file):
-            raise CmdLineError(errors[ERR_BAD_LIB_FILE],
-                               msg_args={"filename": self.arg_info.library_file})
-        resource_list = parse_install_soln(self.arg_info.install_soln_file)
-        self.logger.info("Using software library %s." % self.arg_info.library_file)
-        library = parse_library_files(self.arg_info.file_layout)
-        if self.arg_info.options.no_password_file:
-            assert self.pw_database==None
+                               msg_args={"filename":install_script_file})
+        library_file = efl.get_preprocessed_library_file()
+        resource_list = parse_install_soln(install_script_file)
+        self.logger.info("Using software library %s." % library_file)
+        library = parse_library_files(efl)
+        gp = password.generate_pw_file_if_necessary
+        self.pw_database = \
+            gp(efl, resource_list, library,
+               installer_supplied_pw_key_list=self.installer_supplied_pw_key_list,
+               master_password_file=self.options.master_password_file,
+               read_master_pw_from_stdin=self.options.subproc,
+               dry_run=self.options.dry_run)
+        if not self.pw_database:
             # if no password file is being used, created a dummy password
             # object
             self.pw_database = pw_repository.PasswordRepository("")
-        ctx.setup_context(self.arg_info.password_repository_dir,
-                          self.arg_info.subproc, library, self.pw_database)
+        ctx.setup_context(efl.get_password_file_directory(),
+                          self.options.subproc, library, self.pw_database)
+        if self.options.dry_run:
+            self.logger.info("Dry run complete.")
+            return
+        if self.options.generate_password_file:
+            self.logger.info("Password file at %s, password salt file at %s." %
+                             (efl.get_password_database_file(),
+                              efl.get_password_salt_file()))
+            return
+
         if multi_node:
             install_sequencer.run_multi_node_install(install_plan.create_multi_node_install_plan(resource_list),
-                                                     library, self.arg_info.options.force_stop_on_error)
+                                                     library,
+                                                     self.options.force_stop_on_error)
             # TODO: need to consider whether we need to make any calls to the management API
             # for the master node in multi-node. Is there a way to register cross-node dependencies?
         else: # single node or slave
             mgr_pkg_list = [install_sequencer.get_manager_and_package(instance_md, library)
                             for instance_md in install_plan.create_install_plan(resource_list)]
-            install_sequencer.run_install(mgr_pkg_list, library, self.arg_info.options.force_stop_on_error)
-            if self.arg_info.options.mgt_backends:
+            install_sequencer.run_install(mgr_pkg_list, library, self.options.force_stop_on_error)
+            if self.options.mgt_backends:
                 import mgt_registration
-                mgt_registration.register_with_mgt_backends(self.arg_info.options.mgt_backends,
+                mgt_registration.register_with_mgt_backends(self.options.mgt_backends,
                                                             [mgr for (mgr, pkg) in mgr_pkg_list],
-                                                            self.arg_info.deployment_home,
+                                                            self.deployment_home,
                                                             sudo_password=ctx.get_sudo_password(),
                                                             upgrade=False)
 
     def run(self):
-        self._run_worker(False)
+        self._run_worker(self.options.multinode)
 
 
-class InstallEngineMultiNode(InstallEngine):
-    def __init__(self, logger, arg_info, pw_database=None):
-        InstallEngineBase.__init__(self)
-        self.logger = logger
-        self.arg_info = arg_info
-        self.pw_database = pw_database
-
-    def run(self):
-        self._run_worker(True)
-
-
-class ArgInfo:
-    """This class represents the parsed command line arguments and options.
-    """
-    def __init__(self, args, options, file_layout, deployment_home):
-        self.install_soln_file = args[0]
-        self.library_file = file_layout.get_software_library_file()
-        self.password_repository_dir = file_layout.get_password_file_directory()
-        self.options = options
-        self.subproc = options.subproc
-        self.file_layout = file_layout
-        self.deployment_home = deployment_home
-
-        
-def parse_command_args(argv, file_layout):
-    usage = "usage: %prog [options] install_model_file"
-    parser = OptionParser(usage=usage)
-    cmdline_script_utils.add_standard_cmdline_options(parser)
-    parser.add_option("-m", "--multinode", action="store_true", dest="multinode",
-                      default=False, help="Installation requires multiple nodes")
-    parser.add_option("--force-stop-on-error", dest="force_stop_on_error",
-                      default=False, action="store_true",
-                      help="If specified, force stop any running daemons if the install fails. Default is to leave things running (helpful for debugging).")
-    parser.add_option("--mgt-backends", dest="mgt_backends", default=None,
-                      help="If specified, a list of management backend plugin(s)")
-    (options, args) = parser.parse_args(args=argv)
-    if len(args)==0:
-        raise CmdLineError(errors[ERR_MISSING_ARGS], msg_args=None,
-                           option_parser=parser)
-    if len(args)!=1:
-        raise CmdLineError(errors[ERR_WRONG_ARGCNT], msg_args={"argcnt":1},
-                           option_parser=parser)
-    parse_log_options(options, file_layout.get_log_directory())
-    if options.deployment_home:
-        deployment_home = options.deployment_home
-    elif file_layout.has_deployment_home():
-        deployment_home = file_layout.deployment_home
-    else:
-        parser.error("Running from source tree or dist home but did not specify deployment home via -d option")
-    return ArgInfo(args, options, file_layout, deployment_home)
-
-
-
-def main(argv, pw_database=None, file_layout=None):
+def main(argv, installer_supplied_pw_key_list=None, file_layout=None):
     subproc = False # this will be overwritten after call to parse_command_args, if successful
     logger = FakeLogger()
     try:
         if file_layout==None:
             file_layout = get_engine_layout_mgr()
+        engine = InstallEngine(file_layout, installer_supplied_pw_key_list)
         try:
-            arg_info = parse_command_args(argv, file_layout)
-            subproc = arg_info.subproc
-            logger = setup_engine_logger(__name__)
-            if arg_info.options.multinode:
-                install_engine = InstallEngineMultiNode(logger, arg_info, pw_database)
-            else:
-                install_engine = InstallEngine(logger, arg_info, pw_database)
-            install_engine.run()
+            engine.parse_command_args(argv)
+            subproc = engine.options.subproc
+            logger = engine.logger
+            engine.run()
             return 0
         except CmdLineError, e:
             if subproc: raise # we don't print any help in subprocess mode

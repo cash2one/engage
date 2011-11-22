@@ -163,6 +163,7 @@ def get_packages_filename():
     return engage.drivers.utils.get_packages_filename(__file__)
 
 class Manager(service_manager.Manager, PasswordRepoMixin):
+    REQUIRES_ROOT_ACCESS = True
     def __init__(self, metadata, dry_run=False):
         package_name = "%s %s" % (metadata.key["name"],
                                   metadata.key["version"])

@@ -97,7 +97,8 @@ def main(argv):
 
     parser.add_option("--compress", "-c", action="store_true", dest="compress",
                       default=False, help="If specified, compress backup files")
-    cmdline_script_utils.add_standard_cmdline_options(parser)
+    cmdline_script_utils.add_standard_cmdline_options(parser,
+                                                      running_deployment=False)
     (options, args) = parser.parse_args()
     if not (len(args)==2 or (len(args)==1 and args[0]=="uninstall")):
         parser.error("Wrong number of args, expecting 1 or 2")
@@ -106,7 +107,8 @@ def main(argv):
     if not (cmd in valid_commands):
         parser.error("Command must be one of %s" % valid_commands)
 
-    (file_layout, dh) = cmdline_script_utils.process_standard_options(options, parser)
+    (file_layout, dh) = cmdline_script_utils.process_standard_options(options,
+                                                                      parser)
 
     if cmd != "uninstall":
         backup_directory = os.path.abspath(os.path.expanduser(args[1]))

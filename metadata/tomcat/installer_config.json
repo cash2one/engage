@@ -1,0 +1,31 @@
+{
+  "resource_def_file_name": "resource_definitions.json",
+  "software_library_file_name": "resource_library.json",
+  "log_level": "Debug",
+  "application_name": "Apache Tomcat",
+  "application_archive": {
+    "resource": "tomcat-app",
+    "name": "war_file_path",
+    "description": "Java Web Application (JAR file)",
+    "archive_type": "war-file"
+  },
+  "install_spec_options": [
+  {
+    "choice_name":"Local Warfile Deployment", "file_name": "tomcat_install_spec.json",
+    "password_required": true,
+    "config_properties": [
+      { "resource": "apache-tomcat",
+        "name": "manager_port",
+        "type": "int",
+        "default": 8080,
+        "description":"TCP Port for serving requests"
+      },
+      { "resource": "apache-tomcat",
+        "name": "admin_password",
+        "type": "password",
+        "description":"Tomcat manager password"
+      }
+    ]
+   }
+  ] 
+}

@@ -191,6 +191,17 @@ def write_all_of_link(of, source_node, all_of_constraint, res_by_name, style):
 # map from resource names to sets of versions
 resources_by_name = {}
 
+def hash_key_for_res_key(key):
+    """When we need to hash resource keys, we use the __repr__ serialization,
+    which will be unique for a given key. However, __repr__ shows unicode
+    and non-unicode characters differently, so we convert the key elements
+    to unicode first to ensure consistency.
+    """
+    k = {u"name":unicode(key["name"]),
+         u"version":unicode(key["version"])}
+    return k.__repr__()
+
+
 class ValidationResults(object):
     def __init__(self):
         self.errors = 0
@@ -579,7 +590,8 @@ class Resource(object):
         self.json_dict = json_dict
         assert json_dict.has_key(u"key"), "Resource definition '%s' missing key" % json_dict
         self.key = json_dict[u"key"]
-        self.key_as_string = self.key.__repr__()
+        self.key_as_string = hash_key_for_res_key(self.key)
+        self.display_name = json_dict[u"display_name"]
         if json_dict.has_key(u"inside"):
             inside = json_dict[u"inside"]
             assert not inside.has_key(ALL_OF_CONSTRAINT)
@@ -673,7 +685,7 @@ def prune_resources(res_map, res_by_name, resource_keys):
     keep_set = set()
     work_set = set()
     for key in resource_keys:
-        key_repr = key.__repr__()
+        key_repr = hash_key_for_res_key(key)
         assert res_map.has_key(key_repr), "Resource '%s' not found" % key_repr
         keep_set.add(key_repr)
         work_set.add(key_repr)
@@ -719,10 +731,10 @@ class ResourceGraph(object):
         return len(self.res_map.keys())
 
     def has_resource(self, key):
-        return self.res_map.has_key(key.__repr__())
+        return self.res_map.has_key(hash_key_for_res_key(key))
 
     def get_resource(self, key):
-        k = key.__repr__()
+        k = hash_key_for_res_key(key)
         if not self.res_map.has_key(k):
             raise Exception("Graph does not contain resource %s" % k)
         else:
@@ -740,6 +752,28 @@ class ResourceGraph(object):
             self.res_map[res_key].validate(self.res_map, self.res_by_name, vr)
         return (vr.errors, vr.warnings)
 
+    def find_resources_not_referenced_as_dependencies(self):
+        """Find the resources that aren't referenced as a dependency as another
+        resource. Returns a set of serialized keys.
+        """
+        # start with all serialized resource keys        
+        candidates = set(self.res_map.keys())
+        
+        def remove_candidates(constraint):
+            for key in constraint.find_all_matching(self.res_by_name):
+                if key in candidates:
+                    candidates.remove(key)
+                    
+        for res_key in self.res_map.keys():
+            r = self.res_map[res_key]
+            if r.inside_constraint:
+                remove_candidates(r.inside_constraint)
+            if r.env_constraint:
+                remove_candidates(r.env_constraint)
+            if r.peer_constraint:
+                remove_candidates(r.peer_constraint)
+        return candidates
+    
     def write_to_file(self, filename):
         keys = self.res_map.keys()
         keys.sort()
@@ -783,8 +817,17 @@ def create_opt_parser():
     return parser
 
 def parse_resource_keys_option(keys_opt_val, parser):
+    """Parse a command line option for resource keys. This option must be
+    either a JSON map, a JSON list of maps, or a file containing JSON.
+    This list of keys can be used to prune the resource graph.
+    """
     if keys_opt_val==None:
         return None
+    if os.path.exists(keys_opt_val):
+        # this is really a file containing the json
+        with open(keys_opt_val, "rb") as f:
+            keys_opt_val = f.read()
+            
     try:
         resource_key_input = json.loads(keys_opt_val)
         if type(resource_key_input)==list:

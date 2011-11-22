@@ -3,26 +3,43 @@
 import json
 import os.path
 
+import fixup_python_path
 import engage.utils.log_setup as log_setup
+import engage.engine.password as password
 from library import parse_library_files
 import install_plan
 from engage.engine.engage_file_layout import get_engine_layout_mgr
 from engage.drivers.resource_metadata import parse_resource_from_json
 
+
 def add_standard_cmdline_options(parser, uses_pw_file=True,
+                                 running_deployment=True,
                                  default_log_level="INFO"):
-    if uses_pw_file:
-        parser.add_option("-n", "--no-password-file", action="store_true", dest="no_password_file",
-                          default=False, help="If specified, there is no password file to parse")
-        parser.add_option("--force-password-file", action="store_true", dest="force_password_file",
-                          default=False, help="If specified, always use password file")
-        parser.add_option("-s", "--subproc", action="store_true", dest="subproc",
-                          default=False, help="Run in subprocess mode, getting master password from standard input")
+    """These are the command line options used by 
+    """
     log_setup.add_log_option(parser, default=default_log_level)
     parser.add_option("--deployment-home", "-d", dest="deployment_home",
                       default=None,
                       help="Location of deployed application - can figure this out automatically unless installing from source")
-    
+    if uses_pw_file:
+        parser.add_option("-p", "--master-password-file", default=None,
+                          help="File containing master password (if not specified, will prompt from console if needed)")
+        parser.add_option("--generate-password-file", "-g",
+                          dest="generate_password_file",
+                          default=False, action="store_true",
+                          help="If specified, generate a password file and exit")
+        parser.add_option("-s", "--subproc", action="store_true", dest="subproc",
+                          default=False, help="Run in subprocess mode, getting master password from standard input")
+    if running_deployment:
+        parser.add_option("--mgt-backends", dest="mgt_backends", default=None,
+                          help="If specified, a list of management backend plugin(s)")
+        parser.add_option("--force-stop-on-error", dest="force_stop_on_error",
+                          default=False, action="store_true",
+                          help="If specified, force stop any running daemons if the install fails. Default is to leave things running (helpful for debugging).")
+        parser.add_option("-n", "--dry-run", action="store_true",
+                          default=False,
+                          help="If specified, just do a dry run and exit")
+
 
 def get_deployment_home(options, parser, file_layout, allow_overrides=False):
     if options.deployment_home:
@@ -38,27 +55,50 @@ def get_deployment_home(options, parser, file_layout, allow_overrides=False):
     return dh
 
 def process_standard_options(options, parser, precreated_file_layout=None, installer_name=None, allow_overrides_of_dh=False):
-    if hasattr(options, "no_password_file") and options.no_password_file and \
-       hasattr(options, "force_password_file") and options.force_password_file:
-        parser.error("Cannot specify both --no-password-file and --force-password-file")
     if precreated_file_layout:
         file_layout = precreated_file_layout
     else:
         file_layout = get_engine_layout_mgr(installer_name)
     dh = get_deployment_home(options, parser, file_layout, allow_overrides=allow_overrides_of_dh)
     log_setup.parse_log_options(options, file_layout.get_log_directory())
+    if hasattr(options, "master_password_file") and \
+       options.master_password_file and \
+       (not os.path.exists(options.master_password_file)):
+        parser.error("Master password file %s does not exist" %
+                     options.master_password_file)
     return (file_layout, dh)
 
+
+def extract_standard_options(options):
+    """We're going to call another component that accepts the standard options
+    and need to extract them from an options map back to an array of
+    arguments.
+    """
+    args = []
+    if options.deployment_home:
+        args.extend(["--deployment-home", options.deployment_home])
+    if options.master_password_file:
+        args.extend(["--master-password-file", options.master_password_file])
+    if options.subproc:
+        args.append("--subproc")
+    if options.mgt_backends:
+        args.extend(["--mgt-backends", options.mgt_backends])
+    if options.force_stop_on_error:
+        args.append("--force-stop-on-error")
+    if options.dry_run:
+        args.append("--dry-run")
+    if options.generate_password_file:
+        args.append("--generate-password-file")
+    args.extend(log_setup.extract_log_options_from_options_obj(options))
+    return args
     
-def get_mgrs_and_pkgs(file_layout, deployment_home, options, resource_file=None, pw_database=None):
+def get_mgrs_and_pkgs(file_layout, deployment_home, options,
+                      resource_file=None):
     """Perform common initialization operations, returning
     a list of (mgr, pkg) pairs sorted in dependency order.
     """
     library = parse_library_files(file_layout)
-    if options.no_password_file:
-        assert pw_database==None
-        import engage.utils.pw_repository as pw_repository
-        pw_database = pw_repository.PasswordRepository("")
+    pw_database = password.get_password_db(file_layout, options)
     import install_context
     install_context.setup_context(file_layout.get_password_file_directory(), options.subproc, library, pw_database)
 

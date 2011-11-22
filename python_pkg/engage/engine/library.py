@@ -642,6 +642,16 @@ class LibraryEntry(object):
             mod = getattr(mod, comp)
         return getattr(mod, 'Manager')
 
+    def requires_root_access(self):
+        """Returns true if the resource manager will require root access.
+        """
+        mgr_class = self.get_manager_class()
+        if hasattr(mgr_class, "REQUIRES_ROOT_ACCESS") and \
+           getattr(mgr_class, "REQUIRES_ROOT_ACCESS")==True:
+            return True
+        else:
+            return False
+        
     def to_json(self):
         """Return an in-memory json representation of this entry"""
         return {u"key":self.key, 
@@ -862,7 +872,7 @@ def _load_newstyle_entry(key, err_msg, cache_directory, package_properties):
             #                              "msg": e.__str__()})
     if _mod == None:
         get_logger().error("Did not find library entry of resource type %s, tried module names %s" %
-                           (resource_md.key.__repr__(), driver_module_names))
+                           (key, driver_module_names))
         return None
     package_file = _mod.get_packages_filename()
     if not os.path.exists(package_file):

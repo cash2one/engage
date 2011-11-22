@@ -1,0 +1,26 @@
+[
+  {"id":"master-host",
+     "key": {"name":"dynamic-host", "version":"*"}
+  },
+  {
+    "id": "apache-tomcat",
+    "key": {"name":"apache-tomcat", "version":"6.0"},
+    "config_port": {
+      "manager_port": 8080
+    },
+    "inside": {
+      "id": "master-host",
+      "key": {"name":"dynamic-host", "version":"*"},
+      "port_mapping": {"host": "host"}
+    }
+  },
+  {
+    "id": "jasper",
+    "key": {"name":"jasper-reports-server", "version":"4.2"},
+    "inside": {
+      "id": "apache-tomcat",
+      "key": {"name":"apache-tomcat", "version":"6.0"},
+      "port_mapping": {"tomcat": "tomcat"}
+    }
+  }
+]

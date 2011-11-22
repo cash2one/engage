@@ -158,6 +158,7 @@ class Config(resource_metadata.Config):
         
 
 class Manager(resource_manager.Manager, PasswordRepoMixin):
+    REQUIRES_ROOT_ACCESS = True
     def __init__(self, metadata):
         package_name = "%s %s" % (metadata.key["name"],
                                   metadata.key["version"])

@@ -88,6 +88,8 @@ class TestRequest(object):
                             self.resource_id)
         resource = parse_resource_from_json(rlist[0])
         entry = library.get_entry(resource)
+        if entry==None:
+            raise Exception("Unable to find library entry for %s, of resource type %s %s" % (resource.id, resource.key["name"], resource.key["version"]))
         resource_manager_class = entry.get_manager_class()
         if self.options.dry_run:
             mgr = resource_manager_class(resource, dry_run=True)

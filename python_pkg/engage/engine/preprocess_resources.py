@@ -15,6 +15,10 @@ _ = gettext.gettext
 # fix path if necessary (if running from source or running as test)
 import fixup_python_path
 
+from engage.drivers.standard.java_virtual_machine_linux__1_6.driver \
+     import check_linux_java_1_6_installed
+from engage.utils.file import mangle_resource_key
+
 from engage.utils.user_error import UserError, EngageErrInf, convert_exc_to_user_error
 
 errors = { }
@@ -33,6 +37,25 @@ define_error(ERR_SPEC_VALIDATION,
 
 # The version of setuptools that we preinstall
 SETUPTOOLS_VERSION = "0.6"
+
+# List of protentially pre-installed resource references. This is a poor man's
+# discovery mechanism.
+# Each entry consists of the resource key of the resource to be checked,
+# a list of trigger resource keys, and an install checking function. If the
+# resource is already in the spec, we run the install check and update the
+# installed property. If the resource key is not present, but one of the trigger
+# resources is present, we do an install check and add the resource only if
+# present.
+preinstalled_resource_checks = [
+    {"resource_key":{"name":"java-virtual-machine-linux", "version":"1.6"},
+     "trigger_resource_keys":[
+         {"name":"java-virtual-machine-abstract", "version":"1.6"},
+         {"name":"apache-tomcat", "version":"6.0"}
+     ],
+     "install_check_function":check_linux_java_1_6_installed
+    },
+]
+
 
 def preprocess_resource_file(primary_resource_file, extension_resource_files,
                              target_resource_file, logger,
@@ -95,10 +118,12 @@ def parse_raw_install_spec_file(filename):
         raise Exception("Invalid format for install spec file %s: expecting a list of resources" % filename)
     return json_data
 
-def query_install_spec(spec, **kwargs):
+def query_install_spec(spec, inside=None, **kwargs):
     """The keyword args should contain key/value pairs to machine instance keys
-    against (currently, keys contain only 'name' and 'version' properties). Any matching
-    instances are returned.
+    against (currently, keys contain only 'name' and 'version' properties).
+    Any matching instances are returned.
+    If inside is specified, only resources who have an inside link whose id
+    matches the inside parameter are returned.
     """
     results = []
     for inst in spec:
@@ -108,7 +133,10 @@ def query_install_spec(spec, **kwargs):
             if (not key.has_key(arg)) or (key[arg] != kwargs[arg]):
                 matches = False
                 break
-        if matches:
+        if matches and \
+           (inside==None or \
+            (inside!=None and inst.has_key("inside") and
+             inst["inside"]["id"]==inside)):
             results.append(inst)
     return results
 
@@ -175,6 +203,65 @@ def validate_install_spec(install_spec_file):
         used_ids.add(inst["id"])
 
 
+def discover_preinstalled_resources(spec, hosts, logger):
+    """Poor man's discovery mechanism. Based on the list in
+    preinstalled_resource_checks, we check for resources and adjust the
+    spec (in-place) as needed.
+    TODO: make this work multi-node. Need to thnk about how we invoke the
+    install check function on each host.
+    """
+    for host in hosts:
+        if host["id"] != "master-host":
+            continue # Only works for master node today!
+        for entry in preinstalled_resource_checks:
+            concrete_inst_l = \
+                query_install_spec(spec, inside=host["id"],
+                                   name=entry["resource_key"]["name"],
+                                   version=entry["resource_key"]["version"])
+            has_trigger = False
+            for key in entry["trigger_resource_keys"]:
+                t_l =  query_install_spec(spec, inside=host["id"],
+                                          name=key["name"],
+                                          version=key["version"])
+                if len(t_l)>0:
+                    has_trigger = True
+                    break
+            assert len(concrete_inst_l)<=1
+            has_concrete = (len(concrete_inst_l)==1)
+            if (not has_concrete) and (not has_trigger):
+                continue # done messing with this entry
+            is_installed = entry["install_check_function"]()
+            if is_installed:
+                logger.debug("Discovered that %s %s is pre-installed in host %s"
+                             % (entry["resource_key"]["name"],
+                                entry["resource_key"]["version"],
+                                host["id"]))
+            else:
+                logger.debug("Discovered that %s %s is NOT pre-installed in host %s"
+                             % (entry["resource_key"]["name"],
+                                entry["resource_key"]["version"],
+                                host["id"]))
+                continue # nothing to do
+            if has_concrete:
+                concrete_inst = concrete_inst_l[0]
+                if not concrete_inst.has_key("properties"):
+                    concrete_inst["properties"] = {}
+                concrete_inst["properties"]["installed"] = True
+            else:
+                concrete_inst = {
+                    "key": entry["resource_key"],
+                    "id": "_%s_%s" % (mangle_resource_key(entry["resource_key"]),
+                                      host["id"]),
+                    "properties": {"installed":True},
+                    "inside":{
+                        "id": host["id"],
+                        "key":host["key"],
+                        "port_mapping":{"host":"host"}
+                    }
+                }
+                spec.append(concrete_inst)
+
+                        
 def create_install_spec(master_node_resource, install_spec_template_file,
                         install_spec_file,
                         installer_file_layout, logger):
@@ -273,6 +360,8 @@ def create_install_spec(master_node_resource, install_spec_template_file,
                          "properties": {"installed":True}})
             logger.debug("create_install_spec: adding setuptools resource %s to host %s"
                          % (setup_id, host_id))
+
+    discover_preinstalled_resources(spec, all_hosts, logger)
     
     # write the actual spec
     with open(install_spec_file, "wb") as f:

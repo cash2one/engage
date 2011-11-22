@@ -306,8 +306,40 @@ class DjangoArchiveValidator(AppArchiveValidator):
         return get_additional_config_props(self.django_config.components, machine_id,
                                            machine_key)
 
+class WarFileValidator(AppArchiveValidator):
+    ARCHIVE_TYPE = "war-file"
+    def __init__(self, resource, property_name, description, value):
+        AppArchiveValidator.__init__(self, resource, property_name,
+                                     description,
+                                     WarFileValidator.ARCHIVE_TYPE,
+                                     value)
+
+    def validate(self, prev_app_comps=None):
+        return ValidationResults(True)
+    
+    def get_app_dependency_resources(self, machine_id, machine_key):
+        """Returns a list of additional resource instances to be added to
+        the install spec. Must run validate() before calling this method.
+        """
+        return []
+
+    def get_app_dependency_names(self):
+        """Returns a list of additional components required by the application
+        archive. This is used to populate the config choice history for use
+        in upgrades.
+        """
+        return []
+
+    def get_additional_config_props(self, machine_id, machine_key):
+        """Returns a list of the json representation of any additional
+        configuration properties that need to be set by the user
+        due to the dependent resources.
+        """
+        return []
+
 _app_archive_validator_map = {
-    DjangoArchiveValidator.ARCHIVE_TYPE: DjangoArchiveValidator
+    DjangoArchiveValidator.ARCHIVE_TYPE: DjangoArchiveValidator,
+    WarFileValidator.ARCHIVE_TYPE: WarFileValidator
 }
 
 
@@ -370,11 +402,11 @@ class InstallerConfig(object):
                            self.application_archive["description"],
                            app_archive_path)
 
-    def is_password_required(self, install_spec_choice_number):
-        """Returns True, False or None. None means that password_required was not set in the config file.
-        This should be interpreted as True, but allow for overriding at the command line.
+    def is_sudo_password_required(self, install_spec_choice_number):
+        """Returns True, False or None. None means that sudo_password_required
+        was not set in the config file.
         """
-        return (self.install_spec_options[install_spec_choice_number])[u"password_required"]
+        return (self.install_spec_options[install_spec_choice_number])[u"sudo_password_required"]
         
     def to_json(self):
         return {
@@ -415,8 +447,8 @@ def _parse_install_spec_options(data, filename):
                                               (filename, key))
             if option.has_key(u"config_properties"):
                 _validate_config_properties(option[u"config_properties"], filename)
-            if not option.has_key(u"password_required"):
-                option[u"password_required"] = None
+            if not option.has_key(u"sudo_password_required"):
+                option[u"sudo_password_required"] = None
         return data[u"install_spec_options"]
     else:
         raise InstallerConfigError("Need to specify install_spec_options in %s" %

@@ -144,7 +144,11 @@ class Manager(service_manager.Manager, PasswordRepoMixin):
         # we'll call out to the os's unzip call.
         ## r(extract_package_as_dir, package, p.config_port.home)
         parent_dir = os.path.dirname(p.config_port.home)
-        r(run_program, ["/usr/bin/unzip", package.get_file()],
+        if not self.ctx.dry_run:
+            file_path = package.get_file() # this might download the file!
+        else:
+            file_path = None
+        r(run_program, ["/usr/bin/unzip", file_path],
           cwd=parent_dir)
         JASPER_EXTRACTED_DIR="jasperreports-server-cp-4.2.1-bin"
         if JASPER_EXTRACTED_DIR!=os.path.basename(p.config_port.home) and \

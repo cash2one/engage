@@ -1,0 +1,19 @@
+Resource Definition Reference
+===============================
+Overview
+-------------
+This section documents all of the resource definitions for the current release
+of Engage. We divide the resources into three groups:
+*Primary Resources*, which are not referenced as dependencies by any
+other resources, *Host Resources*, which have no dependencies, and
+*Interior Resources*, which have dependencies and are referenced by
+other resources. Within each section, resources are listed in
+alphabetical order.
+
+Each resource's section title corresponds to its *key* -- the name and
+version name used to uniquely identify the resource type.
+Within each resource entry, we find a descriptive name,
+additional documentation (if present in the resource), a list of
+configuration properties, and a list of
+the resource's potential dependencies.
+

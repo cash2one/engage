@@ -207,7 +207,8 @@ Valid commands:
 
 def main():
     parser = OptionParser(usage=usage_msg)
-    add_standard_cmdline_options(parser, default_log_level="WARNING")
+    add_standard_cmdline_options(parser, running_deployment=False,
+                                 default_log_level="WARNING")
     parser.add_option("-r", "--resource-file", dest="resource_file", default=None,
                       help="Name of resource file (defaults to <deployment_home>/config/installed_resources.json)")
     parser.add_option("--dry-run", dest="dry_run", default=False,
@@ -235,15 +236,6 @@ def main():
 
     logger = setup_engage_logger(__name__)
     
-    # this is a hack to avoid specifying the -n option if there is no password repository
-    pw_dir = file_layout.get_password_file_directory()
-    from engage.utils.pw_repository import REPOSITORY_FILE_NAME
-    pw_file = os.path.join(pw_dir, REPOSITORY_FILE_NAME)
-    if not os.path.exists(pw_file) and not options.no_password_file:
-        logger.info("-n option not specified, but password file does exist. Assuming that no password file is needed.\n")
-        options.no_password_file = True
-        
-
     mgr_pkg_list = get_mgrs_and_pkgs(file_layout, deployment_home, options, installed_resources_file)
     resource_map = {}
     for (mgr, pkg) in mgr_pkg_list:

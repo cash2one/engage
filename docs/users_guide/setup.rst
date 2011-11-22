@@ -8,6 +8,11 @@ Engage has been tested on the following platforms:
  * MacOSX 10.5 and 10.6
  * Ubuntu Linux 9.10 and 10.04
 
+*Note: Mac OSX 10.7 is currently not supported due to issues with
+MacPorts on that version. Once MacPorts is stable on 10.7, we will add
+Engage support.*
+
+
 Requirements
 ------------
 In order to build engage, you need to have the following software pre-installed:

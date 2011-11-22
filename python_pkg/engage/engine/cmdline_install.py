@@ -24,6 +24,7 @@ import upgrade_engine
 from preprocess_resources import create_install_spec
 from host_resource_utils import get_target_machine_resource, setup_slave_host
 from config_engine import preprocess_and_run_config_engine, get_config_error_file
+import password
 
 
 import gettext
@@ -344,8 +345,9 @@ def set_install_spec_properties(installer_file_layout, install_spec_option_no,
         if isinstance(cp.type, PasswordType):
             # for password values we need special handling
             pw_key = cp.resource + "/" + cp.name
-            v = config_choices.get_password(cp.name, pw_key, description=cp.description)
-            password_list.append((pw_key, v),)
+            ## v = config_choices.get_password(cp.name, pw_key, description=cp.description)
+            ## password_list.append((pw_key, v),)
+            password_list.append((pw_key, cp.description),)
             r = find_resource(cp.resource, install_spec)
             assert r, "Unable to find resource %s in install spec" % cp.resource
             add_config_prop(r, cp.name, pw_key)
@@ -411,22 +413,12 @@ class InstallRequest(object):
         parser.add_option("--application-archive", "-a", dest="application_archive", action="store",
                           default=None,
                           help="If specified, override the application_archive property in config choices file with this value")
-        parser.add_option("--mgt-backends", dest="mgt_backends", default=None,
-                          help="If specified, a list of management backend plugin(s)")
-        parser.add_option("--dry-run", dest="dry_run",
-                          default=False, action="store_true",
-                          help="If specified, do a dry run of the install.")
         parser.add_option("--no-rollback-on-failed-upgrades", dest="no_rollback_on_failed_upgrades",
                           default=False, action="store_true",
                           help="If specified, do not roll back a failed upgrade (helpful for debugging).")
-        parser.add_option("--force-stop-on-error", dest="force_stop_on_error",
-                          default=False, action="store_true",
-                          help="If specified, force stop any running daemons if the install fails. Default is to leave things running (helpful for debugging).")
         parser.add_option("-y", "--use-defaults", dest="use_defaults",
                           default=False, action="store_true",
                           help="If specified, always pick default for input options")
-
-
         (self.options, args) = parser.parse_args(args=argv)
 
         if len(args)>1:
@@ -468,7 +460,9 @@ class InstallRequest(object):
         self.config_choices.set_installer_name(self.installer_name)
 
         (self.installer_file_layout, self.deployment_home) = \
-            cmdline_script_utils.process_standard_options(self.options, parser, installer_file_layout,
+            cmdline_script_utils.process_standard_options(self.options,
+                                                          parser,
+                                                          installer_file_layout,
                                                           installer_name=self.installer_name)
 
         if self.options.upgrade_from:
@@ -494,15 +488,9 @@ class InstallRequest(object):
 
 
 def run(req, logger):
-    install_spec_option_no = select_configuration(req.installer_file_layout, req.config_choices)
-    
-    # If what the installer_config file says about passwords -- will be either True, False or None
-    password_required = req.installer_file_layout.get_installer_config().is_password_required(install_spec_option_no)
-    if req.options.no_password_file and password_required==True:
-        parser.error("--no-password-file is not permitted with this installer")
-    use_password = (password_required==True) or (password_required==None and (not req.options.no_password_file)) or \
-                   (req.options.force_password_file==True)
-    
+    install_spec_option_no = select_configuration(req.installer_file_layout,
+                                                  req.config_choices)
+        
     # need to manually record the deployment home in the choice history, as it is used
     # to validate other inputs
     req.config_choices.choice_history["Install directory"] = req.deployment_home
@@ -514,58 +502,12 @@ def run(req, logger):
                                 req.installer_file_layout.get_install_spec_file(install_spec_option_no),
               req.installer_file_layout, logger)
 
-    def get_pw_file_and_salt():
-        return \
-          (os.path.join(req.installer_file_layout.get_password_file_directory(),
-                        pw_repository.REPOSITORY_FILE_NAME),
-           os.path.join(req.installer_file_layout.get_password_file_directory(),
-                        pw_repository.SALT_FILE_NAME))
-
-    if req.upgrade_from and os.path.exists(os.path.join(req.installer_file_layout.get_password_file_directory(), "pw_repository")):
-        # If we are running an upgrade and the old password file exists, we read it.
-        # TODO: what if we need to add or change the password file?
-        import engage.utils.pw_repository as pw_repository
-        load_from_file = pw_repository.PasswordRepository.load_from_file
-        (pw_file, pw_salt_file) = get_pw_file_and_salt()
-        passwords = load_from_file(pw_file, pw_salt_file,
-                                   get_password_input("Sudo password:",
-                                                      read_from_stdin=req.options.subproc))
-        req.config_choices.password_repository = passwords
-
     # here is were we handle any additional configuration inputs
-    password_list = set_install_spec_properties(req.installer_file_layout, install_spec_option_no,
-                                                req.config_choices, target_machine, logger)
+    password_list = set_install_spec_properties(req.installer_file_layout,
+                                                install_spec_option_no,
+                                                req.config_choices,
+                                                target_machine, logger)
     
-    ## if req.upgrade_from and os.path.exists(os.path.join(req.installer_file_layout.get_password_file_directory(), "pw_repository")):
-    ##     # If we are running an upgrade and the old password file exists, we read it.
-    ##     # TODO: what if we need to add or change the password file?
-    ##     import engage.utils.pw_repository as pw_repository
-    ##     load_from_file = pw_repository.PasswordRepository.load_from_file
-    ##     (pw_file, pw_salt_file) = get_pw_file_and_salt()
-    ##     passwords = load_from_file(pw_file, pw_salt_file,
-    ##                                get_password_input("Sudo password:",
-    ##                                                   read_from_stdin=req.options.subproc))
-    ## elif use_password or len(password_list)>0:
-    if req.config_choices.password_repository:
-        pass # already did the setup above
-    elif use_password or len(password_list)>0:
-        # Otherwise, if there is a fresh install, we generate a new password file
-        # and pass along the in-memory copy of the database to the install engine.
-        import engage.utils.pw_repository as pw_repository
-        logger.info("Creating password file at %s" %
-                    os.path.join(req.installer_file_layout.get_password_file_directory(), pw_repository.REPOSITORY_FILE_NAME))
-        passwords = pw_repository.PasswordRepository(get_password_input("Sudo password:", read_from_stdin=req.options.subproc))
-        passwords.add_key(target_machine['config_port']['sudo_password'],
-                          passwords.user_key)
-        for (key, value) in password_list:
-            passwords.add_key(key, value)
-        (pw_file, pw_salt_file) = get_pw_file_and_salt()
-        passwords.save_to_file(pw_file,
-                               salt_filename=pw_salt_file)
-    else:
-        passwords = None
-        pw_file = None
-        pw_salt_file = None
 
     # save the history file to user location, if provided
     if req.options.history_file:
@@ -573,34 +515,27 @@ def run(req, logger):
     # if fresh install, always save choices to config directory, for use in future upgradesa
     req.config_choices.save_history_file(os.path.join(req.installer_file_layout.get_config_choices_file(req.deployment_home)))
     
-
     # run the configuration engine
     preprocess_and_run_config_engine(req.installer_file_layout,
         req.installer_file_layout.get_install_spec_file(install_spec_option_no))
-
-    # for now, dry run just exits at this point
-    if req.options.dry_run:
-        return 0
 
     if not req.upgrade_from: # this is a fresh install
         for host in hosts:
             if host["id"] != "master-host":
                 setup_slave_host(host, req.deployment_home, pw_file, pw_salt_file)
-        install_engine_args = []
-        if passwords == None:
-            install_engine_args.append("--no-password-file")
-        if req.options.deployment_home:
-            install_engine_args.append("--deployment-home=%s" % req.options.deployment_home)
-        if req.options.force_stop_on_error:
-            install_engine_args.append("--force-stop-on-error")
-        if req.options.mgt_backends:
-            install_engine_args.append("--mgt-backends=%s" % req.options.mgt_backends)
-        install_engine_args = install_engine_args + log_setup.extract_log_options_from_options_obj(req.options)
-        install_engine_args = install_engine_args + [req.installer_file_layout.get_install_script_file()]
-        print "Invoking install engine with arguments %s" % install_engine_args
-        return install_engine.main(install_engine_args, passwords)
+        install_engine_args = \
+            cmdline_script_utils.extract_standard_options(req.options)
+
+        logger.debug("Invoking install engine with arguments %s" %
+                     install_engine_args)
+        return install_engine.main(install_engine_args,
+                                   installer_supplied_pw_key_list=password_list,
+                                   file_layout=req.installer_file_layout)
     else:
-        return upgrade_engine.upgrade(req.upgrade_from, req.installer_file_layout, req.deployment_home, req.options, passwords,
+        # TODO PW: Fix this to use new passwords
+        return upgrade_engine.upgrade(req.upgrade_from,
+                                      req.installer_file_layout,
+                                      req.deployment_home, req.options,
                                       atomic_upgrade=(not req.options.no_rollback_on_failed_upgrades))
 
 def main(argv, installer_file_layout=None):

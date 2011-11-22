@@ -196,6 +196,7 @@ The following actions are defined by this module:
  * check_dir_exists <dir-path>
  * check_file_exists <file-path>
  * check_installable_to_dir <install-dir>
+ * check_port_available <hostname> <port>
  * create_engage_dist <target_path>
  * ensure_dir_exists <dir-path>
  * ensure_shared_perms<path> <group_name> {writable_to_group=False}
@@ -254,6 +255,7 @@ import engage.utils.process as procutils
 import engage.utils.regexp as regexp
 import engage.utils.path as pathutils
 import engage.utils.cfg_file as cfg_file
+import engage.utils.http as httputils
 from engage.utils.user_error import UserError, EngageErrInf, convert_exc_to_user_error
 import gettext
 _ = gettext.gettext
@@ -281,6 +283,7 @@ ERR_TMPLSTR_KEY              = 12
 ERR_CREATE_DIST_FAILED       = 13
 ERR_CHECK_POLL_TIMEOUT       = 14
 ERR_SUBPROCESS_RC            = 15
+ERR_PORT_TAKEN               = 16
 
 
 define_error(ERR_DIR_NOT_FOUND,
@@ -313,6 +316,8 @@ define_error(ERR_CHECK_POLL_TIMEOUT,
              _("Action %(action)s timed out after %(time).1f in resource %(id)s"))
 define_error(ERR_SUBPROCESS_RC,
              _("Subprocess execution filed in resource %(id)s, command was '%(cmd)s'"))
+define_error(ERR_PORT_TAKEN,
+             _("Pre-install check failed for resource %(id)s: something is already running on port %(port)d."))
 
 
 
@@ -1289,7 +1294,23 @@ class create_engage_dist(Action):
 
     def dry_run(self, target_path):
         self._get_command()
-    
+
+
+@make_action
+def check_port_available(self, hostname, port):
+    """Action: Verify that the port is available. If something
+    responds, raise ERR_PORT_TAKEN. Otherwise, do nothing. This is
+    intended to be called as a part of validate_pre_install().
+    """
+    if httputils.ping_webserver(hostname, port, self.ctx.logger)==True:
+        raise UserError(errors[ERR_PORT_TAKEN],
+                        msg_args={"id":self.ctx.props.id,
+                                  "port":port},
+                        developer_msg="Hostname was %s" % hostname)
+    else:
+        self.ctx.logger.debug("Port %d is available for %s" %
+                              (port, self.ctx.props.id))
+
 
 ############################################################################
 #                                   Tests                                  #

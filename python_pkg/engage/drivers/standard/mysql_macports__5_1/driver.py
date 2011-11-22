@@ -106,6 +106,7 @@ def set_mysql_file_ownership(self):
                          recursive=True)
     
 class Manager(service_manager.Manager, PasswordRepoMixin, SharedResourceWithPwDbMixin):
+    REQUIRES_ROOT_ACCESS = True
     def __init__(self, metadata, dry_run=False):
         package_name = "%s %s" % (metadata.key["name"],
                                   metadata.key["version"])

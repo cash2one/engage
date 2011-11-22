@@ -27,6 +27,8 @@ INSTALLER_DEFAULTS = {
     'expected_exit_code': 0,
     'expected_url_codes': [('http://{host}:{port}', 200)]}
 
+DEFAULT_MASTER_PASSWORD = 'testpass'
+
 def find_dir(name, path=THIS_DIR):
     """Recursively climb path to find named directory"""
     if not path or path == '/':
@@ -77,6 +79,12 @@ def get_config(specific, defaults=INSTALLER_DEFAULTS):
     config.update(specific)
     return config
 
+def write_master_password(path, password=DEFAULT_MASTER_PASSWORD):
+    with open(path, 'w') as f:
+        f.write(password)
+    os.chmod(path, 0600)
+    return path
+
 def write_config_file(deploy_dir, config_map, name='config.json'):
     """Write json contents of config_map in deploy_dir and return full path to file"""
     config_path = join(deploy_dir, name)
@@ -91,15 +99,27 @@ def shell(command):
 def bootstrap(deploy_dir, engage_dir=ENGAGE_DIR):
     shell('%s %s %s' % (sys.executable, join(engage_dir, 'bootstrap.py'), deploy_dir))
 
-def install(deploy_dir, config_filename):
+def ensure_subdir(path, name):
+    """Create named dir under path if necessary and return path"""
+    subdir = os.path.join(path, name)
+    if not os.path.exists(subdir):
+        os.mkdir(subdir, 0755)
+    return subdir
+
+def install(deploy_dir, config_filename, master_password_file=None):
     command = 'cd %s && ./engage/bin/install --config-choices-file=%s' % (
         deploy_dir, config_filename)
+    if master_password_file:
+        command += ' --master-password-file=%s' % master_password_file
     logger.info('Installing with: %s' % command)
     return shell(command)
 
-def upgrade(deploy_dir, engage_dir, application_archive):
-    command = 'cd %s && %s upgrade.py --application-archive=%s %s' % (
-        engage_dir, sys.executable, application_archive, deploy_dir)
+def upgrade(deploy_dir, engage_dir, application_archive, master_password_file=None):
+    command = 'cd %s && %s upgrade.py --application-archive=%s' % (
+        engage_dir, sys.executable, application_archive)
+    if master_password_file:
+        command += ' --master-password-file=%s' % master_password_file
+    command += ' %s' % deploy_dir
     logger.info('Upgrading with: %s' % command)
     return shell(command)
 
@@ -107,8 +127,8 @@ def get_init_script(config_map):
     """Return path to init script"""
     return join(config_map['Install directory'], 'engage/bin/svcctl')
 
-def stop(init_script):
-    return shell('%s stop' % init_script)
+def stop(init_script, master_password_file):
+    return shell('%s stop -p %s' % (init_script, master_password_file))
 
 def random_str(length=6, charspace=string.ascii_lowercase+string.digits):
     return ''.join(random.sample(charspace, length))
