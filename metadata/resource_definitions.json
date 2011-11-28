@@ -2006,6 +2006,7 @@
     },
     { "key": {"name": "postgresql-connector-for-django", "version": "8.4"},
       "display_name": "PostgreSQL connector for Django",
+      "comment": "This is just a proof of concept -- it currently is not functional.",
       "config_port": {
         "NAME": "string",
         "USER": "string",
@@ -2141,6 +2142,7 @@
     },
     {"key" : { "name" : "psycopg2", "version" : "2.4" },
       "display_name" : "psycopg2 PostgreSQL connector for Python",
+      "comment": "This is just a proof of concept -- it currently is not functional.",
       "input_ports": {
         "host": {},
         "python": { "PYTHONPATH": "string",
@@ -4132,6 +4134,7 @@
     },
     { "key": {"name": "tomcat-war-file", "version":"1.0"},
       "display_name": "Java web application for Tomcat",
+      "comment":"This resource represents a WAR file to be deployed into Apache Tomcat. The file must already exist on the same host as Tomcat.",
       "config_port" : {
         "war_file_path": {"type":"path"}
       },

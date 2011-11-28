@@ -20,9 +20,11 @@ except ImportError:
     sys.path.append(python_pkg_path)
     import engage.utils.rdef
 
+import engage.engine.library
 import engage.engine.engage_file_layout as engage_file_layout
 from engage.engine.preprocess_resources import preprocess_resource_file
 from engage.utils.file import NamedTempFile
+from engage.drivers.resource_metadata import ResourceMD
 
 # Constants for the formatting
 RDEF_GROUP_HEADER = "-"
@@ -99,7 +101,7 @@ def write_constraint_as_rst(constraint, of, rg, indent=0):
     else:
         write_base_constraint_as_rst(constraint, of, rg, indent)
 
-def write_resource_as_rst(r, of, rg):
+def write_resource_as_rst(r, of, rg, resource_drivers):
     if sphinx_mode:
         of.write(".. _%s:\n\n" % mangle_resource_key(r.key))
     else:
@@ -108,6 +110,15 @@ def write_resource_as_rst(r, of, rg):
     of.write(res_title + "\n")
     of.write((RDEF_TITLE_HEADER * len(res_title)) + "\n")
     of.write("**Description:** " + r.display_name + "\n")
+    if r.comment != None:
+        of.write("\n%s\n" % r.comment)
+    
+    driver = resource_drivers[engage.utils.rdef.hash_key_for_res_key(r.key)]
+    if driver:
+        of.write("\n**Driver module:** %s\n" % driver)
+    else:
+        of.write("\n**Driver module:** *No associated driver module found in library!*\n")
+
     if len(r.config_port.properties) > 0:
         of.write("\n**Configuration properties:**\n")
         for (n, prop) in r.config_port.properties.items():
@@ -190,7 +201,12 @@ def main(argv):
             for line in f:
                 of.write(line)
 
-    # group the resources
+    # get the resource library
+    library = engage.engine.library.parse_library_files(layout_mgr,
+                                                        use_temporary_file=True)
+    resource_drivers = {}
+
+    # group the resources and build the map of drivers
     def is_host(r):
         return r.inside_constraint==None and r.env_constraint==None and \
                r.peer_constraint==None
@@ -213,13 +229,22 @@ def main(argv):
             hosts.append(r)
         else:
             other.append(r)
+        md = ResourceMD("test", k)
+        library_entry = library.get_entry(md)
+        if library_entry:
+            resource_drivers[kstr] = library_entry.mgr_module_name
+        else:
+            resource_drivers[kstr] = None
+            warning("Resource %s %s does not have a resource library entry" %
+                    (k["name"], k["value"]))
+
 
     def write_section(title, description, resources):
         of.write(title + "\n")
         of.write((RDEF_GROUP_HEADER * len(title)) + "\n")
         of.write(description + "\n\n")
         for r in resources:
-            write_resource_as_rst(r, of, rg)
+            write_resource_as_rst(r, of, rg, resource_drivers)
         of.write("\n")
 
     write_section("Primary Resources",

@@ -37,6 +37,7 @@ The following drivers are supported in the current release:[1]_
 
 What's New for Each Release
 ============================
+ * 1.0.6 - Minor bug fix with sudo password; improve auto-generated docs
  * 1.0.5 - renamed deploy-spec to deployer; added Java support;
            expand user's guide; revamped password handling
  * 1.0.4 - added deploy-spec tool; start of developer docs

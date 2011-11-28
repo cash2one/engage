@@ -460,6 +460,27 @@ class NamedTempFile(object):
         self.close()
         return False
 
+
+class OptNamedTempFile(NamedTempFile):
+    """This is a variant on NamedTempFile for when we might have a permanent
+       file rather than a temp file. If the permanent file is specified,
+       we do nothing, other than store its name. If the permanent file is not
+       specified, we call NamedTempFile to create and delete the temp file
+       as needed.
+    """
+    def __init__(self, perm_file_name=None):
+        if perm_file_name:
+            self.perm_file = True
+            self.name = perm_file_name
+        else:
+            NamedTempFile.__init__(self)
+            self.perm_file = False
+
+    def close(self):
+        if not self.perm_file:
+            NamedTempFile.close(self)
+
+
 class TempDir(object):
     def __init__(self, dir=None):
         self.name = tempfile.mkdtemp(dir=dir)

@@ -57,9 +57,12 @@ def _add_sudo_password_to_repository(repos, dry_run=False):
                     logger.debug("Test the sudo password by running an ls")
                     try:
                         # test that the password actually works
-                        run_sudo_program(["/bin/ls", "/"], pw1, logger)
+                        procutils.run_sudo_program(["/bin/ls", "/"], pw1,
+                                                   logger)
+                        logger.debug("Successfully validated sudo password")
                         return pw1
-                    except:
+                    except Exception, e:
+                        logger.debug("Sudo password is not working, got exception %s" % e)
                         print "The sudo password is not working, please re-enter the password or hit return to cancel install"
                         second_try = True
                 else:

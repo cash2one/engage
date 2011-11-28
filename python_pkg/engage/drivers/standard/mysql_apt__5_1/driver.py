@@ -37,7 +37,6 @@ from engage.drivers.shared_resource_mixin import SharedResourceWithPwDbMixin
 import engage.drivers.genforma.mysql_utils as mysql_utils
 import engage.drivers.genforma.aptget as aptget
 from engage.drivers.action import *
-from engage.utils.pw_repository import gen_password
 from engage.utils.file import NamedTempFile
 
 # setup errors
@@ -128,7 +127,8 @@ class Manager(SysVServiceMixin, PasswordRepoMixin,
         rv = self.ctx.rv
         # we ignore the package, as we call apt-get directly for the server and
         # client packages
-        pw = gen_password(12)
+        import engage.utils.pw_repository
+        pw = engage.utils.pw_repository.gen_password(12)
         debconf_selections = _debconf_selections % {"pw":pw}
         r(aptget.debconf_set_selections, debconf_selections)
         r(aptget.ensure_installed, "mysql-client-5.1")

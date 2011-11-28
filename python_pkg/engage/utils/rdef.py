@@ -592,6 +592,10 @@ class Resource(object):
         self.key = json_dict[u"key"]
         self.key_as_string = hash_key_for_res_key(self.key)
         self.display_name = json_dict[u"display_name"]
+        if json_dict.has_key(u"comment"):
+            self.comment = json_dict[u"comment"]
+        else:
+            self.comment = None
         if json_dict.has_key(u"inside"):
             inside = json_dict[u"inside"]
             assert not inside.has_key(ALL_OF_CONSTRAINT)

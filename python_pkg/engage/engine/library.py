@@ -1071,30 +1071,33 @@ def parse_library(json_repr, filename=None, cache_directory_override=None):
 
 
 
-def parse_library_files(file_layout):
+def parse_library_files(file_layout, use_temporary_file=False):
     """Preprocess and parse all the library files, returning an instance of
     FileLibrary.
     """
     fl = file_layout
-    preprocess_library_file(fl.get_software_library_file(),
-                            fl.get_extension_library_files(),
-                            fl.get_preprocessed_library_file())
-    try:
-        with open(fl.get_preprocessed_library_file(), "rb") as lf:
-            json_repr = json.load(lf)
-        return parse_library(json_repr, fl.get_preprocessed_library_file(),
-                             cache_directory_override=fl.get_cache_directory())
-    except UserError, e:
-        raise # just reraise user errors
-    except:
-        # wrap other exceptions in user errors
-        get_logger().exception("Error in parsing library file %s" %
-                               fl.get_preprocessed_library_file())
-        user_error = \
-          convert_exc_to_user_error(sys.exc_info(),
-                                    errors[LIBRARY_PARSE_ERROR],
-                                    {"filename":fl.get_preprocessed_library_file()})
-        raise user_error
+    perm_file_name = fl.get_preprocessed_library_file() \
+                     if not use_temporary_file \
+                     else None
+    with fileutils.OptNamedTempFile(perm_file_name=perm_file_name) as of:
+        preprocess_library_file(fl.get_software_library_file(),
+                                fl.get_extension_library_files(),
+                                of.name)
+        try:
+            with open(of.name, "rb") as lf:
+                json_repr = json.load(lf)
+            return parse_library(json_repr, of.name,
+                                 cache_directory_override=fl.get_cache_directory())
+        except UserError, e:
+            raise # just reraise user errors
+        except:
+            # wrap other exceptions in user errors
+            get_logger().exception("Error in parsing library file %s" % of.name)
+            user_error = \
+              convert_exc_to_user_error(sys.exc_info(),
+                                        errors[LIBRARY_PARSE_ERROR],
+                                        {"filename":of.name})
+            raise user_error
 
 
 def get_library_path(dirname='metadata', filename='resource_library.json'):
