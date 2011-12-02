@@ -4155,6 +4155,176 @@
             "port_mapping": {"tomcat":"tomcat"}}
           ]
       }
+    },
+    { "key": {"name":"python-dev-headers", "version":"2.x"},
+      "display_name": "Python development headers package (python-dev) for Ubuntu",
+      "comment": "This is needed when building Python packages that include c/c++ code",
+      "input_ports": {
+        "python": { "home": "string" },
+        "host": { "sudo_password": "password" }
+      },
+      "output_ports": {
+        "apt_cfg": {
+          "package_name":{"type":"string", "fixed-value":"python-dev"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}}
+        ]}
+    },
+    { "key": {"name":"pyzmq-static", "version":"2.1"},
+      "display_name": "ZeroMQ python bindings, with bundled copy of zeromq",
+      "comment": "In your install specs, you should refer to pyzmq-abstract rather than directly to this resource. This package provides zeromq python bindings along with a local copy of Zeromq itself, which is compiled during the install process. This is useful for older Ubuntu versions that do not have a zeromq apt package.",
+      "input_ports" : {
+        "host": {
+        },
+        "python": {
+          "home" : "string",
+          "PYTHONPATH": "string"
+        },
+	"setuptools" : { "easy_install" : "string" }
+      },
+      "output_ports" : {
+        "zeromq": { },
+        "pkg_info": {
+          "test_module": {"type":"string", "fixed-value":"zmq"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+        ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.5"}},
+            "port_mapping": {"python":"python"}
+          },
+          { "key": {"name":"setuptools",
+                    "version":{"greater-than-or-equal":"0.6"}},
+            "port_mapping": {"setuptools":"setuptools"}
+          },
+          { "key": {"name":"g++",
+                    "version":{"greater-than-or-equal":"4.2"}}},
+          { "key": {"name":"python-dev-headers", "version": "2.x"}}
+      ]}
+    },
+    { "key": {"name":"zmq-macports", "version":"2.1"},
+      "display_name": "ZeroMQ macports package",
+      "input_ports": {
+        "macports": { "macports_exe": "path" },
+        "host": {
+          "sudo_password": {"type": "password"}
+        }
+      },
+      "output_ports": {
+        "port_cfg": {
+          "package_name": {"type":"string", "fixed-value":"zmq"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}}
+        ]
+      },
+      "environment": {
+        "all-of": [
+          {"key":{"name":"macports",
+                  "version":{"greater-than-or-equal":"1.9"}},
+           "port_mapping":{"macports":"macports"}}
+        ]
+      }
+    },
+    { "key": {"name":"pyzmq-macports", "version":"2.7"},
+      "display_name": "ZeroMQ python bindings, packaged via macports",
+      "comment": "In your install specs, you should refer to pyzmq-abstract rather than directly to this resource. This package provides zeromq bindings via a macport. The version number refers to the python version, as the macports package is specific to that version.",
+      "input_ports" : {
+        "host": {
+          "sudo_password": {"type": "password"}
+        },
+        "python": {
+          "home" : "string",
+          "PYTHONPATH": "string"
+        },
+	"setuptools" : { "easy_install" : "string" },
+        "macports": { "macports_exe": "path" }
+      },
+      "output_ports": {
+        "port_cfg": {
+          "package_name": {"type":"string", "fixed-value":"py27-zmq"}
+        },
+        "zeromq": { }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}}
+        ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"python", "version": "2.7"},
+            "port_mapping": {"python":"python"}
+          },
+          { "key": {"name":"setuptools",
+                    "version":{"greater-than-or-equal":"0.6"}},
+            "port_mapping": {"setuptools":"setuptools"}
+          },
+          { "key": {"name":"zmq-macports", "version":"2.1"}},
+          {"key":{"name":"macports",
+                  "version":{"greater-than-or-equal":"1.9"}},
+           "port_mapping":{"macports":"macports"}}
+      ]}
+    },
+    { "key": {"name":"pyzmq-abstract", "version":"2.1"},
+      "display_name": "ZeroMQ python bindings, abstract interface",
+      "comment": "If you need the ZeroMQ python bindings, reference this resource. It will pull in as a dependency the correct verion of the binding library as well as ZeroMQ itself.",
+      "input_ports" : {
+        "python": {
+          "home" : "string"
+        },
+        "zeromq": {
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name": "ubuntu-linux", "version":"9.10"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"}},
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}}}
+        ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.5"}},
+            "port_mapping": {"python":"python"}
+          },
+          {"one-of": [
+            { "key": {"name": "pyzmq-macports", "version":"2.7"},
+              "port_mapping": {"zeromq":"zeromq"}},
+            { "key": {"name": "pyzmq-static", "version":"2.1"},
+              "port_mapping": {"zeromq":"zeromq"}}
+          ]}
+      ]}
     }
   ]
 }

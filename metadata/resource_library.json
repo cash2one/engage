@@ -781,6 +781,41 @@
           "downloader": "HTTPDownloader"
         }
      ]
+   },
+   {"key": {"name":"zmq-macports", "version":"2.1"},
+    "mgr_module_name":"engage.drivers.genforma.macports_pkg",
+    "packages": [
+      {"type":"Reference", "package_class":"MacPorts",
+       "location":"zmq"}
+    ]
+   },
+   {"key": {"name":"python-dev-headers", "version":"2.x"},
+    "mgr_module_name": "engage.drivers.genforma.aptget",
+    "packages": [
+      {"type":"Reference", "package_class":"AptGet",
+       "location":"python-dev"}
+    ]
+   },
+   {"key": {"name":"pyzmq-macports", "version":"2.7"},
+    "mgr_module_name": "engage.drivers.genforma.macports_pkg",
+    "packages": [
+      {"type":"Reference", "package_class":"MacPorts",
+       "location":"py27-zmq"}
+    ]
+   },
+   {"key": {"name":"pyzmq-static", "version":"2.1"},
+    "mgr_module_name": "engage.drivers.genforma.easy_install",
+    "packages": [
+      {"type":"Reference", "package_class":"EasyInstallLink",
+       "location":"pyzmq-static"}
+    ]
+   },
+   {"key": {"name":"pyzmq-abstract", "version":"2.1"},
+    "mgr_module_name": "engage.drivers.genforma.dummy_resource_manager",
+    "packages": [
+      {"type":"Reference", "package_class":"DummyPackage",
+       "location":""}
+    ]
    }
   ]
 }

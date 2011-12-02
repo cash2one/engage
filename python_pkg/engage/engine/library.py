@@ -62,7 +62,8 @@ ZipArchive (Archive)
 EasyInstallLink (Reference)
 PipLink (Reference)
 DummyPackage (Reference)
-MacPortsPackage (Reference)
+MacPorts (Reference)
+AptGet (Reference)
 """
 
 import sys

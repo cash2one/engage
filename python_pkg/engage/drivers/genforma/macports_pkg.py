@@ -181,8 +181,8 @@ def check_installed(self, package):
 
 
 def make_context(resource_json, sudo_password_fn, dry_run=False):
-    ctx = Context(resource_json, logger, __file__,
-                  sudo_password_fn=sudo_password_fn, dry_run=dry_run)
+    ctx = action.Context(resource_json, logger, __file__,
+                         sudo_password_fn=sudo_password_fn, dry_run=dry_run)
     ctx.checkp("input_ports.host.sudo_password")
     ctx.checkp("input_ports.macports.macports_exe")
     ctx.checkp("output_ports.port_cfg.package_name")
@@ -212,7 +212,7 @@ class Manager(resource_manager.Manager, PasswordRepoMixin):
         self.validate_post_install()
 
     def validate_post_install(self):
-        if not self.is_installed():
+        if not self.is_installed() and not self.ctx.dry_run:
             raise UserError(errors[ERR_POST_INSTALL],
-                            msg_args={"pkg":self.props.output_ports.port_cfg.package_name,
-                                      "id":self.props.id})
+                            msg_args={"pkg":self.ctx.props.output_ports.port_cfg.package_name,
+                                      "id":self.ctx.props.id})

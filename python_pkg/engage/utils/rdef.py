@@ -247,6 +247,7 @@ class BaseConstraint(Constraint):
         assert json_dict.has_key(u"key"), "Resource %s has invalid base constraint '%s'" % \
                                           (parent_resource.key_as_string, json_dict.__repr__())
         self.key = json_dict[u"key"]
+        assert isinstance(self.key, dict), "Improperly formatted key '%s' for contraint in resource %s" % (self.key, parent_resource.key_as_string)
         assert self.key.has_key(u"name"), "Resource %s has invalid base constraint '%s': missing name" % \
                                           (parent_resource.key_as_string, json_dict.__repr__())
         self.name = self.key[u"name"]

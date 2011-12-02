@@ -67,7 +67,7 @@ def _add_sudo_password_to_repository(repos, dry_run=False):
                         second_try = True
                 else:
                     print "Sorry, passwords do not match!"
-    repos.add_key(SUDO_PW_KEY, prompt_for_password())
+    repos.update_key(SUDO_PW_KEY, prompt_for_password())
 
 
 def _get_master_password(master_password_file=None,
