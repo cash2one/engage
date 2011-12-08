@@ -704,6 +704,26 @@ def make_action(fn):
     return _action
 
 
+def wrap_action(fn):
+    """This function takes a function and returns an action which calls
+    the function. Unlike, make_action(), it does not pass self as the
+    first parameter. This is useful for wrapping existing functions.
+
+    Example::
+
+        self.ctx.r(wrap_action(shutil.copy), "foo.txt", "bar.txt")
+    """
+    class _action(Action):
+        NAME=fn.__name__
+        def __init__(self, ctx):
+            super(_action, self).__init__(ctx)
+        def run(self, *args, **kwargs):
+            fn(*args, **kwargs)
+        def dry_run(self, *args, **kwargs):
+            pass
+    return _action
+
+
 def make_value_action(fn):
     """This is a decorator which converts a function to a value
     action. The function is passed the enclosing function object as its
@@ -1182,8 +1202,13 @@ def get_server_status(self, pid_file, remove_pidfile_if_dead_proc=False):
     """ValueAction: check whether a server process is alive by grabbing its
     pid from the specified
     pidfile and then checking the liveness of that pid. If the pidfile doesn't
-    exist, assume that server isn't alive. Returns the pid if the server is running
-    and None if it isn't running."""
+    exist, assume that server isn't alive. Returns the pid if the server is
+    running and None if it isn't running.
+
+    NOTE: If you are using this in the is_running() method of a service,
+    be sure to convert the result to a boolean. For example:
+    return self.ctx.rv(check_server_status, pid_file) != None
+    """
     return procutils.check_server_status(pid_file, self.ctx.logger,
                                          self.ctx.props.id,
                                          remove_pidfile_if_dead_proc)

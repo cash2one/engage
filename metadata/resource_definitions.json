@@ -948,13 +948,15 @@
         "host": {},
         "jvm": {
           "type": "string",
-          "home": "path"
+          "home": "path",
+          "java_exe": "path"
         }
       },
       "output_ports": {
         "jvm": {
           "type": {"type":"string", "source":"input_ports.jvm.type"},
-          "home": {"type":"path", "source":"input_ports.jvm.home"}
+          "home": {"type":"path", "source":"input_ports.jvm.home"},
+          "java_exe": {"type":"path", "source":"input_ports.jvm.java_exe"}
         }
       }, 
       "environment": {
@@ -1007,7 +1009,7 @@
     { "key": {"name":"java-virtual-machine-macosx", "version":"1.6"},
       "display_name":"JDK 1.6 for macosx",
       "config_port": {
-        "JAVA_HOME": {"type":"string",
+        "JAVA_HOME": {"type":"path",
                       "default":"/System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK/Home"}
       },
       "input_ports": {
@@ -1021,7 +1023,9 @@
       "output_ports": {
         "jvm": {
           "type": {"type":"string", "fixed-value":"jdk"},
-          "home": {"type":"string", "source":"config_port.JAVA_HOME"}
+          "home": {"type":"path", "source":"config_port.JAVA_HOME"},
+          "java_exe":{"type":"path",
+                      "fixed-value":"/usr/bin/java"}
         }
       },
       "inside": {
@@ -1049,7 +1053,9 @@
       "output_ports": {
         "jvm": {
           "type": {"type":"string", "fixed-value":"jdk"},
-          "home": {"type":"string", "source":"config_port.JAVA_HOME"}
+          "home": {"type":"string", "source":"config_port.JAVA_HOME"},
+          "java_exe":{"type":"path",
+                      "fixed-value":"/usr/bin/java"}
         }
       },
       "inside": {
@@ -3105,6 +3111,9 @@
              },
              { "key" : { "name" : "pip", "version" : "any"},
                "port_mapping" : { "pip" : "pip" }
+             },
+             { "key" : { "name" : "setuptools", "version" : "0.6"},
+               "port_mapping" : { "setuptools" : "setuptools" }
              }
           ]
       }

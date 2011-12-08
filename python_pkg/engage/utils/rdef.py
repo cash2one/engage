@@ -235,7 +235,10 @@ class Constraint(object):
     def hash(self):
         raise Exception("Not implemented")
     def validate(self, res_map, res_by_name, vr):
-        """Validate the constraint and return the number of (errors, warnings) found.
+        """Validate the constraint. Returns tuple of two sets of port names:
+        1. The ports included in all solutions of the the constraint.
+        2. The ports included in only some solutions of the constraint.
+        Only ports whose names are mapped are included.
         """
         raise Exception("Not implemented")
         
@@ -339,8 +342,12 @@ class BaseConstraint(Constraint):
                     print "ERROR: Resource %s has constraint which references non-existant output port %s on resource %s" % \
                           (self.parent_resource.key_as_string, self.port_mapping[port], rkey)
                     vr.add_error()
-                        
-                
+        # We return a tuple of the ports defined by all solutions of this
+        # constriant and the ports defined by only some solutions of this
+        # constraint. We just return the empty set for the second set:
+        # if a port isn't defined for some of the resources matching this
+        # constraint, we already flag that as an error.
+        return (set(self.port_mapping.keys()), set())
 
 
 class CompositeConstraint(Constraint):
@@ -382,6 +389,7 @@ class OneOfConstraint(CompositeConstraint):
         assert type(json_dict[ONE_OF_CONSTRAINT])==list, "One-of constraint in resource %s is of wrong type: '%s'" % \
                                                  (parent_resource.key_as_string, json_dict[ONE_OF_CONSTRAINT].__repr__())
         self.json_dict = json_dict
+        self.parent_resource = parent_resource
         self.constraint_list = []
         for constraint_dict in json_dict[ONE_OF_CONSTRAINT]:
             self.constraint_list.append(BaseConstraint(constraint_dict, parent_resource))
@@ -402,8 +410,24 @@ class OneOfConstraint(CompositeConstraint):
         write_one_of_link(file, src_node, self, res_by_name, style)
         
     def validate(self, res_map, resources_by_name, vr):
+        if len(self.constraint_list)==0:
+            print "WARNING: empty one-of constraint list in resource %s" % \
+                  self.parent_resource.key_as_string
+            vr.add_warning()
+            return(set(), set())
+        all_set = None
+        some_set = None
         for constraint in self.constraint_list:
-            constraint.validate(res_map, resources_by_name, vr)
+            (alls, ss) = constraint.validate(res_map, resources_by_name, vr)
+            if not all_set:
+                all_set = alls
+                some_set = ss
+            else:
+                old_all_set = copy.copy(all_set)
+                all_set = all_set.intersection(alls)
+                some_set = some_set.union(ss, old_all_set.difference(all_set))
+        assert all_set.isdisjoint(some_set)
+        return (all_set, some_set)
 
 
 class AllOfConstraint(CompositeConstraint):
@@ -432,8 +456,13 @@ class AllOfConstraint(CompositeConstraint):
         write_all_of_link(file, src_node, self, res_by_name, style)
 
     def validate(self, res_map, resources_by_name, vr):
+        all_set = set()
+        some_set = set()
         for constraint in self.constraint_list:
-            constraint.validate(res_map, resources_by_name, vr)
+            (alls, ss) = constraint.validate(res_map, resources_by_name, vr)
+            all_set = all_set.union(alls)
+            some_set = some_set.union(ss)
+        return (all_set.difference(some_set), some_set)
 
 
 def create_constraint(json_dict, parent_resource):
@@ -647,16 +676,34 @@ class Resource(object):
             self.peer_constraint.write_link_to_graph_file(file, node, res_by_name, "dashed")
             
     def validate(self, res_map, res_by_name, vr):
+        all_set = set() # set of ports defined for all constraint solutions
+        some_set = set() # set of ports defined for some constraint solutions
         if self.inside_constraint:
-            self.inside_constraint.validate(res_map, res_by_name, vr)
+            (alls, ss) = self.inside_constraint.validate(res_map, res_by_name, vr)
+            all_set = all_set.union(alls)
+            some_set = some_set.union(ss)
         if self.env_constraint:
-            self.env_constraint.validate(res_map, res_by_name, vr)
+            (alls, ss) = self.env_constraint.validate(res_map, res_by_name, vr)
+            all_set = all_set.union(alls)
+            some_set = some_set.union(ss)
         if self.peer_constraint:
-            self.peer_constraint.validate(res_map, res_by_name, vr)
-
+            (alls, ss) = self.peer_constraint.validate(res_map, res_by_name, vr)
+            all_set = all_set.union(alls)
+            some_set = some_set.union(ss)
+        all_set = all_set.difference(some_set)
+        
         self.config_port.validate(self, vr)
         for port in self.input_ports.values():
             port.validate(self, vr)
+            if port.name not in all_set:
+                if port.name in some_set:
+                    print "WARNING: input port '%s' of resource %s not defined for all constraint solutions." % \
+                        (port.name, self.key_as_string)
+                    vr.add_warning()
+                else:
+                    print "ERROR: input port '%s' of resource %s not defined by its dependent resources (or defined but not mapped)." % \
+                        (port.name, self.key_as_string)
+                    vr.add_error()                    
         for port in self.output_ports.values():
             port.validate(self, vr)
 

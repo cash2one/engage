@@ -46,7 +46,10 @@ class Manager(BackupFileMixin, resource_manager.Manager):
         # the file group is optional. If not None, then we attempt to set the group
         # id of the file to the specified group and add group read (and potentially execute)
         # permissions.
-        self.file_group = self.metadata.output_ports["file_info"]["file_group"]
+        if self.metadata.output_ports["file_info"].has_key("file_group"):
+            self.file_group = self.metadata.output_ports["file_info"]["file_group"]
+        else:
+            self.file_group = None
         self.ran_install = False
 
     def _get_backup_file_list(self):

@@ -51,7 +51,7 @@ except:
     dir_to_add_to_python_path = os.path.abspath((os.path.join(os.path.dirname(__file__), "../../../..")))
     sys.path.append(dir_to_add_to_python_path)
 
-import engage.drivers.resource_manager as resource_manager
+import engage.drivers.%(baseclass)s as %(baseclass)s
 import engage.drivers.utils
 # Drivers compose *actions* to implement their methods.
 from engage.drivers.action import *
@@ -102,19 +102,20 @@ def make_context(resource_json, sudo_password_fn, dry_run=False):
     # add any extra computed properties here using the ctx.add() method.
     return ctx
 
-
-# Now, define the main resource manager class for the driver. If this driver is
-# a service, inherit from service_manager.Manager instead of
+#
+# Now, define the main resource manager class for the driver.
+# If this driver is a service, inherit from service_manager.Manager.
+# If the driver is just a resource, it should inherit from
 # resource_manager.Manager. If you need the sudo password, add
 # PasswordRepoMixin to the inheritance list.
 #
-class Manager(resource_manager.Manager):
+class Manager(%(baseclass)s.Manager):
     # Uncomment the line below if this driver needs root access
     ## REQUIRES_ROOT_ACCESS = True 
     def __init__(self, metadata, dry_run=False):
         package_name = "%s %s" % (metadata.key["name"],
                                   metadata.key["version"])
-        resource_manager.Manager.__init__(self, metadata, package_name)
+        %(baseclass)s.Manager.__init__(self, metadata, package_name)
         self.ctx = make_context(metadata.to_json(),
                                 None, # self._get_sudo_password,
                                 dry_run=dry_run)
@@ -142,6 +143,40 @@ class Manager(resource_manager.Manager):
         ## self.ctx.r(check_dir_exists,  p.config_port.home)
         assert 0, "need to implement"
 
+%(svcmethods)s
+"""
+
+_svc_methods = """
+    def start(self):
+        ## # Example code to start a server process
+        ## p = self.ctx.props
+        ## command_exe = ...
+        ## self.ctx.r(start_server,
+        ##            [command_exe, ... put args here ... ],
+        ##            p.config_port.log_file,
+        ##            p.config_port.pid_file,
+        ##            cwd=os.path.dirname(command_exe))
+        assert 0, "need to implement"
+
+    def is_running(self):
+        ## # Example code to check pid file
+        ## p = self.ctx.props
+        ## return self.ctx.rv(get_server_status,
+        ##                    p.config_port.pid_file) != None
+        assert 0, "need to implement"
+
+    def stop(self):
+        ## # Example code to terminate server process
+        ## p = self.ctx.props
+        ## self.ctx.r(stop_server, p.config_port.pid_file)
+        assert 0, "need to implement"
+
+    ## def get_pid_file_path(self):
+    ##     """Method to return the path to the pid file for an installed service.
+    ##     If there is no pid file for this service, just return None. This is
+    ##     used by management tools (e.g. monit) to monitor the service.xs
+    ##     """
+    ##     return self.ctx.props.config_port.pid_file
 """
 
 packages_file_example = """
@@ -229,7 +264,10 @@ def generate_port_checks(res_name, res_version):
         raise Exception("Resource %s %s not found in resource definitions" %
                         (res_name, res_version))
     r = g.get_resource(key)
-    checks = resource_port_to_port_check(r.config_port)
+    if len(r.config_port.properties)>0:
+        checks = resource_port_to_port_check(r.config_port)
+    else:
+        checks = ""
     for p in r.input_ports.values():
         checks += resource_port_to_port_check(p)
     for p in r.output_ports.values():
@@ -244,7 +282,10 @@ def main(argv):
         parser.add_option("-t", "--generate-test", default=False,
                           action="store_true",
                           help="If specified, generate a drivertest.py file")
-        parser.add_option("-s", "--skip-port-checks", default=False,
+        parser.add_option("--service", default=False,
+                          action="store_true",
+                          help="If specified, the driver is for a service (will inherit from service_manager.Manager instead of resource_manager.Manager).")
+        parser.add_option("--skip-port-checks", default=False,
                           action="store_true",
                           help="If specified, don't parse the resource definitions for generation of port checks")
         (options, args) = parser.parse_args(argv)
@@ -255,6 +296,12 @@ def main(argv):
             port_checks = generate_port_checks(keyname, versionname)
         else:
             port_checks = ""
+        if options.service:
+            base_class = "service_manager"
+            svc_methods = _svc_methods
+        else:
+            base_class = "resource_manager"
+            svc_methods = ""
         dirname = sanitize(keyname) + '__' + sanitize(versionname) 
         target_dir = os.path.join(os.path.abspath("."), dirname)
         if os.path.exists(target_dir):
@@ -268,7 +315,8 @@ def main(argv):
         driver = skeleton.replace("%(key)s",
                                   keyname).replace("%(version)s",
                                                    versionname).replace("%(port_checks)s",
-                                                                        port_checks)
+                                                                        port_checks).replace("%(baseclass)s",
+                                                                                             base_class).replace("%(svcmethods)s", svc_methods)
         f.write(driver)
         f.close()
         print "generating packages.json"
