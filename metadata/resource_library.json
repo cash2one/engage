@@ -803,19 +803,37 @@
        "location":"py27-zmq"}
     ]
    },
-   {"key": {"name":"pyzmq-static", "version":"2.1"},
-    "mgr_module_name": "engage.drivers.genforma.easy_install",
-    "packages": [
-      {"type":"Reference", "package_class":"EasyInstallLink",
-       "location":"pyzmq-static"}
-    ]
-   },
-   {"key": {"name":"pyzmq-abstract", "version":"2.1"},
-    "mgr_module_name": "engage.drivers.genforma.dummy_resource_manager",
-    "packages": [
-      {"type":"Reference", "package_class":"DummyPackage",
-       "location":""}
-    ]
-   }
+    {"key": {"name":"pyzmq-static", "version":"2.1"},
+     "mgr_module_name": "engage.drivers.genforma.easy_install",
+     "packages": [
+       {"type":"Reference", "package_class":"EasyInstallLink",
+        "location":"pyzmq-static"}
+     ]
+    },
+    {"key": {"name":"pyzmq-abstract", "version":"2.1"},
+     "mgr_module_name": "engage.drivers.genforma.dummy_resource_manager",
+     "packages": [
+       {"type":"Reference", "package_class":"DummyPackage",
+        "location":""}
+     ]
+    },
+    { "key":{"name":"pika", "version":"0.9"},
+      "mgr_module_name":"engage.drivers.genforma.easy_install",
+      "packages": [
+        { "type": "Reference",
+          "package_class": "EasyInstallLink",
+          "location": "pika"
+        }
+      ]
+    },
+    { "key":{"name":"pymongo", "version":"2.1"},
+      "mgr_module_name":"engage.drivers.genforma.easy_install",
+      "packages": [
+        { "type": "Reference",
+          "package_class": "EasyInstallLink",
+          "location": "pymongo"
+        }
+      ]
+    }
   ]
 }

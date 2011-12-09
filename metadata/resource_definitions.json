@@ -4334,6 +4334,79 @@
               "port_mapping": {"zeromq":"zeromq"}}
           ]}
       ]}
+    },
+    {"key":{"name":"pika", "version":"0.9"},
+     "display_name": "Python adapter library for RabbitMQ",
+      "input_ports" : {
+         "python": {
+              "home" : "string"
+            },
+         "setuptools" : {
+            "easy_install" : "string"
+         },
+        "host": { "genforma_home": "path" }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"setuptools", "version":"0.6"},
+            "port_mapping": { "setuptools": "setuptools" }
+          },
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          }
+        ]
+      }
+    },
+    {"key":{"name":"pymongo", "version":"2.1"},
+     "display_name": "Python adapter library for MongoDB",
+      "input_ports" : {
+         "python": {
+              "home" : "string"
+            },
+         "setuptools" : {
+            "easy_install" : "string"
+         },
+        "host": { "genforma_home": "path" }
+      },
+      "output_ports" : {
+        "pkg_info": {
+          "test_module": {"type":"string", "fixed-value":"pymongo"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"setuptools", "version":"0.6"},
+            "port_mapping": { "setuptools": "setuptools" }
+          },
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          }
+        ]
+      }
     }
   ]
 }

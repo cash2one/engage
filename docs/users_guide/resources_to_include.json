@@ -2,5 +2,8 @@
  {"name":"Django-App", "version":"1.0"},
  {"name":"jasper-reports-server", "version":"4.2"},
  {"name":"MoinMoin", "version":"1.9"},
- {"name":"pyzmq-abstract", "version":"2.1"}
+ {"name":"pyzmq-abstract", "version":"2.1"},
+ {"name":"mongodb", "version":"2.0"},
+ {"name":"pika", "version":"0.9"},
+ {"name":"pymongo", "version":"2.1"}
 ]
