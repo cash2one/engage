@@ -301,8 +301,8 @@
       "packages": [
         { "type": "Archive",
           "package_class": "GzippedTarArchive",
-          "location": "http://pypi.python.org/packages/source/p/pip/pip-1.0.tar.gz#md5=327fc4a03df189506966e15021730550",
-          "filename": "pip-1.0.tar.gz",
+          "location": "http://pypi.python.org/packages/source/p/pip/pip-1.0.2.tar.gz#md5=47ec6ff3f6d962696fe08d4c8264ad49",
+          "filename": "pip-1.0.2.tar.gz",
           "downloader": "HTTPDownloader"
         },
         { "type": "Reference",
@@ -554,14 +554,18 @@
         }
       ]
     },
-    {"key" : {"name": "python-httplib2", "version":"0.6"},
+    {"key" : {"name": "python-httplib2", "version":"0.7"},
       "mgr_module_name":"engage.drivers.genforma.easy_install",
       "packages": [
         { "type": "Archive",
           "package_class": "ZipArchive",
-          "filename": "httplib2-0.6.0.zip",
-          "location": "http://httplib2.googlecode.com/files/httplib2-0.6.0.zip",
+          "filename": "httplib2-0.7.2.zip",
+          "location": "http://httplib2.googlecode.com/files/httplib2-0.7.2.tar.gz",
           "downloader": "HTTPDownloader"
+        },
+        { "type":"Reference",
+          "package_class":"EasyInstallLink",
+          "location": "httplib2"
         }
       ]
     },
@@ -681,13 +685,13 @@
        ]
    },
    {
-       "key": {"name": "apache-libcloud", "version":"0.5"},
+       "key": {"name": "apache-libcloud", "version":"0.6"},
        "mgr_module_name": "engage.drivers.genforma.easy_install",
        "packages": [
            { "type": "File",
              "package_class":"FilePackage",
-             "location":"apache-libcloud-0.5.2.tar.bz2",
-             "filename":"apache-5ibcloud-0.5.2.tar.bz2"
+             "location":"apache-libcloud-0.6.2.tar.bz2",
+             "filename":"apache-5ibcloud-0.6.2.tar.bz2"
            }
        ]
    },
@@ -832,6 +836,24 @@
         { "type": "Reference",
           "package_class": "EasyInstallLink",
           "location": "pymongo"
+        }
+      ]
+    },
+    { "key":{"name":"lxml", "version":"2.3"},
+      "mgr_module_name":"engage.drivers.genforma.pip",
+      "packages": [
+        { "type": "Reference",
+          "package_class": "PipLink",
+          "location": "lxml"
+        }
+      ]
+    },
+    { "key":{"name":"sunburnt", "version":"0.5"},
+      "mgr_module_name":"engage.drivers.genforma.pip",
+      "packages": [
+        { "type": "Reference",
+          "package_class": "PipLink",
+          "location": "sunburnt==0.5"
         }
       ]
     }

@@ -268,12 +268,19 @@ class DeployedFileLayout(BaseFileLayout):
     LAYOUT_TYPE = "deployed"
     def __init__(self, installer_name=None):
         BaseFileLayout.__init__(self, installer_name)
-        # we use the location of the calling python instance to figure out
-        # where everything else is.
-        self.bin_directory = os.path.dirname(sys.executable)
-        # engage home is one level up from the bin_directory
-        self.engage_home = os.path.abspath(os.path.join(self.bin_directory, ".."))
-        assert os.path.basename(self.engage_home)=="engage", "Expecting engage home at %s" % self.engage_home
+        # we use the location of the current file to figure out where
+        # everything else is.
+        current_dir = os.path.dirname(__file__)
+        site_packages_dir = \
+            os.path.abspath(os.path.expanduser(os.path.join(current_dir,
+                                                            "../../..")))
+        assert os.path.basename(site_packages_dir)=="site-packages"
+        self.engage_home = os.path.abspath(os.path.join(site_packages_dir,
+                                                        "../../.."))
+        assert os.path.basename(self.engage_home)=="engage", \
+               "Expecting engage home at %s" % self.engage_home
+        self.bin_directory = os.path.join(self.engage_home, "bin")
+        self._check_for_directory(self.bin_directory)
         # deployment hone is one level up from engage home
         self.deployment_home = os.path.abspath(os.path.join(self.engage_home, ".."))
         self.installed_resources_file = None

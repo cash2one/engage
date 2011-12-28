@@ -25,12 +25,13 @@ class PasswordRepoMixin(object):
             return None
 
     def _get_master_password(self):
-        """The master password is just the sudo password. However, in the event
-        that we are running as root, we still return the password.
+        """The master password is the password used to encrypt the password
+        repository. It is stored in the actual password repository object.
+        Returns None if there is no master password.
         """
-        key = self.metadata.input_ports["host"]["sudo_password"]
-        if self.install_context.password_repository.has_key(key):
-            return self.install_context.password_repository.get_value(key)
+        pw = self.install_context.password_repository.user_key
+        if pw != "":
+            return pw
         else:
             return None
 

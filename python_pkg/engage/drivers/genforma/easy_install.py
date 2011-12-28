@@ -114,7 +114,11 @@ class Manager(resource_manager.Manager):
 
     def is_installed(self):
         p = self.ctx.props
-        if (not p.python_exe) or (not p.test_module):
+        if self.metadata.is_installed():
+            logger.debug("Metadata indicates that %s is already installed" %
+                         p.id)
+            return True
+        elif (not p.python_exe) or (not p.test_module):
             # we don't have the metadata defined to check whether
             # this package is installed
             logger.debug("%s: metadata not present to tell if package is installed, so assuming not installed" % p.id)

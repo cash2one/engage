@@ -1,11 +1,19 @@
-"""Resource manager for pip packages. 
+"""Resource manager for pip packages. The location for a package can be one
+of the following:
+ * A pypi package name
+ * A local archive file name
+ * A package name and version constraint containing == or >=. This goes into
+   a requirements file.
 """
 
 import commands
 import os
+import tempfile
 
 import engage.drivers.resource_manager as resource_manager
 import  engage.drivers.resource_metadata as resource_metadata
+from engage.drivers.action import *
+from engage.drivers.genforma.python import is_module_installed
 import engage.engine.library as library
 import engage.utils.path as path
 import engage.utils.process as iuproc
@@ -26,28 +34,41 @@ def define_error(error_code, msg):
 
 # error codes
 ERR_PKG = 1
+ERR_POST_INSTALL = 2
+
+PIP_TIMEOUT=45
 
 define_error(ERR_PKG,
              _("error installing %(pkg)s using pip"))
+define_error(ERR_POST_INSTALL,
+             _("Ran pip for resource %(id)s, but Python module %(module)s was not found afterward."))
 
-_config_type = {
-    "input_ports": {
-    "pip" : { "pipbin": unicode }
-    }
-}
 
-class Config(resource_metadata.Config):
-    def __init__(self, props_in, types, id, package_name):
-        resource_metadata.Config.__init__(self, props_in, types)
+def make_context(resource_json, dry_run=False):
+    ctx = Context(resource_json, logger, __file__,
+                  sudo_password_fn=None,
+                  dry_run=dry_run)
+    ctx.check_port("input_ports.pip",
+                   pipbin=unicode)
+    # To tell whether the package is installed, we need to know the python
+    # executable and a test module to try to import.
+    if ctx.substitutions.has_key("input_ports.python.home"):
+        ctx.add("python_exe", ctx.props.input_ports.python.home)
+    else:
+        ctx.add("python_exe", None)
+    if ctx.substitutions.has_key("output_ports.pkg_info.test_module"):
+        ctx.add("test_module", ctx.props.output_ports.pkg_info.test_module)
+    else:
+        ctx.add("test_module", None)
+    return ctx
 
 
 class Manager(resource_manager.Manager):
-    def __init__(self, metadata):
+    def __init__(self, metadata, dry_run=False):
         package_name = "%s %s" % (metadata.key["name"],
                                   metadata.key["version"])
         resource_manager.Manager.__init__(self, metadata, package_name)
-        self.config = metadata.get_config(_config_type, Config,
-                                          self.id, package_name)
+        self.ctx = make_context(metadata.to_json(), dry_run=dry_run)
 	try:
            self.prefix_dir = metadata.config_port["install_dir"]
         except:
@@ -56,7 +77,7 @@ class Manager(resource_manager.Manager):
            self.script_dir = metadata.config_port["script_dir"]
         except:
            self.script_dir = None
-        self.pip = self.config.input_ports.pip.pipbin 
+        self.pip = self.ctx.props.input_ports.pip.pipbin
         self.editable = False
 
     
@@ -64,10 +85,24 @@ class Manager(resource_manager.Manager):
 	pass
 
     def is_installed(self):
-	return False
+        p = self.ctx.props
+        if self.metadata.is_installed():
+            logger.debug("Metadata indicates that %s is already installed" %
+                         p.id)
+            return True
+        elif (not p.python_exe) or (not p.test_module):
+            # we don't have the metadata defined to check whether
+            # this package is installed
+            logger.debug("%s: metadata not present to tell if package is installed, so assuming not installed" % p.id)
+            return False
+        else:
+            # try importing the test module specified in the metadata
+            # to see if the package is installed
+            return self.ctx.rv(is_module_installed, p.test_module)
 
     def install(self, package):
-        cmd = [self.pip, 'install']
+        cmd = [self.pip, 'install', "--use-mirrors",
+               "--timeout=%d" % PIP_TIMEOUT]
         if self.editable:
             cmd.append('-e')
         if self.prefix_dir != None:
@@ -85,20 +120,41 @@ class Manager(resource_manager.Manager):
                 # in how we model resources.
                 logger.warn("Script directory '%s' for %s does not exist, attempting to create it" %
                             (self.script_dir, package.location))
-                os.makedirs(self.script_dir)
+                if not self.ctx.dry_run:
+                    os.makedirs(self.script_dir)
+        req_file = None
         if package.type == library.Package.REFERENCE_TYPE:
             # reference package type should be used for package names (e.g. Django)
             # or URL's
-            cmd.append(package.location)
+            if "==" in package.location or ">=" in package.location:
+                # this is a entry for a requirements file
+                req_file = tempfile.NamedTemporaryFile(delete=False)
+                req_file.write(package.location + "\n")
+                req_file.close()
+                logger.debug("Pip requirements file contents: %s" %
+                             package.location)
+                cmd.extend(["-r", req_file.name])
+            else: # just a package name, can use command line directly
+                cmd.append(package.location)
         else:
             # if a file or archive, then we get the local location and pass that
             # to pip 
             filepath = package.get_file()
             cmd.append(filepath)
-        rc = iuproc.run_and_log_program(cmd, { 'PATH': os.environ.get('PATH', []) }, logger)
-	if rc != 0:
-            raise UserError(errors[ERR_PKG], {"pkg":package.__repr__()} )
+        try:
+            self.ctx.r(run_program, cmd)
+        finally:
+            if req_file:
+                os.remove(req_file.name)
 
 
     def validate_post_install(self):
-	pass
+        p = self.ctx.props
+        if (not p.python_exe) or (not p.test_module) or self.ctx.dry_run:
+            return
+        else:
+            # try importing the test module specified in the metadata
+            # to see if the package is installed
+            if not self.ctx.rv(is_module_installed, p.test_module):
+                raise UserError(errors[ERR_POST_INSTALL],
+                                msg_args={"id":p.id, "module":p.test_module})

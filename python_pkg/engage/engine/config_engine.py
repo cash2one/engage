@@ -24,6 +24,10 @@ def run_config_engine(installer_file_layout, install_spec_file):
     config_error_file = get_config_error_file(installer_file_layout)
     preprocess_resources.validate_install_spec(install_spec_file)
     install_script_file = ifl.get_install_script_file()
+    if os.path.exists(install_script_file):
+        logger.debug("moving old %s to %s before running config engine" %
+                     (install_script_file, install_script_file + ".prev"))
+        os.rename(install_script_file, install_script_file + ".prev")
     # we run the config engine from the same directory as where we want
     # the install script file, as it write the file to the current
     # directory.

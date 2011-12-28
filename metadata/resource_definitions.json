@@ -1941,7 +1941,7 @@
           ]
       }
     },
-    { "key" : {"name": "python-httplib2", "version":"0.6"},
+    { "key" : {"name": "python-httplib2", "version":"0.7"},
       "display_name" : "Python HTTP client library",
       "input_ports" : {
          "python": {
@@ -2006,7 +2006,7 @@
                     "version":{"greater-than-or-equal":"2.3"}},
             "port_mapping": {"python":"python"}
           },
-          { "key": {"name":"python-httplib2", "version":"0.6"}}
+          { "key": {"name":"python-httplib2", "version":"0.7"}}
         ]
       }
     },
@@ -2535,6 +2535,7 @@
     },
     { "key" : {"name": "pip", "version":"any"},
       "display_name" : "Pip",
+      "comment": "This resource represents the pip package installer for Python. It is installed as a part of the Engage bootstrap process into <deployment_home>/python/bin",
       "inside": {
         "one-of": [
           { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
@@ -3362,7 +3363,7 @@
         ]
       }
     },
-    { "key" : {"name": "apache-libcloud", "version":"0.5"},
+    { "key" : {"name": "apache-libcloud", "version":"0.6"},
       "display_name" : "Provider-independent Python API for cloud provisioning",
       "input_ports" : {
          "python": {
@@ -3511,9 +3512,7 @@
             "port_mapping": {"python":"python"}
           },
           {"key": {"name":"argparse", "version":{"greater-than-or-equal":"1.1"}}},
-          {"key": {"name":"cloudfiles", "version":{"greater-than-or-equal":"1.7"}}},
-          {"key": {"name":"apache-libcloud", "version":{"greater-than-or-equal":"0.5",
-                                                        "less-than":"0.6"}}},
+          {"key": {"name":"apache-libcloud", "version":"0.6"}},
           {"key": {"name":"paramiko", "version":{"greater-than-or-equal":"1.7"}}}
         ]
       }
@@ -4406,6 +4405,110 @@
             "port_mapping": {"python":"python"}
           }
         ]
+      }
+    },
+    { "key":{"name":"lxml", "version":"2.3"},
+      "display_name": "lxml: XML processing library for python",
+      "input_ports" : {
+         "python": {
+              "home" : "string"
+            }, 
+         "pip" : {
+            "pipbin" : "string"
+         }
+      },
+      "output_ports": {
+        "pkg_info": {
+          "provides_pkg": { "type": "string", "fixed-value": "lxml"},
+          "test_module": { "type": "string", "fixed-value": "lxml" }
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"pip", "version":"any"},
+            "port_mapping": { "pip": "pip" }
+          },
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          }
+        ]
+      }
+    },
+    { "key":{"name":"sunburnt", "version":"0.5"},
+      "display_name": "sunburnt: Python API for Solr",
+      "input_ports" : {
+         "python": {
+              "home" : "string"
+            }, 
+         "pip" : {
+            "pipbin" : "string"
+         }
+      },
+      "output_ports": {
+        "pkg_info": {
+          "provides_pkg": { "type": "string", "fixed-value": "sunburnt"},
+          "test_module": { "type": "string", "fixed-value": "sunburnt" }
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"pip", "version":"any"},
+            "port_mapping": { "pip": "pip" }
+          },
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          },
+          { "key": {"name":"python-httplib2", "version":"0.7"}},
+          { "key": {"name":"lxml", "version":"2.3"}}
+        ]
+      }
+    },
+    { "key": {"name":"master-password-file", "version":"1.0"},
+      "display_name": "Master password file",
+      "comment": "This resource creates a file containing the master password. It has permissions of 0400, meaning it cannot be read by other users. This is useful with the --master-password-file option. Note that it doesn't actually force the use of the master password, so you need to include a resource that requires a password.",
+      "config_port": {
+        "password_file": {
+          "type":"path",
+          "default":"${input_ports.host.genforma_home}/config/master.pw"
+        }
+      },
+      "input_ports": {
+        "host": { "genforma_home": "path" }
+      },
+      "output_ports": {
+        "master_password_file": {
+          "password_file": {"type":"path",
+                            "source":"config_port.password_file"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
       }
     }
   ]

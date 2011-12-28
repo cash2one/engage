@@ -4,6 +4,7 @@ import os.path
 import sys
 from optparse import OptionParser
 import shutil
+import subprocess
 
 if sys.version_info[0]!=2 or sys.version_info[1]<6:
     raise Exception("Engage requires Python version 2.6 or 2.7, but bootstrap was started with Python %d.%d (at %s)" %
@@ -19,10 +20,20 @@ from engage.utils.find_exe import find_executable, find_python_executable, get_p
 from engage.utils.process import system
 from engage.utils.log_setup import setup_logger, parse_log_options, add_log_option
 from engage.utils.system_info import get_platform
-from engage.engine.create_distribution import create_distribution_from_deployment_home
 
 
-def create_virtualenv(desired_python_dir, logger, base_python_exe=None):
+def get_virtualenv_version(exe_path):
+    subproc = subprocess.Popen([exe_path, "--version"],
+                               shell=False, stdout=subprocess.PIPE,
+                               cwd=os.path.dirname(exe_path),
+                               stderr=subprocess.STDOUT)
+    ver_string = (subproc.communicate()[0]).rstrip()
+    return [int(component) if component.isdigit() else component
+            for component in ver_string.split(".")]
+
+def create_virtualenv(desired_python_dir, logger, package_dir,
+                      base_python_exe=None,
+                      never_download=False):
     virtualenv_search_dirs = get_python_search_paths()
     python_exe = find_python_executable(logger, explicit_path=base_python_exe)
     # we start our virtualenv executable search at the same place as where we have
@@ -30,14 +41,27 @@ def create_virtualenv(desired_python_dir, logger, base_python_exe=None):
     # virtualenv
     virtualenv_search_dirs = [os.path.dirname(python_exe)] + get_python_search_paths()
     virtualenv = find_executable("virtualenv", virtualenv_search_dirs, logger)
+    version = get_virtualenv_version(virtualenv)
+    if version[0]>1 or (version[0]==1 and version[1]>6) or \
+       (version[0]==1 and version[1]==6 and len(version)>2 and version[2]>=1):
+        has_options = True
+    else:
+        has_options = False
         
     if not os.path.exists(desired_python_dir):
         os.makedirs(desired_python_dir)
+    opts = ["--python=%s" % python_exe,]
+    if has_options:
+        opts.append("--extra-search-dir=%s" % package_dir)
+        if never_download:
+            opts.append("--never-download")
+    elif never_download:
+        raise Exception("--never-download option requires virtualenv 1.6.1 or later")
     # JF 6/7/2011: removed --no-site-packages command line option, as it makes
     # it hard to use pre-built packages installed by the package manager,
     # like py-mysql
-    cmd = "%s --python=%s %s" % (virtualenv, python_exe,
-                                 desired_python_dir)
+    cmd = "%s %s %s" % (virtualenv, ' '.join(opts), desired_python_dir)
+    logger.info('create virtualenv running command: %s' % cmd)
     rc = system(cmd, logger, cwd=desired_python_dir)
     if rc != 0:
         raise Exception("Execution of '%s' failed, rc was %d" % (cmd, rc))
@@ -56,27 +80,39 @@ def is_package_installed(engage_bin_dir, package_name, logger):
         return False
 
 
-def run_easy_install(engage_bin_dir, sw_packages_dir, package_file_list, logger, alternative_package_name=None):
-    """Does an easy install into the engage virtualenv. See if there is a
+def copy_tree(src, dest, logger):
+    logger.debug("cp -r %s %s" % (src, dest))
+    shutil.copytree(src, dest)
+
+
+def run_install(engage_bin_dir, sw_packages_dir, package_file_list,
+                logger, alternative_package_name=None,
+                never_download=False):
+    """Does an install into the engage virtualenv. See if there is a
     matching package in the sw_packages_dir from the package file list. If so,
     install it. Otherwise, use the alternative package name (if one was provided).
     """
-    easy_install_exe = os.path.join(engage_bin_dir, "easy_install")
-    assert os.path.exists(easy_install_exe), "Cound not find easy_install executable at %s" % easy_install_exe
+    install_exe = os.path.join(engage_bin_dir, "pip")
+    assert os.path.exists(install_exe), "Cound not find pip executable at %s" % install_exe
     package_file_or_name = alternative_package_name
+    is_local_file = False
     for package_file in package_file_list:
         package_path = os.path.join(sw_packages_dir, package_file)
         if os.path.exists(package_path):
             package_file_or_name = package_path
+            is_local_file = True
             break
     if not package_file_or_name:
         raise Exception("Unable to find required python package %s" % package_path)
+    elif never_download and (not is_local_file):
+        raise Exception("Unable to find local copy of package and --never-download was specified. Package list was %s" % package_file_list)
                 
-    logger.info("Installing bootstrap python package %s using easy_install" % package_file_or_name)
-    rc = system("%s %s" % (easy_install_exe, package_file_or_name), logger)
+    logger.info("Installing bootstrap python package: %s install %s" % (
+            install_exe, package_file_or_name))
+    rc = system("%s install %s" % (install_exe, package_file_or_name), logger)
     if rc != 0:
-        raise Exception("Easy install for %s failed" % package_file_or_name)
-    logger.info("easy_install successful")
+        raise Exception("pip install for %s failed" % package_file_or_name)
+    logger.info("pip install successful")
 
 
 def main(argv):
@@ -95,6 +131,15 @@ def main(argv):
                       default=None,
                       help="Use the specified python executable as basis for Python virtual environments",
                       dest="python_exe")
+    parser.add_option("--never-download",
+                      default=False,
+                      action="store_true",
+                      help="If specified, never try to download packages during bootstrap. If a package is required, exit with an error.",
+                      dest="never_download")
+    parser.add_option("--include-test-data",
+                      default=False,
+                      action="store_true",
+                      help="If specified, copy test data into the deployment home. Otherwise, tests requiring data will be skipped.")
     (options, args) = parser.parse_args(args=argv)
     if len(args) != 1:
         parser.error("Expecting exactly one argument, the deployment's home directory")
@@ -109,7 +154,11 @@ def main(argv):
         if not os.access(options.python_exe, os.X_OK):
             parser.error("Python executable file %s is not an executable" %
                          options.python_exe)
-    
+
+    test_data_src = os.path.join(base_src_dir, "test_data")
+    if options.include_test_data and not os.path.isdir(test_data_src):
+        parser.error("--include-test-data specified, but test data directory %s does not exist" % test_data_src)
+        
     deployment_home = os.path.abspath(os.path.expanduser(args[0]))
     if os.path.exists(deployment_home):
         sentry_file = os.path.join(deployment_home, "config/installed_resources.json")
@@ -130,7 +179,14 @@ def main(argv):
 
     # the engage home is just a python virtual environment
     engage_home = os.path.join(deployment_home, "engage")
-    create_virtualenv(engage_home, logger, options.python_exe)
+
+    sw_packages_src_loc = os.path.join(base_src_dir, "sw_packages")
+    sw_packages_dst_loc = os.path.join(engage_home, "sw_packages")
+
+    create_virtualenv(engage_home, logger,
+                      sw_packages_src_loc,
+                      base_python_exe=options.python_exe,
+                      never_download=options.never_download)
     logger.info("Created python virtualenv for engage")
 
     # copy this bootstrap script and the upgrade script
@@ -145,8 +201,7 @@ def main(argv):
     # we also copy the python_pkg directory to the distribution home for use in creating
     # future distributions
     python_pkg_dst_dir = os.path.join(engage_home, "python_pkg")
-    logger.action("cp -r %s %s" % (python_pkg_dir, python_pkg_dst_dir))
-    shutil.copytree(python_pkg_dir, python_pkg_dst_dir)
+    copy_tree(python_pkg_dir, python_pkg_dst_dir, logger)
 
     # we need to run the setup.py script for the python_pkg
     engage_bin_dir = os.path.join(engage_home, "bin")
@@ -176,40 +231,38 @@ def main(argv):
     # copy the metadata files
     metadata_files_src_loc = os.path.join(base_src_dir, "metadata")
     metadata_files_dst_loc = os.path.join(engage_home, "metadata")
-    logger.action("cp -r %s %s" % (metadata_files_src_loc, metadata_files_dst_loc))
-    shutil.copytree(metadata_files_src_loc, metadata_files_dst_loc)
+    copy_tree(metadata_files_src_loc, metadata_files_dst_loc, logger)
 
     # copy the sw_packages directory
-    sw_packages_src_loc = os.path.join(base_src_dir, "sw_packages")
-    sw_packages_dst_loc = os.path.join(engage_home, "sw_packages")
-    logger.action("cp -r %s %s" % (sw_packages_src_loc, sw_packages_dst_loc))
-    shutil.copytree(sw_packages_src_loc, sw_packages_dst_loc)
+    copy_tree(sw_packages_src_loc, sw_packages_dst_loc, logger)
 
-    if not is_package_installed(engage_bin_dir, "Crypto.Cipher.AES",
-				logger):
+    if not is_package_installed(engage_bin_dir, "Crypto.Cipher.AES", logger):
         # Pycrypto may be preinstalled on the machine.
         # If so, we don't install our local copy, as installation
         # can be expensive (involves a g++ compile).
-        run_easy_install(engage_bin_dir, sw_packages_src_log,
-                         (["pycrypto-2.3-%s.tar.gz" % platform,
-                           "pycrypto-2.3.tar.gz"],
-                          "pycrypto"))
+        run_install(engage_bin_dir, sw_packages_src_loc,
+                    ["pycrypto-2.3-%s.tar.gz" % platform, "pycrypto-2.3.tar.gz"],
+                    logger, "pycrypto",
+                    never_download=options.never_download)
 
     bootstrap_packages = [(["paramiko-1.7.6.zip"], "paramiko"),
-                          (["apache-libcloud-0.5.2.tar.bz2"], None),
-                          (["python-cloudfiles-1.7.9.1.tar.gz"], "python-cloudfiles"),
+                          (["apache-libcloud-0.6.2.tar.bz2"], None),
                           (["argparse-1.2.1.tar.gz"], "argparse"),
                           (["provision-0.9.3-dev.tar.gz"], None),
                           (["nose-1.0.0.tar.gz"], "nose")]
-    # run easy_install for all of the bootstrap packages
+    # run install for all of the bootstrap packages
     for (package_file_list, alternate) in bootstrap_packages:
-        run_easy_install(engage_bin_dir, sw_packages_src_loc,
-                         package_file_list,
-                         logger, alternate)
+        run_install(engage_bin_dir, sw_packages_src_loc,
+                    package_file_list,
+                    logger, alternate,
+                    never_download=options.never_download)
     
     # create a virtualenv for the deployed apps
     deployed_virtualenv = os.path.join(deployment_home, "python")
-    create_virtualenv(deployed_virtualenv, logger, options.python_exe)
+    create_virtualenv(deployed_virtualenv, logger,
+                      sw_packages_src_loc,
+                      base_python_exe=options.python_exe,
+                      never_download=options.never_download)
     logger.info("Created a virtualenv for deployed apps")
 
     deployed_config_dir = os.path.join(deployment_home, "config")
@@ -221,9 +274,15 @@ def main(argv):
     finally:
         f.close()
 
+    # copy the test data if requested
+    if options.include_test_data:
+        test_data_dest = os.path.join(engage_home, "test_data")
+        copy_tree(test_data_src, test_data_dest, logger)
+
     if options.create_dist_archive:
         logger.info("Creating a distribution")
-        create_distribution_from_deployment_home(deployment_home)
+        import engage.engine.create_distribution
+        engage.engine.create_distribution.create_distribution_from_deployment_home(deployment_home, include_test_data=options.include_test_data)
         
     logger.info("Engage environment bootstrapped successfully")
     return 0

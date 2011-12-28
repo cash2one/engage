@@ -3,10 +3,10 @@ pycrypto-2.3-macosx.tar.gz optional macosx
 pycrypto-2.3.tar.gz optional
 paramiko-1.7.6.zip optional
 provision-0.9.3-dev.tar.gz required
-apache-libcloud-0.5.2.tar.bz2 optional
-python-cloudfiles-1.7.9.1.tar.gz optional
+apache-libcloud-0.6.2.tar.bz2 optional
 argparse-1.2.1.tar.gz optional
 nose-1.0.0.tar.gz optional
+pip-1.0.2.tar.gz optional
 monit-5.3.1-macosx-universal.tar.gz required macosx64
 monit-5.3.1.tar.gz required macosx
 monit-5.3.1-linux-x64.tar.gz required linux64

@@ -19,7 +19,7 @@ INSTALLERS = {
     'tomcat': {
         'hello': {
             'install': {
-                APPLICATION_ARCHIVE_PROP: join(tc.DEMO_DIR, 'hello.war'),
+                APPLICATION_ARCHIVE_PROP: join(tc.TEST_APP_DIR, 'tomcat_hello.war'),
                 'websvr_port': 8080, # for checking response
                 'manager_port': 8080,
                 'password_map': {'apache-tomcat/admin_password': 'testpass'}
@@ -27,30 +27,15 @@ INSTALLERS = {
             }
         },
     'django': {
-        'mpifa': {
+        'test-app': {
             'install': {
-                APPLICATION_ARCHIVE_PROP: join(tc.DEMO_DIR, 'mpifa-0.1.tgz'),
-                'expected_url_codes': [('http://{host}:{port}', 302)]},
+                APPLICATION_ARCHIVE_PROP: join(tc.TEST_APP_DIR, 'django_test_app_v1.tgz')},
             'upgrade': {
-                APPLICATION_ARCHIVE_PROP: join(tc.DEMO_DIR, 'mpifa-0.2.tgz'),
-                'expected_url_codes': [('http://{host}:{port}', 302)]}},
-        'codespeed': {
-            'install': {
-                APPLICATION_ARCHIVE_PROP: join(tc.DEMO_DIR, 'codespeed-good.tgz')},
-            'upgrade': {
-                APPLICATION_ARCHIVE_PROP: join(tc.DEMO_DIR, 'codespeed-bad.tgz'),
-                'expected_exit_code': 3}
-            },
-# JF 2011-10-04: Had to comment out because httlib2 isn't accessible from
-# Rackspace. It is included in django-blog2's requirements.txt file.
-       'django-blog2': {
-           'install': {
-               APPLICATION_ARCHIVE_PROP: join(tc.DEMO_DIR, 'django-blog2.tgz')},
-           'upgrade': {
-               APPLICATION_ARCHIVE_PROP: join(tc.DEMO_DIR, 'django-blog2.tgz'),}
-           }
+                APPLICATION_ARCHIVE_PROP: join(tc.TEST_APP_DIR, 'django_test_app_v2.tgz')}
+            }
         }
     }
+
 
 OPERATIONS = ['install', 'upgrade']
 
@@ -113,14 +98,10 @@ def run_operations(installer_name, app_name):
 
 def test_install_upgrade_generator():
     """Generate install+upgrade tests based on INSTALLERS tree"""
-    if not os.path.exists(tc.DEMO_DIR):
-        tc.logger.info("test_install_upgrade: skipping tests, demo directory not present")
-        return
-    else:
-        tc.assert_context(tc.ENGAGE_DIR)
-        for installer_name in INSTALLERS:
-            for app_name in INSTALLERS[installer_name]:
-                yield run_operations, installer_name, app_name
+    tc.assert_context(tc.ENGAGE_DIR)
+    for installer_name in INSTALLERS:
+        for app_name in INSTALLERS[installer_name]:
+            yield run_operations, installer_name, app_name
 
 
 # You can run this test file as a main script. By default,

@@ -5,5 +5,6 @@
  {"name":"pyzmq-abstract", "version":"2.1"},
  {"name":"mongodb", "version":"2.0"},
  {"name":"pika", "version":"0.9"},
- {"name":"pymongo", "version":"2.1"}
+ {"name":"pymongo", "version":"2.1"},
+ {"name":"sunburnt", "version":"0.5"}
 ]

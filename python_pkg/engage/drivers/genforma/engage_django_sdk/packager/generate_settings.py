@@ -394,7 +394,7 @@ def simulated_install(archive_file_or_directory, install_path,
     undo_ops = generate_settings_file(app_dir_path, django_settings_module,
                                       components_list)
     virtualenv_path = os.path.join(install_path, "python")
-    create_virtualenv(virtualenv_path)
+    create_virtualenv(virtualenv_path, package_cache_dir=package_cache_dir)
     platform_reqs = write_platform_requirements_file(install_path,
                                                      components_list)
     logger.info(">> Installing platform requirements into virtualenv")

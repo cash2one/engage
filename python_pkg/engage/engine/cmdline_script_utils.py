@@ -5,7 +5,6 @@ import os.path
 
 import fixup_python_path
 import engage.utils.log_setup as log_setup
-import engage.engine.password as password
 from library import parse_library_files
 import install_plan
 from engage.engine.engage_file_layout import get_engine_layout_mgr
@@ -98,7 +97,8 @@ def get_mgrs_and_pkgs(file_layout, deployment_home, options,
     a list of (mgr, pkg) pairs sorted in dependency order.
     """
     library = parse_library_files(file_layout)
-    pw_database = password.get_password_db(file_layout, options)
+    import engage.engine.password
+    pw_database = engage.engine.password.get_password_db(file_layout, options)
     import install_context
     install_context.setup_context(file_layout.get_password_file_directory(), options.subproc, library, pw_database)
 

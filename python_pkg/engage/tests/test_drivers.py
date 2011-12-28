@@ -97,7 +97,9 @@ def run_driver_tst(testfile, dh, hostname, username, logger, dry_run=True,
             assert dry_run, "No sudo password, but in real install mode"
             sudo_password = "sudo_password_value" # make up a value
         pw_dict["GenForma/%s/sudo_password" % username] = sudo_password
-        pw_repos = pwr.PasswordRepository("", data=pw_dict)
+        # need to pass in a non-empty master password or some of the
+        # resources that require a master password will fail.
+        pw_repos = pwr.PasswordRepository("test", data=pw_dict)
     else:
         pw_repos = None
     test_request = run_driver.TestRequest()

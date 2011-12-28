@@ -22,7 +22,9 @@ def _validate_dir_exists(dirname):
 def get_distribution_archive_filename(deployment_home):
     return os.path.join(os.path.join(deployment_home, "engage"), "engage-dist.tar.gz")
 
-def create_distribution_from_deployment_home(deployment_home, archive_name=None):
+def create_distribution_from_deployment_home(deployment_home,
+                                             archive_name=None,
+                                             include_test_data=False):
     dh = os.path.abspath(os.path.expanduser(deployment_home))
     if not os.path.isdir(dh):
         raise Exception("Deployment home %s does not exist" % dh)
@@ -49,6 +51,13 @@ def create_distribution_from_deployment_home(deployment_home, archive_name=None)
         tf.add(bootstrap_file, "engage/bootstrap.py")
         upgrade_file = os.path.join(engage_home, "upgrade.py")
         tf.add(upgrade_file, "engage/upgrade.py")
+        if include_test_data:
+            test_data_dir = os.path.join(engage_home, "test_data")
+            if os.path.isdir(test_data_dir):
+                tf.add(test_data_dir, "engage/test_data")
+            else:
+                logger.warning("--include-test-data was specified, but test data directory %s not found" % test_data_dir)
+                               
         found_cfg_exe = False
         for platform in SUPPORTED_PLATFORMS:
             cfg_exe_src = os.path.join(engage_home, "bin/configurator-%s" % platform)
@@ -69,6 +78,9 @@ def main(argv):
     parser.add_option("--archive-name", "-a", dest="archive_name",
                       default=None,
                       help="Full path of generated archive file (defaults to <deployment_home>/engage/engage-dist.tar.gz)")
+    parser.add_option("--include_test-data", dest="include_test_data",
+                      default=False,
+                      help="Include the engage/test_data directory, if present")
     add_standard_cmdline_options(parser, uses_pw_file=False,
                                  running_deployment=False)
     (options, args) = parser.parse_args(args=argv)
@@ -78,7 +90,8 @@ def main(argv):
         archive_name = options.archive_name
     else:
         archive_name = get_distribution_archive_filename(dh)
-    create_distribution_from_deployment_home(dh, archive_name)
+    create_distribution_from_deployment_home(dh, archive_name,
+                                             include_test_data=options.include_test_data)
     print "Distribution successfully created at %s" % archive_name
     return 0
     

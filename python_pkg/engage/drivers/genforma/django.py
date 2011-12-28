@@ -129,7 +129,7 @@ define_error(ERR_DJANGO_RESOURCE_DEF_ERROR,
 define_error(ERR_DJANGO_VALIDATE_FAILED,
              _("Django application validation failed, reason was '%(rc)s'."))
 define_error(ERR_REQUIREMENTS_INSTALL_FAILED,
-             _("Installation of application requirements via pip failed."))
+             _("Installation of application requirements file '%(file)s' via pip failed."))
 define_error(ERR_WSGI_SCRIPT,
              _("Execution of script to setup WSGI with apache failed. Script was '%(script)s'."))
 
@@ -138,6 +138,9 @@ define_error(ERR_WSGI_SCRIPT,
 # timeouts for checking server liveness after startup
 TIMEOUT_TRIES = 10
 TIME_BETWEEN_TRIES = 2.0
+
+# socket timeout to use for pip
+PIP_TIMEOUT = 45
 
 #####################################################################
 # Define configuration properties used to specify/override the
@@ -336,7 +339,9 @@ class Manager(BackupFileMixin, PasswordRepoMixin, service_manager.Manager):
                             developer_msg="return code was %d, script at %s" % (rc, script_path))
 
     def _install_pip_requirements(self, requirements_file_path):
-        prog_and_args = [self.config.input_ports.pip.pipbin, "install", "--requirement=%s" % requirements_file_path]
+        prog_and_args = [self.config.input_ports.pip.pipbin, "install",
+                         "--use-mirrors", "--timeout=%d" % PIP_TIMEOUT,
+                         "--requirement=%s" % requirements_file_path]
         env = {}
         if os.path.exists(self.config.package_cache_dir):
             env['PIP_DOWNLOAD_CACHE'] = self.config.package_cache_dir
@@ -346,7 +351,8 @@ class Manager(BackupFileMixin, PasswordRepoMixin, service_manager.Manager):
             logger.info("Successful installed requirements from file %s" % requirements_file_path)
         else:
             raise UserError(errors[ERR_REQUIREMENTS_INSTALL_FAILED],
-                            developer_msg="return code was %d, requirements file was %s" % (rc, requirements_file_path))
+                            msg_args={"file":requirements_file_path},
+                            developer_msg="return code was %d" % rc)
             
 
     def __init__(self, metadata, config=None):

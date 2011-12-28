@@ -172,10 +172,9 @@ _svc_methods = """
         assert 0, "need to implement"
 
     ## def get_pid_file_path(self):
-    ##     """Method to return the path to the pid file for an installed service.
-    ##     If there is no pid file for this service, just return None. This is
-    ##     used by management tools (e.g. monit) to monitor the service.xs
-    ##     """
+    ##     # Method to return the path to the pid file for an installed service.
+    ##     # If there is no pid file for this service, just return None. This is
+    ##     # used by management tools (e.g. monit) to monitor the service.xs
     ##     return self.ctx.props.config_port.pid_file
 """
 

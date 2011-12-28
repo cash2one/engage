@@ -43,6 +43,7 @@ def main():
     op.add_option('-c', '--collect-only', action='store_true', default=False)
     op.add_option('-s', '--use-src', action='store_true', default=False)
     op.add_option('-x', '--xunit-file')
+    op.add_option('-d', '--demos-dir')
     opts, _args = op.parse_args()
 
     argv = ['--verbose', '--with-doctest']
@@ -51,23 +52,26 @@ def main():
     if opts.collect_only:
         argv.append('--collect-only')
 
-    if opts.use_src:
+    if opts.use_src and not opts.demos_dir:
         argv.append('--where=%s' % SRC_DIR)
         print argv
         nose.main(argv=argv)
     else:
-        deploy_dir = get_randomized_deploy_dir('test_engage_')
+        if opts.demos_dir:
+            deploy_dir = get_randomized_deploy_dir('test_demos_')
+        else:
+            deploy_dir = get_randomized_deploy_dir('test_engage_')
+        print 'bootstrapping %s' % deploy_dir
         bootstrap(deploy_dir)
         activate_path = join(deploy_dir, 'engage/bin/activate')
         pkg_file = shell('. %s && python -c "import %s; print %s.__file__"' % \
                              (activate_path, PACKAGE, PACKAGE))[0]
-        test_dir =  os.path.dirname(pkg_file)
+        test_dir = os.path.expanduser(opts.demos_dir) \
+            if opts.demos_dir else os.path.dirname(pkg_file)
         argv.append('--where=%s' % test_dir)
         noseargs = ' '.join(argv)
-        # Why are the *.py files executible on linux? Not sure, but this will fix it
-        chmod_cmd = 'find %s -name "*.py" -exec chmod -x {} \;' % test_dir
-        subprocess.check_call(chmod_cmd, shell=True)
-        command = '. %s && nosetests %s' % (activate_path, noseargs)
+        # Use --exe to look for tests in modules that are sometimes inexplicably executable
+        command = '. %s && nosetests --exe %s' % (activate_path, noseargs)
         print command
         print
         stdout, stderr, returncode = shell(command)

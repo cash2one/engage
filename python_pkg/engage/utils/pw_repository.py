@@ -56,7 +56,7 @@ define_error(ERR_PW_BAD_DIR,
 define_error(ERR_PW_INVALID_KEY,
              _("Repository does not contain an entry for key '%(key)s'"))
 define_error(ERR_PW_PYCRYPTO,
-             _("The Crypto python module (www.pycrypto.org) is required, but either not installed or installed incorrectly."))
+             _("The Crypto python module (www.pycrypto.org) is required, but either not installed or installed incorrectly. The python used was at '%(py)s'. The error thrown when attempting to import it was '%(exc)s'"))
 
 
 # Import the crypto libraries. These are not set up by default on
@@ -64,8 +64,12 @@ try:
     import Crypto
     from Crypto.Cipher import AES
     logger.debug("Imported Crypto module successfully.")
-except:
-    exc = convert_exc_to_user_error(sys.exc_info(), errors[ERR_PW_PYCRYPTO])
+except ImportError:
+    (et, ev, tb) = sys.exc_info()
+    logger.exception("Unable to import Crypto.Cipher.AES")
+    exc = convert_exc_to_user_error((et, ev, tb), errors[ERR_PW_PYCRYPTO],
+                                    msg_args={"exc":"%s(%s)" % (et.__name__, str(ev)),
+                                              "py":sys.executable})
     exc.developer_msg = "If on MacOSX, and you are having trouble installing pycrypto, take a look at http://mike.pirnat.com/2011/02/08/building-pycrypto-on-snow-leopard-and-non-apple-python/"
     raise exc
 

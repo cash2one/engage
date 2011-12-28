@@ -21,12 +21,12 @@
       "checksum": "1854842524 331476 pycrypto-2.3.tar.gz",
       "groups":["Engage"]
     },
-    { "filename":"pip-1.0.tar.gz",
-      "location": "http://pypi.python.org/packages/source/p/pip/pip-1.0.tar.gz#md5=327fc4a03df189506966e15021730550",
+    { "filename":"pip-1.0.2.tar.gz",
+      "location": "http://pypi.python.org/packages/source/p/pip/pip-1.0.2.tar.gz#md5=47ec6ff3f6d962696fe08d4c8264ad49",
       "handler":"wget",
       "description": "Pip (python installer)",
-      "checksum": "231252980 100102 pip-1.0.tar.gz",
-      "groups":["Django"]
+      "checksum": "1509846116 105820 pip-1.0.2.tar.gz",
+      "groups":["Engage", "Django"]
     },
     { "filename": "paramiko-1.7.6.zip",
       "location": "http://pypi.python.org/packages/source/p/paramiko/paramiko-1.7.6.zip#md5=b1cfe0cd55772115f808a11c1baba8a0",
@@ -35,18 +35,11 @@
       "checksum": "647877205 215160 paramiko-1.7.6.zip",
       "groups": ["Engage"]
     },
-    { "filename": "apache-libcloud-0.5.2.tar.bz2",
-      "location": "http://pypi.python.org/packages/source/a/apache-libcloud/apache-libcloud-0.5.2.tar.bz2#md5=3b0166db96bbaefbafd58f5f215ac971",
+    { "filename": "apache-libcloud-0.6.2.tar.bz2",
+      "location": "http://archive.apache.org/dist/libcloud/apache-libcloud-0.6.2.tar.bz2",
       "handler": "wget",
       "description": "apache-libcloud python package (used by provision)",
-      "checksum": "3324051763 170201 apache-libcloud-0.5.2.tar.bz2",
-      "groups": ["Engage"]
-    },
-    { "filename": "python-cloudfiles-1.7.9.1.tar.gz",
-      "location": "http://pypi.python.org/packages/source/p/python-cloudfiles/python-cloudfiles-1.7.9.1.tar.gz#md5=09b17104a5897abb7fc651d20ef07507",
-      "handler": "wget",
-      "description": "python-cloudfiles package (used by provision)",
-      "checksum": "1248834089 118451 python-cloudfiles-1.7.9.1.tar.gz",
+      "checksum": "629143068 220380 apache-libcloud-0.6.2.tar.bz2",
       "groups": ["Engage"]
     },
     { "filename": "argparse-1.2.1.tar.gz",

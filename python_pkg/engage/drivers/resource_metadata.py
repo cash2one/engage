@@ -293,8 +293,6 @@ class ResourceMD:
 
     def to_json(self):
         """Returns an in-memory json representation of resource"""
-        if self.inside: inside = self.inside.to_json()
-        else: inside = {}
         environment = [env.to_json() for env in self.environment]
         peers = [peer.to_json() for peer in self.peers]
         resource = {u"id": self.id, u"key": self.key,
@@ -302,9 +300,10 @@ class ResourceMD:
                     u"config_port":self.config_port,
                     u"input_ports":self.input_ports,
                     u"output_ports":self.output_ports,
-                    u"inside":inside,
                     u"environment":environment,
                     u"peers":peers}
+        if self.inside:
+            resource["inside"] = self.inside.to_json()
         return resource
 
     def __str__(self):

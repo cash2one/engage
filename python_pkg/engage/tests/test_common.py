@@ -45,23 +45,23 @@ logging.basicConfig(
     level=logging.DEBUG, format='%(asctime)s %(name)s %(levelname)s %(message)s')
 logger = logging.getLogger('test_common')
 
-SDIST_TEST_OUTPUT_DIR = find_dir("test_output")
-if SDIST_TEST_OUTPUT_DIR:
-    logger.info("Running from source distribution")
+
+BUILD_DIR = join(find_dir('build_output'))
+if BUILD_DIR:
+    ENGAGE_DIR = join(BUILD_DIR, 'engage')
+else:
+    SDIST_TEST_OUTPUT_DIR = find_dir("test_output")
+    assert os.path.exists(SDIST_TEST_OUTPUT_DIR),\
+        "Unable to find %s or %s directories, searching up from %s" % (
+        BUILD_DIR, SDIST_TEST_OUTPUT_DIR, THIS_DIR)
     BUILD_DIR = SDIST_TEST_OUTPUT_DIR
     ENGAGE_DIR = os.path.abspath(join(BUILD_DIR, ".."))
-    assert os.path.exists(ENGAGE_DIR), \
-           "Something is very wrong, engage directory %s does not exist" % ENGAGE_DIR
-else:
-    logger.info("Running from build_output")
-    BUILD_DIR = join(find_dir('build_output'))
-    assert BUILD_DIR, "Unable to find build_output directory, searching up from %s" % THIS_DIR
-    ENGAGE_DIR = join(BUILD_DIR, 'engage')
 
-_demo_parent = os.path.abspath(find_dir("demos"))
-assert _demo_parent, "Unable to find demos directory, searching up from %s" % THIS_DIR
-DEMO_DIR = os.path.join(_demo_parent, "packaged_apps")
-assert os.path.exists(DEMO_DIR), "packaged apps directory %s does not exist" % DEMO_DIR
+logger.info("Running beneath %s" % BUILD_DIR)
+assert os.path.exists(ENGAGE_DIR), \
+    "Something is very wrong, engage directory %s does not exist" % ENGAGE_DIR
+
+TEST_APP_DIR = join(BUILD_DIR, 'test_apps')
 
 
 def assert_context(engage_dir):

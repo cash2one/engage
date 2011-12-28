@@ -17,6 +17,9 @@ from engage_django_components import get_additional_requirements
 import package_data
 from errors import RequestedPackageError, PipError
 
+
+PIP_TIMEOUT=45
+
 def app_module_name_to_dir(app_directory_path, app_module_name, check_for_init_pys=True):
     """The application module could be a submodule, so we may need to split each level"""
     dirs = app_module_name.split(".")
@@ -153,7 +156,17 @@ def check_run_and_log_program(program_and_args, env_mapping, logger, cwd=None,
                            rc)
         
 
-def create_virtualenv(desired_python_dir):
+def get_virtualenv_version(exe_path):
+    subproc = subprocess.Popen([exe_path, "--version"],
+                               shell=False, stdout=subprocess.PIPE,
+                               cwd=os.path.dirname(exe_path),
+                               stderr=subprocess.STDOUT)
+    ver_string = (subproc.communicate()[0]).rstrip()
+    logger.debug("virtualenv version is %s" % ver_string)
+    return [int(component) if component.isdigit() else component
+            for component in ver_string.split(".")]
+
+def create_virtualenv(desired_python_dir, package_cache_dir=None):
     logger.info(">> Creating Python virtualenv for validation")
     def find_exe_in_paths(paths, exe):
         tried = []
@@ -180,8 +193,17 @@ def create_virtualenv(desired_python_dir):
     paths.append(os.path.expanduser("~/bin"))
     python_exe = find_exe_in_paths(paths, "python")
     virtualenv_exe = find_exe_in_paths(paths, "virtualenv")
-    cmd = [virtualenv_exe, "--python=%s" % python_exe, "--no-site-packages",
-           os.path.abspath(os.path.expanduser(desired_python_dir))]
+    version = get_virtualenv_version(virtualenv_exe)
+    if version[0]>1 or (version[0]==1 and version[1]>6) or \
+       (version[0]==1 and version[1]==6 and len(version)>2 and version[2]>=1):
+        has_search_option = True
+    else:
+        has_search_option = False
+    opts = ["--python=%s" % python_exe, "--no-site-packages"]
+    if package_cache_dir and has_search_option:
+        opts.append("--extra-search-dir=%s" % package_cache_dir)
+    cmd = [virtualenv_exe,] + opts + \
+          [os.path.abspath(os.path.expanduser(desired_python_dir)),]
     try:
         check_run_and_log_program(cmd, None, logger)
     except Exception, e:
@@ -195,7 +217,9 @@ def run_pip(pip_exe_path, requirements_file_path, logger,
     check_run_and_log_program(), except that we provide more specific error
     messages and logging.
     """
-    cmd = [pip_exe_path, "install", "-r", requirements_file_path]    
+    cmd = [pip_exe_path, "install", "--use-mirrors",
+           "--timeout=%d" % PIP_TIMEOUT,
+           "-r", requirements_file_path]    
     env = copy.deepcopy(os.environ)
     if package_cache_dir:
         env["PIP_DOWNLOAD_CACHE"] = package_cache_dir

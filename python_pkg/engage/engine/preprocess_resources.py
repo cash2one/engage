@@ -35,8 +35,10 @@ define_error(ERR_SPEC_VALIDATION,
              _("Error in validation of resource spec %(file)s: %(msg)s"))
 
 
-# The version of setuptools that we preinstall
+# Versions of preinstalled packages
+PYTHON_VERSION = "%d.%d" % (sys.version_info[0], sys.version_info[1])
 SETUPTOOLS_VERSION = "0.6"
+PIP_VERSION = "any"
 
 # List of protentially pre-installed resource references. This is a poor man's
 # discovery mechanism.
@@ -173,8 +175,12 @@ def fixup_installed_resources_in_install_spec(json_data, inst_list):
     # fix any keys in references to the updated resources
     for idx in range(len(data)):
         inst = data[idx]
-        if inst.has_key("inside"):
+        assert inst.has_key("id")
+        if inst.has_key("inside") and len(inst["inside"])>0:
             inst_ref = inst["inside"]
+            assert inst_ref.has_key("id"), \
+                "Install spec instance %s inside ref missing 'id' key" % \
+                inst["id"]
             if inst_ref["id"] in updated_insts:
                 inst_ref["key"] = id_to_key[inst_ref["id"]]
         if inst.has_key("environment"):
@@ -261,7 +267,60 @@ def discover_preinstalled_resources(spec, hosts, logger):
                 }
                 spec.append(concrete_inst)
 
-                        
+
+def _add_preinstalled_resource_to_spec(name, version, all_hosts,
+                                       logger,
+                                       spec, modified_instances):
+    """Given a resource that is preinstalled on all hosts (e.g. pip
+    or setuptools), ensure that each host in the spec has an associated
+    resource inst of the given type. Each inst will have the installed
+    property set to True.
+
+    If install spec has a resource with a matching name, but different
+    version, we set the version to the specified one and give a warning.
+    The special version "*" is set to the provided version without a
+    warning.
+
+    Any instances whose key changes are appended to modified instances.
+    Note that spec is modified in-place
+    """
+    logger.debug("add_preinstalled_resources %s %s" % (name, version))
+    insts_already_present = query_install_spec(spec,
+                                               name=name)
+    host_to_inst = {}
+    for inst in insts_already_present:
+        assert inst.has_key("inside")
+        host_id = inst["inside"]["id"]
+        assert not host_to_inst.has_key(host_id)
+        host_to_inst[host_id] = inst
+        #logger.debug("host_to_inst[%s] = %s" % (host_id, inst["id"]))
+    inst_key = {"name":name, "version":version}
+    for host in all_hosts:
+        host_id = host["id"]
+        if not host_to_inst.has_key(host_id):
+            inst_id = "_" + name + "-" + host_id
+            spec.append({"id":inst_id, "key":inst_key,
+                         "inside":{"id":host_id, "key":host["key"],
+                                   "port_mapping":{"host":"host"}},
+                         "properties": {"installed":True}})
+            logger.debug("create_install_spec: adding %s resource %s to host %s"
+                         % (name, inst_id, host_id))
+        else: # resource is already present on this host
+            inst = host_to_inst[host_id]
+            inst_key = inst["key"]
+            if inst_key["version"]!=version:
+                if inst_key["version"]!="*": # * is our special placeholder
+                    logger.warning("Install spec requests resource %s version %s, but version %s comes preinstalled: setting version to %s" %
+                                   (name, inst_key["version"], version, version))
+                inst_key["version"] = version
+                modified_instances.append(inst)
+            if not inst.has_key("properties"):
+                inst["properties"] = {"installed":True}
+            else:
+                inst["properties"]["installed"] = True
+            
+
+                                               
 def create_install_spec(master_node_resource, install_spec_template_file,
                         install_spec_file,
                         installer_file_layout, logger):
@@ -288,17 +347,13 @@ def create_install_spec(master_node_resource, install_spec_template_file,
             slave_resource["config_port"]["genforma_home"] = slave_dh
             slave_resource["config_port"]["log_directory"] = os.path.join(slave_dh, "log")
             fixup_resources.append(slave_resource)
-    python_insts = query_install_spec(spec,
-                                      name="python",
-                                      version="*")
-    python_key = {"name":"python", "version":"%d.%d" % (sys.version_info[0],
-                                                        sys.version_info[1])}
-    for pyinst in python_insts:
-        new_inst = copy.deepcopy(pyinst)
-        new_inst["key"] = python_key
-        fixup_resources.append(new_inst)
+
+    # need to do this here as it is required to incorporate the master
+    # node.
     spec = fixup_installed_resources_in_install_spec(spec,
-                                                fixup_resources)
+                                                     fixup_resources)
+    fixup_resources = []
+
 
     # find hosts and return a list of the host resources
     all_hosts = []
@@ -312,54 +367,26 @@ def create_install_spec(master_node_resource, install_spec_template_file,
         assert (inst["config_port"]).has_key("log_directory")
         all_hosts.append(inst)
 
-    # Add the pre-installed resources for python and setuptools, if missing.
+    # Add the pre-installed resources for python/setuptools/pip, if missing.
     # We need to do this, as we've installed specific versions. If we leave
     # it to the config engine, it might pick a version different from the
     # one we've installed, which would cause things to fail.
     # Eventually, we should generalize this phase to look for well-known
     # components that we know are already installed.
-    python_insts = query_install_spec(spec,
-                                      name="python",
-                                      version=python_key["version"])
-    host_to_python = {}
-    for inst in python_insts:
-        assert inst.has_key("inside")
-        host_id = inst["inside"]["id"]
-        assert not host_to_python.has_key(host_id)
-        host_to_python[host_id] = inst
-    setuptools_insts = query_install_spec(spec,
-                                          name="setuptools",
-                                          version=SETUPTOOLS_VERSION)
-    host_to_setuptools = {}
-    for inst in setuptools_insts:
-        assert inst.has_key("inside")
-        host_id = inst["inside"]["id"]
-        assert not host_to_setuptools.has_key(host_id)
-        host_to_setuptools[host_id] = inst
-    setuptools_key = {"name":"setuptools", "version":SETUPTOOLS_VERSION}
-    for host in all_hosts:
-        host_id = host["id"]
-        if not host_to_python.has_key(host_id):
-            py_id = "_python-" + host_id
-            spec.append({"id":py_id, "key":python_key,
-                         "inside":{"id":host_id, "key":host["key"],
-                                   "port_mapping":{"host":"host"}},
-                         "properties": {"installed":True}})
-            logger.debug("create_install_spec: adding python resource %s to host %s"
-                         % (py_id, host_id))
-        else:
-            py_id = host_to_python[host_id]["id"]
-        if not host_to_setuptools.has_key(host_id):
-            setup_id = "_setuptools-" + host_id
-            spec.append({"id":setup_id, "key":setuptools_key,
-                         "inside":{"id":host_id, "key":host["key"],
-                                   "port_mapping":{"host":"host"}},
-                         "environment":[
-                           {"id":py_id, "key":python_key,
-                            "port_mapping":{"python":"python"}}],
-                         "properties": {"installed":True}})
-            logger.debug("create_install_spec: adding setuptools resource %s to host %s"
-                         % (setup_id, host_id))
+    _add_preinstalled_resource_to_spec("python", PYTHON_VERSION,
+                                       all_hosts, logger,
+                                       spec, fixup_resources)
+    _add_preinstalled_resource_to_spec("setuptools", SETUPTOOLS_VERSION,
+                                       all_hosts, logger,
+                                       spec, fixup_resources)
+    _add_preinstalled_resource_to_spec("pip", PIP_VERSION,
+                                       all_hosts, logger,
+                                       spec, fixup_resources)
+
+    # now we fixup any references to resources that had their keys
+    # changed.
+    spec = fixup_installed_resources_in_install_spec(spec,
+                                                     fixup_resources)
 
     discover_preinstalled_resources(spec, all_hosts, logger)
     
