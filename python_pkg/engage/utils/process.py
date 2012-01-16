@@ -21,8 +21,14 @@ def get_pid_from_file(pidfile, resource_id=None, logger=None):
     file = open(pidfile, "rb")
     data = file.read()
     file.close()
-    pid = int(data)
-    return pid
+    if len(data) > 0:
+        pid = int(data)
+        return pid
+    else:
+        if logger!=None and resource_id!=None:
+            logger.debug("%s: server not up - pid file '%s' is empty" %
+                         (resource_id, pidfile))
+        return None
 
 def run_and_log_program(program_and_args, env_mapping, logger, cwd=None,
                         input=None, hide_input=False,
