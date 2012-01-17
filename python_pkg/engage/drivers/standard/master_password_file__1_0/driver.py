@@ -86,8 +86,10 @@ class write_pw_file(Action):
 
 
 class Manager(resource_manager.Manager, PasswordRepoMixin):
-    # Uncomment the line below if this driver needs root access
-    ## REQUIRES_ROOT_ACCESS = True 
+    # We force the resource to always require root access. This is done because
+    # for situations where resources may be added after the fact (e.g. Datablox),
+    # we don't have a good way to add in a password file later.
+    REQUIRES_ROOT_ACCESS = True 
     def __init__(self, metadata, dry_run=False):
         package_name = "%s %s" % (metadata.key["name"],
                                   metadata.key["version"])
@@ -96,12 +98,13 @@ class Manager(resource_manager.Manager, PasswordRepoMixin):
                                 dry_run=dry_run)
 
     def validate_pre_install(self):
-        p = self.ctx.props
-        # whether there's a master password is determined by the
-        # set of resources being installed. Thus, we can check,
-        # even for dry_run mode.
-        if self._get_master_password()==None:
-            raise UserError(errors[ERR_NO_MASTER_PW])
+        pass
+        ## p = self.ctx.props
+        ## # whether there's a master password is determined by the
+        ## # set of resources being installed. Thus, we can check,
+        ## # even for dry_run mode.
+        ## if self._get_master_password()==None:
+        ##     raise UserError(errors[ERR_NO_MASTER_PW])
 
     def is_installed(self):
         return os.path.exists(self.ctx.props.config_port.password_file)
