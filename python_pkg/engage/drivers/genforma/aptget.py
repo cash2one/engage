@@ -99,7 +99,16 @@ class debconf_set_selections(Action):
 
     def format_action_args(self, selection_lines):
         return "%s <selection_lines>" % self.NAME
-        
+
+@make_action
+def update(self):
+    """ACTION: Run the apt-get update command to update the list of available
+    packages.
+    """
+    iuprocess.run_sudo_program([APT_GET_PATH, "-q", "-y", "update"],
+                               self.ctx._get_sudo_password(),
+                               self.ctx.logger)
+
 
 def is_installed(package):
     if not os.path.exists(DPKG_QUERY_PATH):

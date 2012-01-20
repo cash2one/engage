@@ -30,15 +30,9 @@ INSTALLER_DEFAULTS = {
 DEFAULT_MASTER_PASSWORD = 'testpass'
 
 def find_dir(name, path=THIS_DIR):
-    """Recursively climb path to find named directory"""
-    if not path or path == '/':
-        return None
-    entries = os.listdir(path)
-    if name in entries:
-        found = os.path.join(path, name)
-        if os.path.isdir(found):
-            return found
-    return find_dir(name, os.path.dirname(path))
+    """Return the shortest path containing name if possible, or None otherwise."""
+    p = path.partition(name)
+    return p[0] + p[1] if p[2] else None
 
 
 logging.basicConfig(
@@ -46,22 +40,15 @@ logging.basicConfig(
 logger = logging.getLogger('test_common')
 
 
-BUILD_DIR = join(find_dir('build_output'))
-if BUILD_DIR:
-    ENGAGE_DIR = join(BUILD_DIR, 'engage')
+TEST_OUTPUT_DIR = find_dir('test_output')
+if TEST_OUTPUT_DIR:
+    ENGAGE_DIR = os.path.dirname(TEST_OUTPUT_DIR)
 else:
-    SDIST_TEST_OUTPUT_DIR = find_dir("test_output")
-    assert os.path.exists(SDIST_TEST_OUTPUT_DIR),\
-        "Unable to find %s or %s directories, searching up from %s" % (
-        BUILD_DIR, SDIST_TEST_OUTPUT_DIR, THIS_DIR)
-    BUILD_DIR = SDIST_TEST_OUTPUT_DIR
-    ENGAGE_DIR = os.path.abspath(join(BUILD_DIR, ".."))
-
-logger.info("Running beneath %s" % BUILD_DIR)
+    ENGAGE_DIR = os.path.dirname(find_dir('python_pkg'))
+    TEST_OUTPUT_DIR = join(ENGAGE_DIR, 'test_output')
 assert os.path.exists(ENGAGE_DIR), \
     "Something is very wrong, engage directory %s does not exist" % ENGAGE_DIR
-
-TEST_APP_DIR = join(BUILD_DIR, 'test_apps')
+TEST_APP_DIR = join(ENGAGE_DIR, 'test_data')
 
 
 def assert_context(engage_dir):
@@ -133,7 +120,7 @@ def stop(init_script, master_password_file):
 def random_str(length=6, charspace=string.ascii_lowercase+string.digits):
     return ''.join(random.sample(charspace, length))
 
-def get_randomized_deploy_dir(dirname_prefix, base_dir=BUILD_DIR):
+def get_randomized_deploy_dir(dirname_prefix, base_dir=TEST_OUTPUT_DIR):
     return join(base_dir, '%s%s' % (dirname_prefix, random_str()))
 
 def get_response(netloc, path, scheme='http'):
@@ -158,4 +145,3 @@ def port_is_available(netloc):
 def get_netloc(config_map):
     """Return host:port obtained from config_map"""
     return '%s:%s' % (config_map['websvr_hostname'], config_map['websvr_port'])
-

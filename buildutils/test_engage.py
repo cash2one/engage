@@ -20,7 +20,7 @@ def selfjoin(path):
 PACKAGE = 'engage'
 ENGAGE_DIR = selfjoin('..') # main engage dir is one level above this file
 SRC_DIR = selfjoin('../python_pkg/%s' % PACKAGE)
-BUILD_DIR = selfjoin('../test_output')
+OUTPUT_DIR = selfjoin('../test_output')
 
 def shell(command):
     """Run shell command and return tuple of (stdout, stderr, returncode)"""
@@ -30,18 +30,18 @@ def shell(command):
     return stdout, stderr, proc.returncode
 
 def bootstrap(deploy_dir, engage_dir=ENGAGE_DIR):
-    shell('%s %s %s' % (sys.executable, join(engage_dir, 'bootstrap.py'), deploy_dir))
+    shell('%s %s --include-test-data %s' % (
+            sys.executable, join(engage_dir, 'bootstrap.py'), deploy_dir))
 
 def random_str(length=6, charspace=string.ascii_lowercase+string.digits):
     return ''.join(random.sample(charspace, length))
 
-def get_randomized_deploy_dir(dirname_prefix, base_dir=BUILD_DIR):
+def get_randomized_deploy_dir(dirname_prefix, base_dir=OUTPUT_DIR):
     return join(base_dir, '%s%s' % (dirname_prefix, random_str()))
 
 def main():
     op = optparse.OptionParser()
     op.add_option('-c', '--collect-only', action='store_true', default=False)
-    op.add_option('-s', '--use-src', action='store_true', default=False)
     op.add_option('-x', '--xunit-file')
     op.add_option('-d', '--demos-dir')
     opts, _args = op.parse_args()
@@ -52,35 +52,30 @@ def main():
     if opts.collect_only:
         argv.append('--collect-only')
 
-    if opts.use_src and not opts.demos_dir:
-        argv.append('--where=%s' % SRC_DIR)
-        print argv
-        nose.main(argv=argv)
+    if opts.demos_dir:
+        deploy_dir = get_randomized_deploy_dir('test_demos_')
     else:
-        if opts.demos_dir:
-            deploy_dir = get_randomized_deploy_dir('test_demos_')
-        else:
-            deploy_dir = get_randomized_deploy_dir('test_engage_')
-        print 'bootstrapping %s' % deploy_dir
-        bootstrap(deploy_dir)
-        activate_path = join(deploy_dir, 'engage/bin/activate')
-        pkg_file = shell('. %s && python -c "import %s; print %s.__file__"' % \
-                             (activate_path, PACKAGE, PACKAGE))[0]
-        test_dir = os.path.expanduser(opts.demos_dir) \
-            if opts.demos_dir else os.path.dirname(pkg_file)
-        argv.append('--where=%s' % test_dir)
-        noseargs = ' '.join(argv)
-        # Use --exe to look for tests in modules that are sometimes inexplicably executable
-        command = '. %s && nosetests --exe %s' % (activate_path, noseargs)
-        print command
-        print
-        stdout, stderr, returncode = shell(command)
-        print stdout
-        print
-        print stderr
-        if returncode == 0:
-            shutil.rmtree(deploy_dir)
-        return returncode
+        deploy_dir = get_randomized_deploy_dir('test_engage_')
+    print 'bootstrapping %s' % deploy_dir
+    bootstrap(deploy_dir)
+    activate_path = join(deploy_dir, 'engage/bin/activate')
+    pkg_file = shell('. %s && python -c "import %s; print %s.__file__"' % \
+                         (activate_path, PACKAGE, PACKAGE))[0]
+    test_dir = os.path.expanduser(opts.demos_dir) \
+        if opts.demos_dir else os.path.dirname(pkg_file)
+    argv.append('--where=%s' % test_dir)
+    noseargs = ' '.join(argv)
+    # Use --exe to look for tests in modules that are sometimes inexplicably executable
+    command = '. %s && nosetests --exe %s' % (activate_path, noseargs)
+    print command
+    print
+    stdout, stderr, returncode = shell(command)
+    print stdout
+    print
+    print stderr
+    if returncode == 0:
+        shutil.rmtree(deploy_dir)
+    return returncode
 
 if __name__ == '__main__':
     sys.exit(main())

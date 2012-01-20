@@ -199,8 +199,14 @@ def register_downloader_class(classname, constructor):
     _downloader_classes[classname] = constructor
 
 
+import engage.utils.socktime as socktime
+
 class HTTPDownloader(Downloader):
     def __init__(self, location, target_filepath, package_properties=None):
+        if not isinstance(location, basestring):
+            elapsed, url = socktime.fastest(location)
+            get_logger().debug('Using fastest (%s) mirror: %s' % (elapsed, url))
+            location = url
         Downloader.__init__(self, location, target_filepath, package_properties)
 
     def is_available(self):
@@ -1152,12 +1158,10 @@ def test_parser():
     else:
         print "  Unable to find resource library file, skipping parse test."
 
-import time
 import string
 import random
 import logging
 import unittest
-import subprocess
 
 def randstr(charspace=string.ascii_lowercase+string.digits, length=6):
     return ''.join(random.sample(charspace, length))
@@ -1177,45 +1181,6 @@ def get_test_logger(name='library.testlogger'):
     logging.basicConfig(level=logging.DEBUG,
                         format='%(asctime)s %(name)s %(levelname)s %(message)s')
     return logging.getLogger(name)
-
-HTTP = {'host': 'localhost',
-        'port': '5555'}
-
-class TestHTTPDownloader(unittest.TestCase):
-    def setUp(self):
-        """Replace regular get_logger() with temporary logger"""
-        global tmp_logger, get_logger
-        tmp_logger = get_logger
-        get_logger = get_test_logger
-        python = sys.executable
-        self.httpserver = subprocess.Popen([python, '-m', 'SimpleHTTPServer', HTTP['port']])
-        time.sleep(1)
-
-    def tearDown(self):
-        """Restore regular get_logger()"""
-        global tmp_logger, get_logger
-        get_logger = tmp_logger
-        self.httpserver.terminate()
-        self.httpserver.wait()
-
-    def test_httpserver(self):
-        f = urllib.urlopen('http://{host}:{port}/library.py'.format(**HTTP))
-        assert f.info().getheader('content-length') > 0
-
-    def test_not_available(self):
-        bogus_filename = randstr()
-        dl = HTTPDownloader(
-            'http://{host}:{port}/%s'.format(**HTTP) % bogus_filename,
-            bogus_filename)
-        assert not dl.is_available()
-
-    def test_download(self):
-        target = 'httpdownloader-test-' + randstr()
-        dl = HTTPDownloader('http://{host}:{port}/library.py'.format(**HTTP), target)
-        assert dl.is_available()
-        dl.download_to_cache()
-        assert os.path.exists(target)
-        os.remove(target)
 
 
 class TestCloudfilesDownloader(unittest.TestCase):

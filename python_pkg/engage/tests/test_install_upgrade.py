@@ -59,7 +59,7 @@ def app_is_available(config_map):
         return False
 
 def run_operations(installer_name, app_name):
-    deploy_dir = tc.get_randomized_deploy_dir('test_install_', tc.BUILD_DIR)
+    deploy_dir = tc.get_randomized_deploy_dir('test_install_')
     master_password_file = join(deploy_dir, 'master_password')
 
     operations = INSTALLERS[installer_name][app_name].keys()

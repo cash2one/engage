@@ -4193,7 +4193,7 @@
     },
     { "key": {"name":"pyzmq-static", "version":"2.1"},
       "display_name": "ZeroMQ python bindings, with bundled copy of zeromq",
-      "comment": "In your install specs, you should refer to pyzmq-abstract rather than directly to this resource. This package provides zeromq python bindings along with a local copy of Zeromq itself, which is compiled during the install process. This is useful for older Ubuntu versions that do not have a zeromq apt package.",
+      "comment": "DEPRECATED: use pyzmq instead!. In your install specs, you should refer to pyzmq-abstract rather than directly to this resource. This package provides zeromq python bindings along with a local copy of Zeromq itself, which is compiled during the install process. This is useful for older Ubuntu versions that do not have a zeromq apt package.",
       "input_ports" : {
         "host": {
         },
@@ -4230,6 +4230,48 @@
           { "key": {"name":"g++",
                     "version":{"greater-than-or-equal":"4.2"}}},
           { "key": {"name":"python-dev-headers", "version": "2.x"}}
+      ]}
+    },
+    { "key": {"name":"pyzmq-linux", "version":"2.1"},
+      "display_name": "ZeroMQ python bindings, with dependencies for Linux",
+      "comment": "In your install specs, you should refer to pyzmq-abstract rather than directly to this resource. This package provides zeromq python bindings. The driver just uses pip, but the dependencies include those needed to install the underlying zeromq libraries under ubuntu.",
+      "input_ports" : {
+        "host": {
+        },
+        "python": {
+          "home" : "string",
+          "PYTHONPATH": "string"
+        },
+	"pip": {
+          "pipbin": "string"
+        }
+      },
+      "output_ports" : {
+        "zeromq": { },
+        "pkg_info": {
+          "test_module": {"type":"string", "fixed-value":"pyzmq"},
+          "provides_pkg": { "type":"string", "fixed-value":"pyzmq" }
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+        ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.5"}},
+            "port_mapping": {"python":"python"}
+          },
+          { "key": {"name":"pip", "version":"any"},
+            "port_mapping": { "pip": "pip" }
+          },
+          { "key": {"name":"libzmq1-apt-launchpad", "version":"2.1"}},
+          { "key": {"name":"libzmq-dev-apt-launchpad", "version":"2.1"}}
       ]}
     },
     { "key": {"name":"zmq-macports", "version":"2.1"},
@@ -4329,7 +4371,7 @@
           {"one-of": [
             { "key": {"name": "pyzmq-macports", "version":"2.7"},
               "port_mapping": {"zeromq":"zeromq"}},
-            { "key": {"name": "pyzmq-static", "version":"2.1"},
+            { "key": {"name": "pyzmq-linux", "version":"2.1"},
               "port_mapping": {"zeromq":"zeromq"}}
           ]}
       ]}
@@ -4510,6 +4552,166 @@
             "port_mapping": {"host":"host"}}
           ]
       }
+    },
+    { "key": {"name":"python-software-properties", "version":"any"},
+      "display_name": "Python interface to apt repositories (apt package)",
+      "comment": "This provides the add-apt-repository script and Python APIs for interacting with Apt repositories.",
+      "input_ports": {
+        "python": { "home": "string" },
+        "host": { "sudo_password": "password" }
+      },
+      "output_ports": {
+        "apt_cfg": {
+          "package_name":{"type":"string", "fixed-value":"python-software-properties"}
+        },
+        "exe_info": {
+          "add_apt_repository_exe": {"type":"path",
+                                     "fixed-value":"/usr/bin/add-apt-repository"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}}
+        ]}
+    },
+    { "key": {"name":"zeromq-apt-ppa", "version":"any"},
+      "display_name": "Apt repository: ppa:chris-lea/zeromq",
+      "comment": "Apt repository containing zeromq package on launchpad.net.",
+      "input_ports": {
+        "host": { "sudo_password": "password" },
+        "add_rep_exe_info": {
+          "add_apt_repository_exe": "path"
+        }
+      },
+      "output_ports": {
+        "repository": {
+          "repo_name":{"type":"string", "fixed-value":"ppa:chris-lea/zeromq"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"python-software-properties", "version":"any"},
+            "port_mapping": {"add_rep_exe_info":"exe_info"}}
+        ]}
+    },
+    { "key": {"name":"libpgm-apt-ppa", "version":"any"},
+      "display_name": "Apt repository: ppa:chris-lea/libpgm",
+      "comment": "Apt repository containing libpgm package on launchpad.net.",
+      "input_ports": {
+        "host": { "sudo_password": "password" },
+        "add_rep_exe_info": {
+          "add_apt_repository_exe": "path"
+        }
+      },
+      "output_ports": {
+        "repository": {
+          "repo_name":{"type":"string", "fixed-value":"ppa:chris-lea/libpgm"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"python-software-properties", "version":"any"},
+            "port_mapping": {"add_rep_exe_info":"exe_info"}}
+        ]}
+    },
+    { "key": {"name":"libpgm-apt-launchpad", "version":"5.1"},
+      "display_name": "libpgm (apt package)",
+      "comment": "See https://launchpad.net/~chris-lea/+archive/libpgm",
+      "input_ports": {
+        "host": { "sudo_password": "password" }
+      },
+      "output_ports": {
+        "apt_cfg": {
+          "package_name":{"type":"string", "fixed-value":"libpgm"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"libpgm-apt-ppa", "version":"any"}}
+        ]}
+    },
+    { "key": {"name":"libzmq1-apt-launchpad", "version":"2.1"},
+      "display_name": "libzmq1 (apt package)",
+      "comment": "See https://launchpad.net/~chris-lea/+archive/zeromq",
+      "input_ports": {
+        "host": { "sudo_password": "password" }
+      },
+      "output_ports": {
+        "apt_cfg": {
+          "package_name":{"type":"string", "fixed-value":"libzmq1"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"zeromq-apt-ppa", "version":"any"}}
+        ]}
+    },
+    { "key": {"name":"libzmq-dev-apt-launchpad", "version":"2.1"},
+      "display_name": "libzmq-dev (apt package)",
+      "comment": "See https://launchpad.net/~chris-lea/+archive/zeromq",
+      "input_ports": {
+        "host": { "sudo_password": "password" }
+      },
+      "output_ports": {
+        "apt_cfg": {
+          "package_name":{"type":"string", "fixed-value":"libzmq-dev"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name": "ubuntu-linux", "version":"9.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"zeromq-apt-ppa", "version":"any"}},
+          { "key": {"name":"libzmq1-apt-launchpad", "version":"2.1"}}
+        ]}
     }
   ]
 }
