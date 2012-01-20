@@ -1741,8 +1741,14 @@
       "display_name" : "Django Web Framework",
       "input_ports": {
         "host": { "genforma_home": "path" },
-        "python" : { "PYTHONPATH" : "string" }, 
-	"setuptools" : { "easy_install" : "string" }
+        "python" : { "PYTHONPATH" : "string", "home":"string" }, 
+	"pip" : { "pipbin" : "string" }
+      },
+      "output_ports": {
+        "pkg_info": {
+          "provides_pkg": { "type": "string", "fixed-value": "django"},
+          "test_module": { "type": "string", "fixed-value": "django" }
+        }
       },
       "inside": {
         "one-of": [
@@ -1758,12 +1764,11 @@
       "environment": {
           "all-of": [
           { "key": {"name":"python",
-                    "version":{"greater-than-or-equal":"2.3"}},
+                    "version":{"greater-than-or-equal":"2.5"}},
             "port_mapping": {"python":"python"}
           },
-          { "key": {"name":"setuptools",
-                    "version":{"greater-than-or-equal":"0.6"}},
-            "port_mapping": {"setuptools":"setuptools"}
+          { "key": {"name":"pip", "version":"any"},
+            "port_mapping": { "pip": "pip" }
           }
           ]
       }
@@ -1874,7 +1879,7 @@
             "port_mapping":{"pip": "pip"}
           },
           { "key": {"name":"Django",
-                    "version":{"greater-than-or-equal":"1.2"}}
+                    "version":{"greater-than-or-equal":"1.3"}}
           },
           {"key":{"name":"Django-South", "version":"0.7.3"}},
           { "one-of": [

@@ -379,14 +379,14 @@
       ]
     },
     { "key": { "name": "Django", "version": "1.3" },
-      "mgr_module_name": "engage.drivers.genforma.easy_install" ,
+      "mgr_module_name": "engage.drivers.genforma.pip" ,
       "packages": [
         { "type": "Archive",
           "package_class": "GzippedTarArchive",
           "location": "Django-1.3.1.tar.gz"
         },
         { "type": "Reference",
-          "package_class": "EasyInstallLink",
+          "package_class": "PipLink",
           "location": "Django"
         }
       ]

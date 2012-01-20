@@ -642,7 +642,8 @@ class LibraryEntry(object):
     def get_manager_class(self):
         """Return the class (constructor function) for the manager class
         associated with this resource"""
-        get_logger().debug('Module name is %s' % self.mgr_module_name)
+        get_logger().debug('%s %s: Module name is %s' % (self.key["name"], self.key["version"],
+                                                         self.mgr_module_name))
         mod = __import__(self.mgr_module_name)
         components = self.mgr_module_name.split('.')
         for comp in components[1:]:
