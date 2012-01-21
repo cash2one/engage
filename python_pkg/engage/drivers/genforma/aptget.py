@@ -106,7 +106,7 @@ def update(self):
     packages.
     """
     iuprocess.run_sudo_program([APT_GET_PATH, "-q", "-y", "update"],
-                               self.ctx._get_sudo_password(),
+                               self.ctx._get_sudo_password(self),
                                self.ctx.logger)
 
 

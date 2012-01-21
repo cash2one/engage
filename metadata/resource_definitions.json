@@ -4653,7 +4653,7 @@
       },
       "output_ports": {
         "apt_cfg": {
-          "package_name":{"type":"string", "fixed-value":"libpgm"}
+          "package_name":{"type":"string", "fixed-value":"libpgm-5.1-0"}
         }
       },
       "inside": {
@@ -4690,7 +4690,8 @@
       },
       "environment": {
         "all-of": [
-          { "key": {"name":"zeromq-apt-ppa", "version":"any"}}
+          { "key": {"name":"zeromq-apt-ppa", "version":"any"}},
+          { "key": {"name":"libpgm-apt-launchpad", "version":"5.1"}}
         ]}
     },
     { "key": {"name":"libzmq-dev-apt-launchpad", "version":"2.1"},

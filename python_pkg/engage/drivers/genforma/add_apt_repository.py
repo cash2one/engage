@@ -77,7 +77,7 @@ def make_context(resource_json, sudo_password_fn, dry_run=False):
     # add any extra computed properties here using the ctx.add() method.
     return ctx
 
-ADD_APT_REPO_COMMAND="/usr/bin/add-apt-repository"
+ADD_APT_REPO_COMMAND="/usr/bin/add-aptGG-repository"
 
 @make_action
 def run_add_apt_repository(self, repository_name):
@@ -117,7 +117,7 @@ class Manager(resource_manager.Manager, PasswordRepoMixin):
         r = self.ctx.r
         r(check_file_exists, ADD_APT_REPO_COMMAND)
         r(run_add_apt_repository,
-          p.output_ports.repository)
+          p.output_ports.repository.repo_name)
         r(update)
         self._is_installed = True
 
