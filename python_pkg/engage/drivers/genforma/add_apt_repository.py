@@ -117,7 +117,7 @@ class Manager(resource_manager.Manager, PasswordRepoMixin):
         r = self.ctx.r
         r(check_file_exists, ADD_APT_REPO_COMMAND)
         r(run_add_apt_repository,
-          p.input_ports.add_rep_exe_info.add_apt_repository_exe)
+          p.output_ports.repository)
         r(update)
         self._is_installed = True
 
