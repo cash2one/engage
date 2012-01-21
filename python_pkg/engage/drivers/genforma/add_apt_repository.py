@@ -82,7 +82,7 @@ ADD_APT_REPO_COMMAND="/usr/bin/add-apt-repository"
 @make_action
 def run_add_apt_repository(self, repository_name):
     procutils.run_sudo_program([ADD_APT_REPO_COMMAND, repository_name],
-                               self.ctx._get_sudo_password(),
+                               self.ctx._get_sudo_password(self),
                                self.ctx.logger)
 
 #
