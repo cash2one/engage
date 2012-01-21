@@ -104,14 +104,14 @@ class Manager(resource_manager.Manager, PasswordRepoMixin):
                                 dry_run=dry_run)
         # TODO: should have a better way to tell if a repository has been added.
         # Should be harmless to add it multiple times.
-        self.is_installed = False
+        self._is_installed = False
 
     def validate_pre_install(self):
         pass
 
 
     def is_installed(self):
-        return self.is_installed
+        return self._is_installed
 
     def install(self, package):
         p = self.ctx.props
@@ -119,7 +119,7 @@ class Manager(resource_manager.Manager, PasswordRepoMixin):
         r(run_add_apt_repository,
           p.input_ports.add_rep_exe_info.add_apt_repository_exe)
         r(update)
-        self.is_installed = True
+        self._is_installed = True
 
 
     def validate_post_install(self):
