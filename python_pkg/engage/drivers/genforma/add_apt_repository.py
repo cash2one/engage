@@ -81,7 +81,6 @@ ADD_APT_REPO_COMMAND="/usr/bin/add-apt-repository"
 
 @make_action
 def run_add_apt_repository(self, repository_name):
-    _check_file_exists(ADD_APT_REPO_COMMAND, self)
     procutils.run_sudo_program([ADD_APT_REPO_COMMAND, repository_name],
                                self.ctx._get_sudo_password(),
                                self.ctx.logger)
@@ -116,6 +115,7 @@ class Manager(resource_manager.Manager, PasswordRepoMixin):
     def install(self, package):
         p = self.ctx.props
         r = self.ctx.r
+        r(check_file_exists, ADD_APT_REPO_COMMAND)
         r(run_add_apt_repository,
           p.input_ports.add_rep_exe_info.add_apt_repository_exe)
         r(update)
