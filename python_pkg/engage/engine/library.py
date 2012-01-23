@@ -659,6 +659,21 @@ class LibraryEntry(object):
             return True
         else:
             return False
+
+    def always_requires_password_file(self):
+        """Returns true if the resource manager requires a password file,
+        even if the resource itself has no configuration properties of type
+        'password'. Note that requiring root access does not necessarily imply
+        that there will always be a password file - if you are running as root,
+        you don't need an sudo password. Thus, we can force the password file
+        with this separate property.
+        """
+        mgr_class = self.get_manager_class()
+        if hasattr(mgr_class, "REQUIRES_PASSWORD_FILE") and \
+           getattr(mgr_class, "REQUIRES_PASSWORD_FILE")==True:
+            return True
+        else:
+            return False
         
     def to_json(self):
         """Return an in-memory json representation of this entry"""

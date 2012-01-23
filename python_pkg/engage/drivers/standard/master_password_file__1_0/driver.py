@@ -86,10 +86,11 @@ class write_pw_file(Action):
 
 
 class Manager(resource_manager.Manager, PasswordRepoMixin):
-    # We force the resource to always require root access. This is done because
-    # for situations where resources may be added after the fact (e.g. Datablox),
-    # we don't have a good way to add in a password file later.
-    REQUIRES_ROOT_ACCESS = True 
+    # We force the resource to always require root access and a password file.
+    # This is done for situations where resources may be added after the fact
+    # (e.g. Datablox), we don't have a good way to add in a password file later.
+    REQUIRES_ROOT_ACCESS = True
+    REQUIRES_PASSWORD_FILE = True
     def __init__(self, metadata, dry_run=False):
         package_name = "%s %s" % (metadata.key["name"],
                                   metadata.key["version"])

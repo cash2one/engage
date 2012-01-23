@@ -4254,8 +4254,8 @@
       "output_ports" : {
         "zeromq": { },
         "pkg_info": {
-          "test_module": {"type":"string", "fixed-value":"pyzmq"},
-          "provides_pkg": { "type":"string", "fixed-value":"pyzmq" }
+          "test_module": {"type":"string", "fixed-value":"zmq"},
+          "provides_pkg": { "type":"string", "fixed-value":"zmq" }
         }
       },
       "inside": {

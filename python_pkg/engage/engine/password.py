@@ -140,6 +140,7 @@ def generate_pw_file_if_necessary(engage_file_layout,
     # that require root access. Also, see what passwords are missing,
     # and prompt for those.
     requires_root_access = False
+    always_requires_pw_file = False
     for inst_md in parsed_install_solution:
         entry = library.get_entry(inst_md)
         if entry==None:
@@ -153,6 +154,8 @@ def generate_pw_file_if_necessary(engage_file_layout,
             hasattr(entry.get_manager_class(), "start")):
             logger.debug("Resource %s requires root access." % inst_md.id)
             requires_root_access = True
+        if entry.always_requires_password_file():
+            always_requires_pw_file = True
         r = g.get_resource(inst_md.key)
         pw_props = r.get_password_properties()
         if len(pw_props)==0:
@@ -182,7 +185,12 @@ def generate_pw_file_if_necessary(engage_file_layout,
             if pw_db==None:
                 pw_db = get_new_pw_db()
             _add_sudo_password_to_repository(pw_db, dry_run=dry_run)
-            
+
+    # In some cases, a resource may want to ensure that there always is a
+    # password file.
+    if always_requires_pw_file and pw_db==None:
+        pw_db = get_new_pw_db()
+    
     # write out the password database, if it changed
     if pw_db and (orig_pw_db==None or orig_pw_db.data!=pw_db.data):
         logger.info("Writing password file to %s" % pw_file)

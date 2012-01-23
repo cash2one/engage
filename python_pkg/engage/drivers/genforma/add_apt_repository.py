@@ -77,7 +77,7 @@ def make_context(resource_json, sudo_password_fn, dry_run=False):
     # add any extra computed properties here using the ctx.add() method.
     return ctx
 
-ADD_APT_REPO_COMMAND="/usr/bin/add-aptGG-repository"
+ADD_APT_REPO_COMMAND="/usr/bin/add-apt-repository"
 
 @make_action
 def run_add_apt_repository(self, repository_name):
