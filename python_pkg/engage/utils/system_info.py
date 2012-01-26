@@ -39,27 +39,24 @@ def get_platform():
 
 # Constants defining OS descriptions and resource keys.
 # A given app can support all or a proper subset of these.
-LINUX_UBUNTU_9 = "Ubuntu Linux 9.10"
-LINUX_UBUNTU_9_64BIT = "Ubuntu Linux 9.10 (64-bit)"
+LINUX_UBUNTU_11 = "Ubuntu Linux 11.10"
+LINUX_UBUNTU_11_64BIT = "Ubuntu Linux 11.10 (64-bit)"
 LINUX_UBUNTU_10_64BIT = "Ubuntu Linux 10.04 (64-bit)"
-LINUX_CENTOS_5 = "CentOS Linux 5.3"
 MACOSX_10_5 = "MacOSX 10.5 (Leopard)"
 MACOSX_10_6 = "MacOSX 10.6 (Snow Leopard)"
 
 os_keys = {
-    LINUX_UBUNTU_9: {u"name": u"ubuntu-linux", u"version": u"9.10"},
-    LINUX_UBUNTU_9_64BIT: {u"name": u"ubuntu-linux", u"version": u"9.10"},
+    LINUX_UBUNTU_11: {u"name": u"ubuntu-linux", u"version": u"11.10"},
+    LINUX_UBUNTU_11_64BIT: {u"name": u"ubuntu-linux", u"version": u"11.10"},
     LINUX_UBUNTU_10_64BIT: {u"name": u"ubuntu-linux", u"version": u"10.04"},
-    LINUX_CENTOS_5: {u"name": u"centos-linux", u"version": u"5.3"},
     MACOSX_10_5: {u"name": u"mac-osx", u"version": u"10.5"},
     MACOSX_10_6: {u"name": u"mac-osx", u"version": u"10.6"}
 }
 
 os_arches = {
-    LINUX_UBUNTU_9: "i386",
+    LINUX_UBUNTU_11: "i386",
     LINUX_UBUNTU_10_64BIT: "x86_64",
-    LINUX_UBUNTU_9_64BIT: "x86_64",
-    LINUX_CENTOS_5: "i386",
+    LINUX_UBUNTU_11_64BIT: "x86_64",
     MACOSX_10_5: "i386",
     MACOSX_10_6: "x86_64"
 }

@@ -155,7 +155,7 @@
     { "key": { "name": "mac-osx", "version": "10.6"},
       "mgr_module_name": "engage.drivers.install_target_resource"
     },
-    { "key": { "name": "ubuntu-linux", "version": "9.10"},
+    { "key": { "name": "ubuntu-linux", "version": "11.10"},
       "mgr_module_name": "engage.drivers.install_target_resource"
     },
     { "key": { "name": "ubuntu-linux", "version": "10.04"},

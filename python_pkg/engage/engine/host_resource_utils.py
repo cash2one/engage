@@ -28,18 +28,23 @@ def define_error(error_code, msg):
 
 
 ERR_SLAVE_BOOTSTRAP = 1
+ERR_BAD_OS          = 2
 
 define_error(ERR_SLAVE_BOOTSTRAP,
              _("Bootstrap of slave node %(host)s failed"))
+define_error(ERR_BAD_OS,
+             _("Sorry, you are running on an unsupported Operating System. Valid choices are %(choices)s."))
 
-
-os_choices = [system_info.LINUX_UBUNTU_9, system_info.LINUX_UBUNTU_9_64BIT,
+os_choices = [system_info.LINUX_UBUNTU_11, system_info.LINUX_UBUNTU_11_64BIT,
               system_info.LINUX_UBUNTU_10_64BIT,
               system_info.MACOSX_10_5, system_info.MACOSX_10_6]
 
 
 def get_target_machine_resource(deployment_home, log_directory):
     machine_info = system_info.get_machine_info(os_choices)
+    if not machine_info.has_key("os"):
+        raise UserError(errors[ERR_BAD_OS],
+                        msg_args={"choices":os_choices})
     tr = system_info.get_target_machine_resource("master-host",
                                                  machine_info["hostname"],
                                                  machine_info["username"],

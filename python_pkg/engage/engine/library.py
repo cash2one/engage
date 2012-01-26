@@ -78,7 +78,7 @@ import re
 import copy
 
 from engage.engine.json_metadata_utils import MetadataContainer, get_json_property, \
-                                              get_opt_json_property
+                                              get_opt_json_property, UnionType
 import engage.utils.file as fileutils
 import engage.utils.path
 import engage.utils.system_info as system_info
@@ -830,8 +830,11 @@ def _parse_package(json_repr, err_msg, cache_directory, package_properties):
                                       err_msg, None)
     type = get_json_property(u"type", json_repr, unicode,
                              "%s package" % err_msg)
-    location = get_json_property(u"location", json_repr, unicode, err_msg)
-    package_class = get_json_property(u"package_class", json_repr, unicode, err_msg)
+    location = get_json_property(u"location", json_repr,
+                                 UnionType(unicode, str, list),
+                                 err_msg)
+    package_class = get_json_property(u"package_class", json_repr, unicode,
+                                      err_msg)
     if not _package_classes.has_key(package_class):
         raise LibraryParseError, "%s unknown package class %s" % \
             (err_msg, package_class)

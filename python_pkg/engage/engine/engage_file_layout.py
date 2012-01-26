@@ -268,9 +268,12 @@ class DeployedFileLayout(BaseFileLayout):
     LAYOUT_TYPE = "deployed"
     def __init__(self, installer_name=None):
         BaseFileLayout.__init__(self, installer_name)
-        # we use the location of the current file to figure out where
+        # We use the location of the current file to figure out where
         # everything else is.
-        current_dir = os.path.dirname(__file__)
+        # Need to follow symlinks for the current directory, due to issues
+        # with how virtualenv works on Ubuntu 11.10 (library files are picked up
+        # under local symlink path).
+        current_dir = os.path.realpath(os.path.dirname(__file__))
         site_packages_dir = \
             os.path.abspath(os.path.expanduser(os.path.join(current_dir,
                                                             "../../..")))
@@ -457,7 +460,8 @@ class DistFileLayout(BaseFileLayout):
     def __init__(self, installer_name=None):
         BaseFileLayout.__init__(self, installer_name)
         self.engage_dir = os.path.abspath(os.path.expanduser(os.path.join(os.path.dirname(__file__), "../../..")))
-        assert os.path.basename(self.engage_dir)=="engage", "Expecting %s to be engage source directory" % self.engage_dir
+        assert os.path.basename(self.engage_dir).startswith("engage"), \
+           "Expecting %s to start with 'engage'" % self.engage_dir
         # we might not really be running under build_output, but we use whatever is the
         # parent directory as the place for generated files.
         self.build_output_directory = os.path.abspath(os.path.join(self.engage_dir, ".."))
@@ -551,7 +555,10 @@ def get_engine_layout_mgr(installer_name=None):
     To determine whether this is a deployed file layout vs. a source file layout, we look at
     whether we are underneath a site_packages directory.
     """
-    current_dir = os.path.dirname(__file__)
+    # need to follow symlinks for the current directory, due to issues
+    # with how virtualenv works on Ubuntu 11.10 (library files are picked up
+    # under local symlink path).
+    current_dir = os.path.realpath(os.path.dirname(__file__))
     possible_site_packages_dir = os.path.abspath(os.path.expanduser(os.path.join(current_dir, "../../..")))
     if os.path.basename(possible_site_packages_dir)=="site-packages":
         layout_type = DeployedFileLayout.LAYOUT_TYPE
@@ -564,7 +571,8 @@ def get_engine_layout_mgr(installer_name=None):
             layout_type = SrcFileLayout.LAYOUT_TYPE
         else:
             possible_engage_dir = os.path.abspath(os.path.expanduser(os.path.join(current_dir, "../../..")))
-            if os.path.exists(possible_engage_dir) and os.path.basename(possible_engage_dir)=="engage" and \
+            if os.path.exists(possible_engage_dir) and \
+               os.path.basename(possible_engage_dir).startswith("engage") and \
                os.path.exists(dist_sw_packages_dir):
                 layout_type = DistFileLayout.LAYOUT_TYPE
             else:

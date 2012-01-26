@@ -146,8 +146,22 @@ class MetadataContainer:
                 yield e
 
 
+class UnionType(object):
+    def __init__(self, *args):
+        self.valid_types = args
+
+    def check(self, value, msg):
+        for t in self.valid_types:
+            if isinstance(value, t):
+                return
+        raise ParseError, \
+              "%s, is the wrong type, value was '%s', expecting one of %s" \
+              (msg, value, self.valid_types.__repr__())
+
 def check_json_type(value, expected_type, msg):
-    if not isinstance(value, expected_type):
+    if isinstance(expected_type, UnionType):
+        expected_type.check(value, msg)
+    elif not isinstance(value, expected_type):
         if value=='' and expected_type==unicode:
             # This is a special case -- the json parser changed in 2.7
             # and returns a non-unicode string for empty string values
