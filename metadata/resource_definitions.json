@@ -3892,6 +3892,72 @@
         ]
       }
     },
+    { "key": {"name":"mysql-abstract", "version":"5.1"},
+      "display_name": "MySQL Abstract 5.1",
+      "comment": "This is a platform independent resource for MySql. Use this one in your install specification",
+      "input_ports": {
+        "mysql" : {
+          "host": "string",
+          "port": "tcp_port"
+        },
+        "mysql_admin" : {
+          "admin_password": "password",
+          "mysqladmin_exe": "path",
+          "mysql_client_exe": "path",
+          "mysqldump_exe": "path",
+          "mysql_server_script": "path",
+          "mysql_user": "string",
+          "mysql_config_exe": "path",
+          "pid_file_template": "string",
+          "mysql_server_cwd": "path",
+          "mysql_startup_logfile":"path"
+        }
+      },
+      "output_ports": {     
+        "mysql" : {
+          "host": {"type":"string", "source":"input_ports.mysql.host"},
+          "port": {"type":"tcp_port", "source":"input_ports.mysql.port"}
+        },
+        "mysql_admin" : {
+          "admin_password": {"type":"password",
+                             "source":"input_ports.mysql_admin.admin_password"},
+          "mysqladmin_exe": {"type":"path",
+                             "source":"input_ports.mysql_admin.mysqladmin_exe"},
+          "mysql_client_exe": {"type":"path",
+                               "source":"input_ports.mysql_admin.mysql_client_exe"},
+          "mysqldump_exe": {"type":"path",
+                            "source":"input_ports.mysql_admin.mysqldump_exe"},
+          "mysql_server_script": {"type":"path",
+                                  "source":"input_ports.mysql_admin.mysql_server_script"},
+          "mysql_user": {"type":"string",
+                         "source":"input_ports.mysql_admin.mysql_user"},
+          "mysql_config_exe": {"type":"path",
+                               "source":"input_ports.mysql_admin.mysql_config_exe"},
+          "pid_file_template":{"type":"string",
+                               "source":"input_ports.mysql_admin.pid_file_template"},
+          "mysql_server_cwd":{"type":"path",
+                              "source":"input_ports.mysql_admin.mysql_server_cwd"},
+          "mysql_startup_logfile":{"type":"path", 
+                                   "source":"input_ports.mysql_admin.mysql_startup_logfile"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}}},
+          { "key": {"name": "ubuntu-linux", "version":"11.10"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"}}
+          ]
+      },
+      "environment": {
+        "one-of": [
+          {"key": {"name":"mysql-apt", "version":"5.1"},
+           "port_mapping":{"mysql":"mysql", "mysql_admin":"mysql_admin"}},
+          {"key": {"name":"mysql-macports", "version":"5.1"},
+           "port_mapping":{"mysql":"mysql", "mysql_admin":"mysql_admin"}}
+        ]
+      }
+    },
     { "key": {"name":"mysql-apt", "version":"5.1"},
       "display_name": "MySQL server (Ubuntu version)",
       "config_port": {

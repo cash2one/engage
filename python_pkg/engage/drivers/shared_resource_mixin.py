@@ -48,11 +48,12 @@ def parse_resource_from_json(self, json_repr):
     return resource_metadata.parse_resource_from_json(json_repr)
 
 
-@require_methods("_get_master_password", "_get_metadata_filedir", "_get_password_properties")
+@require_methods("_get_sudo_password", "_get_master_password", "_get_metadata_filedir", "_get_password_properties")
 class SharedResourceWithPwDbMixin(object):
     """This mixin handles the storage of passwords needed for the
     installed resource. The following methods should be present on the
     instantiated class:
+      * _get_sudo_password() - This usually comes from PasswordRepoMixin
       * _get_master_password() - This usually comes from PasswordRepoMixin
       * _get_metadata_filedir() - Return the directory to store the metadata file
       * _get_password_properties() - Return a list of properties in the password repository
@@ -63,19 +64,22 @@ class SharedResourceWithPwDbMixin(object):
         self.install_context (defined by resource_manager.manager)
         self.ctx (defined by individual resource manager)
     """
+    def _get_shared_repo_password(self):
+        return self._get_sudo_password() if self._get_sudo_password() else \
+               self._get_master_password()
+    
     def _save_shared_resource_metadata(self):
         """Save the metadata corresponding to the resource instance. As a part
         of this process, we grade the associated password data, encrypt it,
         and store it in the metadata file. Since the metadata file contains
         this password data, we make it readable only by the root account.
         """
-        assert self._get_master_password()!=None, "master password required to save shared resource metadata"
         pw_map = {}
         for pw_key in self._get_password_properties():
             pw_map[pw_key] = self.install_context.password_repository.get_value(pw_key)
         rmd = self.metadata
         from engage.utils.pw_repository import encrypt_object
-        (ciphertext, salt) = encrypt_object(self._get_master_password(), pw_map)
+        (ciphertext, salt) = encrypt_object(self._get_shared_repo_password(), pw_map)
         # we have to base64 encode the ciphertext because the json encoder
         # does not seem to handle the raw ciphertext correctly (not valid utf8)
         rmd.properties["pw_data"] = base64.b64encode(ciphertext)
@@ -99,7 +103,7 @@ class SharedResourceWithPwDbMixin(object):
             rmd = rv(parse_resource_from_json, json.loads(data))
             from engage.utils.pw_repository import decrypt_object
             ciphertext = base64.b64decode(rmd.properties['pw_data'])
-            pw_map = decrypt_object(self._get_master_password(), rmd.properties['pw_salt'],
+            pw_map = decrypt_object(self._get_shared_repo_password(), rmd.properties['pw_salt'],
                                     ciphertext)
             for pw_key in self._get_password_properties():
                 if not pw_map.has_key(pw_key):

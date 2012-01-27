@@ -921,6 +921,15 @@
           "location": "pyzmq"
         }
       ]
+    },
+    { "key": { "name": "mysql-abstract", "version":"5.1"},
+      "mgr_module_name": "engage.drivers.genforma.dummy_resource_manager",
+      "packages": [
+        { "type": "Reference",
+          "package_class": "DummyPackage",
+          "location": ""
+        }
+      ]
     }
   ]
 }
