@@ -144,7 +144,7 @@ def generate_pw_file_if_necessary(engage_file_layout,
     for inst_md in parsed_install_solution:
         entry = library.get_entry(inst_md)
         if entry==None:
-            raise Exception()
+            raise Exception("Unable to find resource library entry for resource %s" % inst_md.key.__repr__())
         # See if the resource requires root access. If the resource says it
         # needs root access, we also check if it is already installed (according
         # to the installed property on the resource metadta). If it is already

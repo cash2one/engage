@@ -885,6 +885,20 @@
        "location":"libzmq-dev"}
     ]
    },
+   {"key": {"name":"libzmq1-apt", "version":"2.1"},
+    "mgr_module_name": "engage.drivers.genforma.aptget",
+    "packages": [
+      {"type":"Reference", "package_class":"AptGet",
+       "location":"libzmq1"}
+    ]
+   },
+   {"key": {"name":"libzmq-dev-apt", "version":"2.1"},
+    "mgr_module_name": "engage.drivers.genforma.aptget",
+    "packages": [
+      {"type":"Reference", "package_class":"AptGet",
+       "location":"libzmq-dev"}
+    ]
+   },
    {"key": {"name":"libpgm-apt-ppa", "version":"any"},
      "mgr_module_name": "engage.drivers.genforma.add_apt_repository",
      "packages": [

@@ -30,8 +30,15 @@ def shell(command):
     return stdout, stderr, proc.returncode
 
 def bootstrap(deploy_dir, engage_dir=ENGAGE_DIR):
-    shell('%s %s --include-test-data %s' % (
-            sys.executable, join(engage_dir, 'bootstrap.py'), deploy_dir))
+    (o, e, rc) = shell('%s %s --include-test-data %s' %
+                       (sys.executable, join(engage_dir, 'bootstrap.py'),
+                        deploy_dir))
+    if rc != 0:
+        sys.stdout.write(o)
+        sys.stdout.write(e)
+        sys.stdout.fflush()
+        raise Exception("Engage bootstrap at directoy %s failed. Return code was %d" %
+                        (deploy_dir, rc))
 
 def random_str(length=6, charspace=string.ascii_lowercase+string.digits):
     return ''.join(random.sample(charspace, length))

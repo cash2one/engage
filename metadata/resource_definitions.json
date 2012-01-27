@@ -4275,8 +4275,14 @@
           { "key": {"name":"pip", "version":"any"},
             "port_mapping": { "pip": "pip" }
           },
-          { "key": {"name":"libzmq1-apt-launchpad", "version":"2.1"}},
-          { "key": {"name":"libzmq-dev-apt-launchpad", "version":"2.1"}}
+          {"one-of": [
+            { "key": {"name":"libzmq1-apt", "version":"2.1"}},
+            { "key": {"name":"libzmq1-apt-launchpad", "version":"2.1"}}
+          ]},
+          {"one-of": [
+            { "key": {"name":"libzmq-dev-apt", "version":"2.1"}},
+            { "key": {"name":"libzmq-dev-apt-launchpad", "version":"2.1"}}
+          ]}
       ]}
     },
     { "key": {"name":"zmq-macports", "version":"2.1"},
@@ -4682,8 +4688,6 @@
       },
       "inside": {
         "one-of": [
-          { "key": {"name": "ubuntu-linux", "version":"11.10"},
-            "port_mapping": {"host":"host"}},
           { "key": {"name": "ubuntu-linux", "version":"10.04"},
             "port_mapping": {"host":"host"}}
           ]
@@ -4693,6 +4697,24 @@
           { "key": {"name":"zeromq-apt-ppa", "version":"any"}},
           { "key": {"name":"libpgm-apt-launchpad", "version":"5.1"}}
         ]}
+    },
+    { "key": {"name":"libzmq1-apt", "version":"2.1"},
+      "display_name": "libzmq1 (apt package)",
+      "comment": "Ubuntu 11.10 default repository includes libzmq1 package",
+      "input_ports": {
+        "host": { "sudo_password": "password" }
+      },
+      "output_ports": {
+        "apt_cfg": {
+          "package_name":{"type":"string", "fixed-value":"libzmq1"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name": "ubuntu-linux", "version":"11.10"},
+            "port_mapping": {"host":"host"}}
+          ]
+      }
     },
     { "key": {"name":"libzmq-dev-apt-launchpad", "version":"2.1"},
       "display_name": "libzmq-dev (apt package)",
@@ -4707,8 +4729,6 @@
       },
       "inside": {
         "one-of": [
-          { "key": {"name": "ubuntu-linux", "version":"11.10"},
-            "port_mapping": {"host":"host"}},
           { "key": {"name": "ubuntu-linux", "version":"10.04"},
             "port_mapping": {"host":"host"}}
           ]
@@ -4718,6 +4738,24 @@
           { "key": {"name":"zeromq-apt-ppa", "version":"any"}},
           { "key": {"name":"libzmq1-apt-launchpad", "version":"2.1"}}
         ]}
+    },
+    { "key": {"name":"libzmq-dev-apt", "version":"2.1"},
+      "display_name": "libzmq-dev (apt package)",
+      "comment": "Ubuntu 11.10 default repository includes libzmq-dev package",
+      "input_ports": {
+        "host": { "sudo_password": "password" }
+      },
+      "output_ports": {
+        "apt_cfg": {
+          "package_name":{"type":"string", "fixed-value":"libzmq-dev"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name": "ubuntu-linux", "version":"11.10"},
+            "port_mapping": {"host":"host"}}
+          ]
+      }
     }
   ]
 }
