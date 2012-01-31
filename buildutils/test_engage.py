@@ -36,7 +36,7 @@ def bootstrap(deploy_dir, engage_dir=ENGAGE_DIR):
     if rc != 0:
         sys.stdout.write(o)
         sys.stdout.write(e)
-        sys.stdout.fflush()
+        sys.stdout.flush()
         raise Exception("Engage bootstrap at directoy %s failed. Return code was %d" %
                         (deploy_dir, rc))
 

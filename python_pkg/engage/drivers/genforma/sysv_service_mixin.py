@@ -49,6 +49,8 @@ def is_running(self, svcname):
                         developer_msg="Did not find status patterns")
 
 
+sudo_get_server_status = adapt_sudo_value_action(get_server_status)
+
 class SysVServiceMixin(object):
     """This is a mixin to be used with service managers on systems that have
     "Unix system V style" service management. This includes ubuntu linux.
@@ -65,7 +67,8 @@ class SysVServiceMixin(object):
         # server is up
         pid_file = self.get_pid_file_path()
         if pid_file:
-            self.ctx.check_poll(5, 2.0, lambda x: x, get_server_status, pid_file)
+            self.ctx.check_poll(5, 2.0, lambda x: x, sudo_get_server_status,
+                                pid_file)
 
     def stop(self):
         self.ctx.r(sudo_run_program, [SERVICE_EXE, self._get_service_name(), "stop"])

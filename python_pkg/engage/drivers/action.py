@@ -358,6 +358,25 @@ class Action(object):
         """
         return _format_action_args(self.NAME, *args, **kwargs)
 
+
+class SudoAction(Action):
+    """Subclass of action that includes sudo_run()
+    """
+    def __init__(self, ctx):
+        super(Action, self).__init__(ctx)
+
+    def sudo_run(self, *args, **kwargs):
+        """Execute an action under sudo. This method should accept the same
+        arguments as the run() method. The implementer of sudo_run()
+        is responsible for making the appropriate sudo calls
+        (e.g. using procutils.sudo_run_program()). The calling context
+        object will ensure that 1) this method is only called if sudo access is
+        required (not running as root) and 2) ensure that
+        ctx._get_sudo_password() returns a value.
+        """
+        pass
+
+
 class ValueAction(object):
     """Value actions return a value
     """
@@ -398,6 +417,24 @@ class ValueAction(object):
         if not (isinstance(result, bool) or isinstance(result, int) or result==None or result==''):
             result = "instance of %s" % type(result).__name__
         return "%s => %s" % (self.NAME, result)
+
+
+class SudoValueAction(ValueAction):
+    """Subclass of value action that includes sudo_run()
+    """
+    def __init__(self, ctx):
+        super(SudoValueAction, self).__init__(ctx)
+
+    def sudo_run(self, *args, **kwargs):
+        """Execute a value action under sudo. This method should accept the same
+        arguments as the run() method. The implementer of sudo_run()
+        is responsible for making the appropriate sudo calls
+        (e.g. using procutils.sudo_run_program()). The calling context
+        object will ensure that 1) this method is only called if sudo access is
+        required (not running as root) and 2) ensure that
+        ctx._get_sudo_password() returns a value.
+        """
+        pass
 
 
 class _Config(object):
@@ -600,6 +637,43 @@ class Context(object):
                                                       "id":self.props.id})
         return self
 
+    def r_su(self, sudo_action, *args, **kwargs):
+        """Run the specified SudoAction, providing it the given arguments. If
+        running as root, calls the run() method. Otherwise, calls the sudo_run()
+        method.
+        """
+        a = sudo_action(self)
+        assert isinstance(a, SudoAction), \
+               "r() passed an action of type %s, not an instance of SudoAction"\
+               % type(a).__name__
+        action_and_args = a.format_action_args(*args, **kwargs)
+        self.logger.action(action_and_args)
+        try:
+            if not procutils.is_running_as_root():
+                if not self.sudo_password_fn():
+                    raise UserError(errors[ERR_NO_SUDO_PW],
+                                    msg_args={"id":self.props.id,
+                                              "action":a.name})
+                if not self.dry_run:
+                    a.sudo_run(*args, **kwargs)
+                else:
+                    a.dry_run(*args, **kwargs)
+            else: # running as root, no need to sudo
+                if not self.dry_run:
+                    a.run(*args, **kwargs)
+                else:
+                    a.dry_run(*args, **kwargs)
+        except UserError:
+            raise
+        except Exception, e:
+            exc_info = sys.exc_info()
+            self.logger.exception("Exception executing action %s: %s" %
+                                  (action_and_args, e.__repr__()))
+            raise convert_exc_to_user_error(sys.exc_info(), errors[ERR_UNEXPECTED_EXC_IN_ACTION],
+                                            msg_args={"exc":e.__repr__(), "action":action_and_args,
+                                                      "id":self.props.id})
+        return self
+
     def rv(self, value_action, *args, **kwargs):
         """Run the specified ValueAction, providing it the given arguments.
         """
@@ -615,6 +689,46 @@ class Context(object):
                 return result
             else:
                 return a.dry_run(*args, **kwargs)
+        except UserError:
+            raise
+        except Exception, e:
+            exc_info = sys.exc_info()
+            self.logger.exception("Exception executing action %s: %s" %
+                                  (action_and_args, e.__repr__()))
+            raise convert_exc_to_user_error(sys.exc_info(), errors[ERR_UNEXPECTED_EXC_IN_ACTION],
+                                            msg_args={"exc":e.__repr__(), "action":action_and_args,
+                                                      "id":self.props.id})
+
+    def rv_su(self, sudo_value_action, *args, **kwargs):
+        """Run the specified ValueAction as the super user, providing it the
+        given arguments. If running as root, calls the run() method. Otherwise,
+        calls the sudo_run() method.
+        """
+        a = sudo_value_action(self)
+        assert isinstance(a, SudoValueAction), \
+            "rv() passed an action of type %s, not an instance of SudoValueAction"\
+            % type(a).__name__
+        action_and_args = a.format_action_args(*args, **kwargs)
+        self.logger.action(action_and_args)
+        try:
+            if not procutils.is_running_as_root():
+                if not self.sudo_password_fn():
+                    raise UserError(errors[ERR_NO_SUDO_PW],
+                                    msg_args={"id":self.props.id,
+                                              "action":a.name})
+                if not self.dry_run:
+                    result = a.sudo_run(*args, **kwargs)
+                    self.logger.debug(a.format_action_result(result))
+                    return result
+                else:
+                    return a.dry_run(*args, **kwargs)
+            else: # running as root
+                if not self.dry_run:
+                    result = a.run(*args, **kwargs)
+                    self.logger.debug(a.format_action_result(result))
+                    return result
+                else:
+                    return a.dry_run(*args, **kwargs)
         except UserError:
             raise
         except Exception, e:
@@ -748,6 +862,33 @@ def make_value_action(fn):
         def dry_run(self, *args, **kwargs):
             return None
     return _action
+
+def adapt_sudo_value_action(va):
+    """Make an sudo_value_action into an action that always
+    calls sudo_run() by return a new wrapper object.
+    This is useful in cases where we want to always call run(),
+    like ctx.check_poll().
+    """
+    class myaction(SudoValueAction):
+        NAME = va.__name__
+        def __init__(self, ctx):
+            super(myaction, self).__init__(ctx)
+            self.action = va(ctx)
+        def run(self, *args, **kwargs):
+            return self.action.sudo_run(*args, **kwargs)
+
+        def sudo_run(self, *args, **kwargs):
+            return self.action.sudo_run(*args, **kwargs)
+
+        def dry_run(self, *args, **kwargs):
+            return self.action.dry_run(*args, **kwargs)
+ 
+        def format_action_args(self, *args, **kwargs):
+            return self.action.dry_run(*args, **kwargs)
+
+        def format_action_result(self, result):
+            return self.action.format_action_result(result)
+    return myaction
 
 
 def _warning(action, msg):
@@ -1197,21 +1338,35 @@ def stop_server(self, pid_file, timeout_tries=10, force_stop=False):
                                   force_stop)
 
 
-@make_value_action
-def get_server_status(self, pid_file, remove_pidfile_if_dead_proc=False):
-    """ValueAction: check whether a server process is alive by grabbing its
+class get_server_status(SudoValueAction):
+    """SudoValueAction: check whether a server process is alive by grabbing its
     pid from the specified
     pidfile and then checking the liveness of that pid. If the pidfile doesn't
     exist, assume that server isn't alive. Returns the pid if the server is
     running and None if it isn't running.
 
+    The sudo_run() method is for situations where the pid file is
+    not readable by the engage user.
+
     NOTE: If you are using this in the is_running() method of a service,
     be sure to convert the result to a boolean. For example:
     return self.ctx.rv(check_server_status, pid_file) != None
     """
-    return procutils.check_server_status(pid_file, self.ctx.logger,
-                                         self.ctx.props.id,
-                                         remove_pidfile_if_dead_proc)
+    NAME="get_server_status"
+    def run(self, pid_file, remove_pidfile_if_dead_proc=False):
+        return procutils.check_server_status(pid_file, self.ctx.logger,
+                                             self.ctx.props.id,
+                                             remove_pidfile_if_dead_proc)
+
+    def sudo_run(self, pid_file, remove_pidfile_if_dead_proc=False):
+        return procutils.sudo_check_server_status(pid_file, self.ctx.logger,
+                                                  self.ctx._get_sudo_password(),
+                                                  self.ctx.props.id,
+                                                  remove_pidfile_if_dead_proc)
+
+    def dry_run(self, pid_file, remove_pidfile_if_dead_proc=False):
+        pass
+
 
 @make_action
 def sudo_start_server(self, cmd_and_args, log_file, cwd=None, environment={}):

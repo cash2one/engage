@@ -507,6 +507,41 @@ else:
     raise Exception("installutils.process.is_process_alive() not ported to platform %s" % sys.platform)
 
 
+def sudo_get_pid_from_file(pidfile, logger, sudo_password,
+                           resource_id="sudo_get_pid_from_file()"):
+    """Parse a process id from the specified file, reading the file as root.
+    """
+    # first run an ls to see if the file is there
+    logger.debug("sudo_get_pid_from_file(): determining whether pidfile %s is present" % pidfile)
+    try:
+        run_sudo_program(["/bin/ls", pidfile], sudo_password, logger)
+    except SudoBadRc:
+        logger.debug("%s: server not up - pid file '%s' not found" %
+                     (resource_id, pidfile))
+        return None
+    # now get the actual file
+    re_map = {"pid":"\\d+"}
+    (rc, res_map) = run_sudo_program_and_scan_results([_cat_exe, pidfile],
+                                                      re_map, logger,
+                                                      sudo_password,
+                                                      return_mos=True,
+                                                      log_output=True)
+    if rc != 0:
+        raise Exception("%s: %s %s failed, returned error code %d" %
+                        (resource_id, _cat_exe, pidfile, rc))
+    if res_map["pid"]==None or len(res_map["pid"])==0:
+        logger.debug("%s: server not up - pid file '%s' does not contain a pid" %
+                     (resource_id, pidfile))
+        return None
+    else:
+        if len(res_map["pid"])>1:
+            raise Exception("%s: %s %s returned multiple pid matches: %s. Perhaps it is not a pid file?" %
+                            (resource_id, _cat_exe, pidfile,
+                             [m.group(0) for m in res_map["pid"]]))
+        pid = int((res_map["pid"][0]).group(0))
+        return pid
+
+
 def check_server_status(pidfile, logger=None, resource_id=None,
                         remove_pidfile_if_dead_proc=False):
     """Check whether a server process is alive by grabbing its pid from the specified
@@ -532,7 +567,38 @@ def check_server_status(pidfile, logger=None, resource_id=None,
             logger.debug("%s: server up (pid %d)" %
                          (resource_id, pid))
         return pid
-        
+
+
+def sudo_check_server_status(pidfile, logger, sudo_password,
+                             resource_id="sudo_check_server_status()",
+                             remove_if_dead_proc=False):
+    """Check whether a server process is alive by grabbing its pid from the specified
+    pidfile and then checking the liveness of that pid. We read the pidfile as
+    the superuser. This is useful if the pidfile or a containing directory
+    is not readable to the engage user.
+
+    If the pidfile doesn't
+    exist, assume that server isn't alive. Returns the pid if the server
+    is running and None if it isn't running.
+    """
+    if is_running_as_root():
+        pid = get_pid_from_file(pidfile, resource_id, logger)
+    else:
+        pid = sudo_get_pid_from_file(pidfile, logger, sudo_password,
+                                     resource_id)
+    if pid==None:
+        return None
+    elif is_process_alive(pid)==False:
+        if remove_if_dead_proc:
+            sudo_rm(pidfile, sudo_password, logger)
+        logger.debug("%s: server not up - pid '%d' not running" %
+                     (resource_id, pid))
+        return None
+    else:
+        logger.debug("%s: server up (pid %d)" %
+                     (resource_id, pid))
+        return pid
+
 
 class ServerStopTimeout(Exception):
     """This exception used to signal that the server process did not respond

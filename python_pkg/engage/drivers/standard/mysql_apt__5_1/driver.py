@@ -148,7 +148,7 @@ class Manager(SysVServiceMixin, PasswordRepoMixin,
     def validate_post_install(self):
         rv = self.ctx.rv
         if os.path.exists(self._get_metadata_filename()) and \
-           (not rv(apt_get.is_pkg_installed, "mysql-server-5.1")) and \
+           (not rv(aptget.is_pkg_installed, "mysql-server-5.1")) and \
            (not self.ctx.dry_run):
             raise UserError(errors[ERR_NOT_INSTALLED],
                             msg_args={"file":self._get_metadata_filename(),
