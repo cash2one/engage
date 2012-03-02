@@ -22,14 +22,36 @@ from engage.utils.log_setup import setup_logger, parse_log_options, add_log_opti
 from engage.utils.system_info import get_platform
 
 
+def compare_versions(vstr1, vstr2):
+    """Return:
+    -1 if vstr1 > vstr2
+     0 if vstr1 = vstr2
+     1 if vstr1 < vstr2
+    """
+    def normalize_version(vstr):
+        v = vstr.split(".")
+        return [int(subv) for subv in v]
+    v1 = normalize_version(vstr1)
+    v2 = normalize_version(vstr2)
+    for i in range(len(v1)):
+        if (len(v2)==i) or v1[i]>v2[i]:
+            return -1
+        elif v1[i]<v2[i]:
+            return 1
+    if len(v2)>len(v1):
+        return 1
+    else:
+        return 0
+
 def get_virtualenv_version(exe_path):
     subproc = subprocess.Popen([exe_path, "--version"],
                                shell=False, stdout=subprocess.PIPE,
                                cwd=os.path.dirname(exe_path),
                                stderr=subprocess.STDOUT)
     ver_string = (subproc.communicate()[0]).rstrip()
-    return [int(component) if component.isdigit() else component
-            for component in ver_string.split(".")]
+    return ver_string
+    ## return [int(component) if component.isdigit() else component
+    ##         for component in ver_string.split(".")]
 
 def create_virtualenv(desired_python_dir, logger, package_dir,
                       base_python_exe=None,
@@ -42,15 +64,21 @@ def create_virtualenv(desired_python_dir, logger, package_dir,
     virtualenv_search_dirs = [os.path.dirname(python_exe)] + get_python_search_paths()
     virtualenv = find_executable("virtualenv", virtualenv_search_dirs, logger)
     version = get_virtualenv_version(virtualenv)
-    if version[0]>1 or (version[0]==1 and version[1]>6) or \
-       (version[0]==1 and version[1]==6 and len(version)>2 and version[2]>=1):
+    if compare_versions("1.6.1", version)>=0:
+        # --never-download and --extra-search-dir were added in 1.6.1
         has_options = True
     else:
         has_options = False
+    if compare_versions("1.7", version)>=0:
+        site_packages_opt = True
+    else:
+        site_packages_opt = False
         
     if not os.path.exists(desired_python_dir):
         os.makedirs(desired_python_dir)
     opts = ["--python=%s" % python_exe,]
+    if site_packages_opt:
+        opts.append("--system-site-packages")
     if has_options:
         opts.append("--extra-search-dir=%s" % package_dir)
         if never_download:

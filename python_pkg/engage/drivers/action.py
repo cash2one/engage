@@ -1360,7 +1360,7 @@ class get_server_status(SudoValueAction):
 
     def sudo_run(self, pid_file, remove_pidfile_if_dead_proc=False):
         return procutils.sudo_check_server_status(pid_file, self.ctx.logger,
-                                                  self.ctx._get_sudo_password(),
+                                                  self.ctx._get_sudo_password(self),
                                                   self.ctx.props.id,
                                                   remove_pidfile_if_dead_proc)
 
