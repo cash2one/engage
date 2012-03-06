@@ -35,9 +35,7 @@ define_error(ERR_SLAVE_BOOTSTRAP,
 define_error(ERR_BAD_OS,
              _("Sorry, you are running on an unsupported Operating System. Valid choices are %(choices)s."))
 
-os_choices = [system_info.LINUX_UBUNTU_11, system_info.LINUX_UBUNTU_11_64BIT,
-              system_info.LINUX_UBUNTU_10_64BIT,
-              system_info.MACOSX_10_5, system_info.MACOSX_10_6]
+os_choices = system_info.default_os_choices
 
 
 def get_target_machine_resource(deployment_home, log_directory):

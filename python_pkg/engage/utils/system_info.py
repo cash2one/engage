@@ -6,6 +6,7 @@ import getpass
 import platform
 import os.path
 import string
+import socket
 
 def _run_subproc_and_get_output(args):
     return Popen(args, stdout=PIPE, shell=True).communicate()[0]
@@ -61,10 +62,15 @@ os_arches = {
     MACOSX_10_6: "x86_64"
 }
 
+default_os_choices = [LINUX_UBUNTU_11, LINUX_UBUNTU_11_64BIT,
+                      LINUX_UBUNTU_10_64BIT,
+                      MACOSX_10_5, MACOSX_10_6]
+
 def get_ip_for_interface(interface_name):
     """Given an interface name, run ifconfig and return the
     ip address of that interface. Returns None if it runs into
-    problems.
+    problems. This currently only works on Linux. OSX uses
+    a slightly different format.
     """
     import subprocess
     cmd = "ifconfig %s | grep 'inet addr'" % interface_name
@@ -87,7 +93,7 @@ def get_ip_for_interface(interface_name):
          
 
 
-def get_machine_info(os_choices):
+def get_machine_info(os_choices=default_os_choices):
     """Get the key indentifying information about the current machine and
     return it as an in-memory Json representation (dictionaries). os_choices
     is a list of operating systems supported by the application. This list is
@@ -99,6 +105,7 @@ def get_machine_info(os_choices):
         if release[0:2] == "9.": os_type = MACOSX_10_5
         elif release[0:3] == "10.": os_type = MACOSX_10_6
         private_ip = None
+        public_ip = socket.gethostbyname(socket.gethostname())
     elif system == "Linux":
         # Each linux distribution has its own file in /etc with info about the
         # distribution name and version. We need to have a special case for
@@ -121,11 +128,27 @@ def get_machine_info(os_choices):
             os_info_file.close()
             info = string.split(line, " ")
             os_type = "%s Linux %s" % (info[0], info[2])
-        private_ip = get_ip_for_interface("eth1")
-            
+        # figure out what is the private interface, if there is one
+        ip0 = get_ip_for_interface("eth0")
+        ip1 = get_ip_for_interface("eth1")
+        private_ip = None
+        public_ip = None
+        if ip0:
+            if ip0.startswith("10."):
+                private_ip = ip0
+            else:
+                public_ip = ip0
+        if ip1:
+            if ip1.startswith("10."):
+                if not private_ip:
+                    private_ip = ip1
+            else:
+                if not public_ip:
+                    public_ip = ip1
             
     info = {"hostname":node, "username": getpass.getuser(),
-            "os_choices": os_choices, "private_ip":private_ip}
+            "os_choices": os_choices, "private_ip":private_ip,
+            "public_ip":public_ip}
     if (os_type != None) and (os_type in os_choices): info["os"] = os_type
     return info
 
