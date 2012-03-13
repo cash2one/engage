@@ -8,6 +8,8 @@ import os
 import os.path
 import sys
 import re
+import copy
+import getpass
 
 import fixup_python_path
 
@@ -53,6 +55,54 @@ define_error(ERR_POST_INSTALL,
 
 DEFAULT_PORT_EXE="/opt/local/bin/port"
 
+def fixup_port_path(env=None):
+    if env==None:
+        env = os.environ
+    if env.has_key("PATH"):
+        path = env["PATH"]
+        old_path_list = path.split(":")
+    else:
+        path = ""
+        old_path_list = []
+    new_dirs = ["/opt/local/bin",
+                "/opt/local/libexec/gnubin",
+                "/bin",
+                "/usr/bin"]
+    def append(d):
+        if len(path)>0:
+            return d + ":" + path
+        else:
+            return d
+    def after(d, dirlist):
+        for i in old_path_list:
+            if d:
+                return False
+            if i in dir_list:
+                return True
+        return True
+    b = "/bin"
+    ub = "/usr/bin"
+    gb = "/opt/local/libexec/gnubin"
+    ob = "/opt/local/bin"
+    if ub not in old_path_list:
+        path = append(ub)
+    if b not in old_path_list or after(b, [ub]):
+        path = append(b)
+    if gb not in old_path_list or after(gb, [ub, b]):
+        path = append(gb)
+    if ob not in old_path_list or after(ob, [ub, b]):
+        path = append(ob)
+    return path
+
+# The "port" command is just a TCL script that makes a lot of assumptions
+# about the environment. If we happen to be running this from a daemon,
+# the expected path might not be available. Thus we create an environment
+# to pass to our subprocesses that have the required directories in the path.
+ENV = os.environ.copy()
+ENV["PATH"] = fixup_port_path()
+if not ENV.has_key("HOME"):
+    ENV["HOME"] = os.path.join("/Users", getpass.getuser())
+    
 class port_install(action.Action):
     NAME="macports_pkg.port_install"
     def __init__(self, ctx):
@@ -70,7 +120,8 @@ class port_install(action.Action):
             iuprocess.run_sudo_program([port_exe, "install"]+package_list,
                                        self.ctx._get_sudo_password(self),
                                        self.ctx.logger,
-                                       cwd=os.path.dirname(port_exe))
+                                       cwd=os.path.dirname(port_exe),
+                                       env=ENV)
         except iuprocess.SudoError, e:
             exc_info = sys.exc_info()
             self.ctx.logger.exception("Port install for %s failed, unexpected exception" % package_list)
@@ -112,7 +163,9 @@ class port_load(action.Action):
                                                               package],
                                                              re_map, self.ctx.logger,
                                                              self.ctx._get_sudo_password(self),
-                                                             log_output=True)
+                                                             log_output=True,
+                                                             cwd=os.path.dirname(port_exe),
+                                                             env=ENV)
         except iuprocess.SudoError, e:
             self.ctx.logger.exception("Port load for %s failed, unexpected exception" % package)
             exc_info = sys.exc_info()
@@ -145,11 +198,14 @@ class is_installed(action.ValueAction):
     def run(self, package):
         port_exe = self.ctx.props.input_ports.macports.macports_exe
         action._check_file_exists(port_exe, self)
+        logger.debug("PATH=%s, HOME=%s" % (ENV["PATH"], ENV["HOME"]))
         (rc, map) = iuprocess.run_program_and_scan_results([port_exe, "installed", package],
                                                            {"found": re.escape(package) + ".*" + re.escape("(active)"),
                                                             'not_found': re.escape("None of the specified ports are installed.")},
-                                                            self.ctx.logger, log_output=True,
-                                                            cwd=os.path.dirname(port_exe))
+                                                            self.ctx.logger,
+                                                           log_output=True,
+                                                           cwd=os.path.dirname(port_exe),
+                                                           shell=True, env=ENV)
         if rc==0 and map['found']:
             return True
         elif rc==0 and map['not_found']:
@@ -172,7 +228,10 @@ def check_installed(self, package):
     (rc, map) = iuprocess.run_program_and_scan_results([port_exe, "installed", package],
                                                        {"found": re.escape(package) + ".*" + re.escape("(active)"),
                                                         'not_found': re.escape("None of the specified ports are installed.")},
-                                                        self.ctx.logger, log_output=True)
+                                                        self.ctx.logger,
+                                                       log_output=True,
+                                                       cwd=os.path.dirname(port_exe),
+                                                       shell=True, env=ENV)
     if rc==0 and map['found']:
         return
     else:

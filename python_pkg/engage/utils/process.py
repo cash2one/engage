@@ -755,7 +755,8 @@ def run_program_and_scan_results(program_and_args, re_map, logger, env=None,
                                  cwd=None, input=None, log_output=False,
                                  allow_broken_pipe=False,
                                  return_mos=False,
-                                 hide_command=False):
+                                 hide_command=False,
+                                 shell=False):
     """Run the specified program as a subprocess and scan its output for the
     regular expressions specified in re_map. re_map is a map from symbolic
     names to regular expression patterns. Returns a pair: the return code
@@ -774,13 +775,25 @@ def run_program_and_scan_results(program_and_args, re_map, logger, env=None,
     for key in re_map.keys():
         regexps[key] = re.compile(re_map[key])
         results[key] = not_found_value
+    if isinstance(program_and_args, list):
+        cmdstr = ' '.join(program_and_args)
+        exe = program_and_args[0]
+    else:
+        cmdstr = program_and_args
+        exe = program_and_args.split(" ")[0]
     if not hide_command:
-        logger.debug(' '.join(program_and_args))
-    subproc = subprocess.Popen(program_and_args,
+        logger.debug(cmdstr)
+        logger.debug("shell=%s, cwd=%s" % (shell, cwd))
+    if shell==True:
+        cmd = cmdstr
+    else:
+        cmd = program_and_args
+    subproc = subprocess.Popen(cmd,
                                env=env, stdin=subprocess.PIPE,
                                stdout=subprocess.PIPE,
-                               stderr=subprocess.STDOUT, cwd=cwd)
-    logger.debug("Started program %s, pid is %d" % (program_and_args[0],
+                               stderr=subprocess.STDOUT, cwd=cwd,
+                               shell=shell)
+    logger.debug("Started program %s, pid is %d" % (exe,
                                                    subproc.pid))
     lines = None
     try:
@@ -809,8 +822,7 @@ def run_program_and_scan_results(program_and_args, re_map, logger, env=None,
                 else:
                     results[key] = True
     subproc.wait()
-    logger.debug("[%d] %s exited with return code %d" % (subproc.pid,
-                                                        program_and_args[0],
+    logger.debug("[%d] %s exited with return code %d" % (subproc.pid, exe,
                                                         subproc.returncode))
     return (subproc.returncode, results)
 
