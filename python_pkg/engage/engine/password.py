@@ -7,6 +7,8 @@ import json
 import getpass
 import copy
 from optparse import OptionParser
+import random
+import string
 
 # fix path if necessary (if running from source or running as test)
 import fixup_python_path
@@ -19,13 +21,23 @@ import engage.utils.process as procutils
 from engage.utils.log_setup import setup_engage_logger
 logger = setup_engage_logger(__name__)
 
+RANDOM_PW_LEN=12
+RANDOM_CHARS=string.letters+string.digits
+
+join = os.path.join
+def abspath(p):
+    return os.path.abspath(os.path.expanduser(p))
+
 
 def _prompt_for_password(base_prompt, pw_key,
                          ask_only_once=False,
+                         generate_random=False,
                          dry_run=False):
     if dry_run:
         logger.info("prompt for password '" + base_prompt + "', to be stored at key '%s'" % pw_key)
         return "test"
+    elif generate_random:
+        return ''.join([random.choice(RANDOM_CHARS) for i in range(RANDOM_PW_LEN)])
     else:
         while True:
             pw1 = getpass.getpass(base_prompt + ":")
@@ -70,13 +82,26 @@ def _add_sudo_password_to_repository(repos, dry_run=False):
     repos.update_key(SUDO_PW_KEY, prompt_for_password())
 
 
-def _get_master_password(master_password_file=None,
+def _default_master_pwfile(deployment_home):
+    return abspath(join(join(deployment_home, "config"), "master.pw"))
+
+def _read_pwfile(fpath):
+    with open(fpath, "r") as f:
+        return f.read().rstrip()
+
+def _get_master_password(deployment_home=None,
+                         master_password_file=None,
                          read_master_pw_from_stdin=False,
                          ask_only_once=False,
                          dry_run=False):
+    if deployment_home:
+        default_pw_file = _default_master_pwfile(deployment_home)
+    else:
+        default_pw_file = None
     if master_password_file!=None:
-        with open(master_password_file, "r") as f:
-            return f.read().rstrip()
+        return _read_pwfile(master_password_file)
+    elif default_pw_file and os.path.exists(default_pw_file):
+        return _read_pwfile(default_pw_file)
     elif read_master_pw_from_stdin:
         return sys.stdin.read().rstrip()
     else:
@@ -86,17 +111,21 @@ def _get_master_password(master_password_file=None,
 
     
 def generate_pw_file_if_necessary(engage_file_layout,
+                                  deployment_home,
                                   parsed_install_solution,
                                   library,
                                   installer_supplied_pw_key_list=None,
                                   master_password_file=None,
                                   read_master_pw_from_stdin=False,
+                                  suppress_master_password_file=False,
+                                  generate_random_passwords=False,
                                   dry_run=False):
     """Do the password database setup.
     """
     # helper functions
     def get_master_password(ask_only_once=False):
-        return _get_master_password(master_password_file,
+        return _get_master_password(deployment_home,
+                                    master_password_file,
                                     read_master_pw_from_stdin,
                                     ask_only_once=ask_only_once,
                                     dry_run=dry_run)
@@ -134,6 +163,7 @@ def generate_pw_file_if_necessary(engage_file_layout,
             if not pw_db.has_key(pw_key):
                 pw_db.add_key(pw_key,
                               _prompt_for_password(pw_desc, pw_key,
+                                                   generate_random=generate_random_passwords,
                                                    dry_run=dry_run))
                 
     # Go through the install script. Check to see if there are any resources
@@ -173,6 +203,7 @@ def generate_pw_file_if_necessary(engage_file_layout,
                 pw_db.add_key(pw_key,
                               _prompt_for_password("Password for %s, property %s" %
                                                    (inst_md.id,prop), pw_key,
+                                                   generate_random=generate_random_passwords,
                                                    dry_run=dry_run))
 
     # see if we need the sudo password. If so, ask for it and add to
@@ -196,6 +227,15 @@ def generate_pw_file_if_necessary(engage_file_layout,
         logger.info("Writing password file to %s" % pw_file)
         if not dry_run:
             pw_db.save_to_file(pw_file, pw_salt)
+    if pw_db and (not suppress_master_password_file) and deployment_home:
+        # write out the master password to the default file if it was not already
+        # there.
+        master_pwfile = _default_master_pwfile(deployment_home)
+        if (not os.path.exists(master_pwfile)) or \
+           _read_pwfile(master_pwfile)!=pw_db.user_key:
+            with open(master_pwfile, "w") as f:
+                f.write(pw_db.user_key)
+        os.chmod(master_pwfile, 0600)
             
     if pw_db==None:
         logger.info("No password database required")
@@ -211,7 +251,8 @@ def get_password_db(engage_file_layout, options):
         logger.debug("Password database file found")
         pw_file = efl.get_password_database_file()
         pw_salt = efl.get_password_salt_file()
-        master_password = _get_master_password(options.master_password_file,
+        master_password = _get_master_password(efl.get_deployment_home(),
+                                               options.master_password_file,
                                                options.subproc,
                                                ask_only_once=True,
                                                dry_run=False)
@@ -272,7 +313,7 @@ def main():
     if command=="create":
         if len(args)!=2:
             parser.error("Need to specify input filename")
-        create_input_filename = os.path.abspath(os.path.expanduser(args[1]))
+        create_input_filename = abspath(args[1])
         if not os.path.exists(create_input_filename):
             parser.error("Input file %s does not exist" % create_input_filename)
     if command=="view-json" and len(args)>1:
@@ -281,7 +322,7 @@ def main():
     # setup the file layout
     efl = engage_file_layout.get_engine_layout_mgr()
     if options.deployment_home:
-        dh = os.path.abspath(os.path.expanduser(options.deployment_home))
+        dh = abspath(options.deployment_home)
         if not os.path.exists(dh):
             parser.error("Deployment home %s not found" % dh)
     elif efl.has_deployment_home():

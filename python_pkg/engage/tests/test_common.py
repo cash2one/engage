@@ -84,7 +84,7 @@ def shell(command):
     return subprocess.call(command, shell=True)
 
 def bootstrap(deploy_dir, engage_dir=ENGAGE_DIR):
-    shell('%s %s %s' % (sys.executable, join(engage_dir, 'bootstrap.py'), deploy_dir))
+    return shell('%s %s %s' % (sys.executable, join(engage_dir, 'bootstrap.py'), deploy_dir))
 
 def ensure_subdir(path, name):
     """Create named dir under path if necessary and return path"""
@@ -108,6 +108,17 @@ def upgrade(deploy_dir, engage_dir, application_archive, master_password_file=No
         command += ' --master-password-file=%s' % master_password_file
     command += ' %s' % deploy_dir
     logger.info('Upgrading with: %s' % command)
+    return shell(command)
+
+def deployer(deploy_dir, install_spec_file, opts=""):
+    deployer_exe = join(deploy_dir, "engage/bin/deployer")
+    assert os.path.exists(deployer_exe), \
+           "Deployer executable %s is missing" % deployer_exe
+    assert os.path.exists(install_spec_file), \
+           "Install specification file %s is missing" % install_spec_file
+    command = 'cd %s && ./engage/bin/deployer %s %s' % \
+              (deploy_dir, opts, install_spec_file)
+    logger.info("Running deployer: %s" % command)
     return shell(command)
 
 def get_init_script(config_map):

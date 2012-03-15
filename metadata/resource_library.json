@@ -930,6 +930,15 @@
           "location": ""
         }
       ]
+    },
+    { "key": { "name": "test-resource", "version":"1.0"},
+      "mgr_module_name": "engage.drivers.genforma.dummy_resource_manager",
+      "packages": [
+        { "type": "Reference",
+          "package_class": "DummyPackage",
+          "location": ""
+        }
+      ]
     }
   ]
 }

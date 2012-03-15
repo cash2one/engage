@@ -110,10 +110,12 @@ class InstallEngine(object):
         library = parse_library_files(efl)
         gp = password.generate_pw_file_if_necessary
         self.pw_database = \
-            gp(efl, resource_list, library,
+            gp(efl, self.deployment_home, resource_list, library,
                installer_supplied_pw_key_list=self.installer_supplied_pw_key_list,
                master_password_file=self.options.master_password_file,
                read_master_pw_from_stdin=self.options.subproc,
+               suppress_master_password_file=self.options.suppress_master_password_file,
+               generate_random_passwords=self.options.generate_random_passwords,
                dry_run=self.options.dry_run)
         if not self.pw_database:
             # if no password file is being used, created a dummy password
@@ -124,11 +126,11 @@ class InstallEngine(object):
         if self.options.dry_run:
             self.logger.info("Dry run complete.")
             return
-        if self.options.generate_password_file:
-            self.logger.info("Password file at %s, password salt file at %s." %
-                             (efl.get_password_database_file(),
-                              efl.get_password_salt_file()))
-            return
+        ## if self.options.generate_password_file:
+        ##     self.logger.info("Password file at %s, password salt file at %s." %
+        ##                      (efl.get_password_database_file(),
+        ##                       efl.get_password_salt_file()))
+        ##     return
 
         if multi_node:
             install_sequencer.run_multi_node_install(install_plan.create_multi_node_install_plan(resource_list),

@@ -21,12 +21,22 @@ def add_standard_cmdline_options(parser, uses_pw_file=True,
                       default=None,
                       help="Location of deployed application - can figure this out automatically unless installing from source")
     if uses_pw_file:
-        parser.add_option("-p", "--master-password-file", default=None,
-                          help="File containing master password (if not specified, will prompt from console if needed)")
-        parser.add_option("--generate-password-file", "-g",
-                          dest="generate_password_file",
-                          default=False, action="store_true",
-                          help="If specified, generate a password file and exit")
+        if running_deployment:
+            parser.add_option("-p", "--master-password-file", default=None,
+                              help="File containing master password (if not specified, will prompt from console if needed). If --suppress-master-password-file is not set, and the master password file is not already at <deployment_home>/config/master.pw, a master password file will be generated at that location. Permissions will be set to 0600.")
+            parser.add_option("--generate-random-passwords", "-g",
+                              default=False, action="store_true",
+                              help="If passwords are needed for individual components to be installed, generate random passwords rather than prompting for them")
+            parser.add_option("--suppress-master-password-file", default=False,
+                              action="store_true",
+                              help="If specified, do not create a file containing the master password at <deployment_home>/config/master.pw.")
+        else:
+            parser.add_option("-p", "--master-password-file", default=None,
+                              help="File containing master password. If not specified, will look for file at <deployment_home>/config/master.pw. If that file is not present, prompt from console if needed)")
+        ## parser.add_option("--generate-password-file", "-g",
+        ##                   dest="generate_password_file",
+        ##                   default=False, action="store_true",
+        ##                   help="If specified, generate a password file and exit")
         parser.add_option("-s", "--subproc", action="store_true", dest="subproc",
                           default=False, help="Run in subprocess mode, getting master password from standard input")
     if running_deployment:
@@ -76,7 +86,7 @@ def extract_standard_options(options):
     args = []
     if options.deployment_home:
         args.extend(["--deployment-home", options.deployment_home])
-    if options.master_password_file:
+    if hasattr(options, "master_password_file") and options.master_password_file:
         args.extend(["--master-password-file", options.master_password_file])
     if options.subproc:
         args.append("--subproc")
@@ -84,10 +94,16 @@ def extract_standard_options(options):
         args.extend(["--mgt-backends", options.mgt_backends])
     if options.force_stop_on_error:
         args.append("--force-stop-on-error")
+    if hasattr(options, "generate_random_passwords") and \
+       options.generate_random_passwords:
+        args.append("--generate-random-passwords")
+    if hasattr(options, "suppress_master_password_file") and \
+       options.suppress_master_password_file:
+        args.append("--suppress-master-password-file")
     if options.dry_run:
         args.append("--dry-run")
-    if options.generate_password_file:
-        args.append("--generate-password-file")
+    ## if options.generate_password_file:
+    ##     args.append("--generate-password-file")
     args.extend(log_setup.extract_log_options_from_options_obj(options))
     return args
     

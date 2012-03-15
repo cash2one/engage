@@ -555,10 +555,11 @@ prop_type_to_python_type = {
 }
 
 class PortProperty(object):
-    def __init__(self, name, json, parent):
+    def __init__(self, name, json, parent, port_type):
         self.name = name
         self.qualified_name = parent + "." + self.name
         self.json = json
+        self.port_type = port_type
         self.referenced_prop_values = [] # list of other properties referenced
         if isinstance(json, str) or isinstance(json, unicode):
             self.prop_type = json
@@ -593,6 +594,20 @@ class PortProperty(object):
             print "WARNING: definition for property %s has a field 'fixed_value'. Did you mean 'fixed-value'?" % self.qualified_name
             vr.add_warning()
 
+    def has_default_value(self):
+        """Note that this only looks for a default value, which is only valid
+        for config_port properties.
+        """
+        assert self.port_type==Port.CONFIG
+        return isinstance(self.json, dict) and self.json.has_key("default")
+
+    def get_default_value(self):
+        assert self.port_type==Port.CONFIG
+        """Return a default value if one has been defined for the config property.
+        Otherwise, returns None
+        """
+        return self.json["default"] if self.has_default_value() else None
+    
 
 class Port(object):
     INPUT = "input_ports"
@@ -608,7 +623,7 @@ class Port(object):
             self.qualified_name = resource_key + "." + self.port_type + "." + self.name
         self.properties = {}
         for prop_name in json.keys():
-            self.properties[prop_name] = PortProperty(prop_name, json[prop_name], self.qualified_name)
+            self.properties[prop_name] = PortProperty(prop_name, json[prop_name], self.qualified_name, port_type)
 
     def validate(self, parent_resource, vr):
         for prop_def in self.properties.values():
@@ -717,10 +732,7 @@ class Resource(object):
         pw_properties = {}
         for (name, prop_def) in self.config_port.properties.items():
             if prop_def.prop_type=="password":
-                if prop_def.json.has_key("default"):
-                    pw_properties[name] = prop_def.json["default"]
-                else:
-                    pw_properties[name] = None
+                pw_properties[name] = prop_def.get_default_value()
         return pw_properties
 
 def _add_to_map_of_sets(map, key, entry):
