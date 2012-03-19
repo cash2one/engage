@@ -211,6 +211,8 @@ def generate_pw_file_if_necessary(engage_file_layout,
     if requires_root_access:
         if procutils.is_running_as_root():
             logger.debug("Root access required, but no sudo password is required as we are running as root")
+        elif procutils.SUDO_PASSWORD_REQUIRED==False:
+            logger.debug("Root access required, but no sudo password is required for this user")
         else:
             logger.debug("Root access required, asking for sudo password")
             if pw_db==None:

@@ -195,17 +195,17 @@ else:
     raise Exception("engage.utils.process: Undefined plaform %s" % sys.platform)
 
 
-def clear_sudo_timestamp(logger):
+def clear_sudo_timestamp(logger=None):
     """Clear the sudo timestamp to ensure that the password is always checked.
     """
     cmd = [_sudo_exe, "-K"]
-    logger.debug(' '.join(cmd))
+    if logger: logger.debug(' '.join(cmd))
     try:
         subproc = subprocess.Popen(cmd, env={}, stdin=None,
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.STDOUT, cwd=None)
         for line in subproc.stdout:
-            logger.debug("[%d] %s" % (subproc.pid, line))
+            if logger: logger.debug("[%d] %s" % (subproc.pid, line))
         subproc.wait()
     except:
         exc_info = sys.exc_info()
@@ -220,6 +220,32 @@ def is_running_as_root():
     are running as root (superuser).
     """
     return os.geteuid() == 0
+
+def is_sudo_password_required(logger=None):
+    assert os.geteuid() != 0, "check only valid when not running as root"
+    clear_sudo_timestamp(logger)
+    cmd = [_sudo_exe, "-n", "/bin/ls", "/"]
+    try:
+        subproc = subprocess.Popen(cmd, env={}, stdin=None,
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.STDOUT, cwd=None)
+        for line in subproc.stdout:
+            if logger: logger.debug("[%d] %s" % (subproc.pid, line))
+        subproc.wait()
+    except Exception, e:
+        if logger: logger.exception("Problem when checking for sudo access: %s" % e)
+        raise
+    if subproc.returncode==0:
+        return False
+    else:
+        return True
+
+# The SUDO_PASSWORD_REQUIRED variable has three values:
+# True - running as a regular user and need a password to access sudo
+# False - running as a regular user but can run sudo in non-interactive mode
+# None - running as effective user 0 (root), sudo not needed at all
+SUDO_PASSWORD_REQUIRED = is_sudo_password_required() if not is_running_as_root() \
+                         else None
 
 
 class NoPasswordError(SudoError):
@@ -242,9 +268,9 @@ def run_sudo_program(program_and_args, sudo_password,
     Note that we don't run under sudo if we're already running as root and want to
     run as root.
     """
-    if is_running_as_root():
+    if SUDO_PASSWORD_REQUIRED==None: # running as root
         if user=="root":
-            # if we are already root wand want to run as root, no need to sudo
+            # if we are already root and want to run as root, no need to sudo
             rc = run_and_log_program(program_and_args, env, logger, cwd,
                                      input=None)
             if rc != 0:
@@ -254,19 +280,24 @@ def run_sudo_program(program_and_args, sudo_password,
         else:
             # do not need to pass in a password, since already root
             input_to_subproc = None
+            opts = ["-n",]
+    elif SUDO_PASSWORD_REQUIRED==False:
+            input_to_subproc = None
+            opts = ["-n",]
     elif sudo_password==None:
         raise NoPasswordError("Operation '%s' requires sudo access, but no password provided" % ' '.join(program_and_args))
     else:
         input_to_subproc = sudo_password + "\n"
+        opts = ["-p", "", "-S"]
     
     # we need to clear the sudo timestamp first so that sudo always expects a password and doesn't
     # give us a broken pipe error
     clear_sudo_timestamp(logger)
 
     if user=="root":
-        cmd = [_sudo_exe, "-p", "", "-S"] + program_and_args
+        cmd = [_sudo_exe,] + opts + program_and_args
     else:
-        cmd = [_sudo_exe, "-u", user, "-p", "", "-S"] + program_and_args
+        cmd = [_sudo_exe, "-u", user] + opts + program_and_args
         
     try:
         rc =  run_and_log_program(cmd, {}, logger, cwd,
@@ -422,18 +453,23 @@ def sudo_ensure_user_in_group(group_name, logger, sudo_password, user=None):
 def sudo_cat_file(path, logger, sudo_password):
     """Use this to get the contents of a file that is only
     readable to root. Returns the contents of the file"""
-    if is_running_as_root():
+    if SUDO_PASSWORD_REQUIRED==None: # running as root
         with open(path, "r") as f:
             return f.read()
-
-    if sudo_password==None:
-        raise NoPasswordError("sudo_cat_file requires sudo password, but not password provided")
+    elif SUDO_PASSWORD_REQUIRED==False:
+        opts = ["-n",]
+        input = None
+    else:
+        if sudo_password==None:
+            raise NoPasswordError("sudo_cat_file requires sudo password, but not password provided")
+        opts = ["-p", "", "-S"]
+        input = sudo_password + "\n"
     
     # we need to clear the sudo timestamp first so that sudo always expects a password and doesn't
     # give us a broken pipe error
     clear_sudo_timestamp(logger)
 
-    cmd = [_sudo_exe, "-p", "", "-S", _cat_exe, path]
+    cmd = [_sudo_exe,] + opts + [_cat_exe, path]
     logger.debug(' '.join(cmd))
     subproc = subprocess.Popen(cmd, stdin=subprocess.PIPE,
                                stdout=subprocess.PIPE,
@@ -441,7 +477,7 @@ def sudo_cat_file(path, logger, sudo_password):
     logger.debug("Started program %s, pid is %d" % (cmd[0],
                                                    subproc.pid))
     try:
-        (output, err) = subproc.communicate(sudo_password + "\n")
+        (output, err) = subproc.communicate(input)
         if len(err)>0:
             for line in err.split('\n'):
                 logger.debug("[%d] %s" % (subproc.pid, line))
@@ -683,7 +719,7 @@ def sudo_run_server(program_and_args, env_mapping, logfile, logger,
         os.makedirs(log_dir)
     stdout = open(logfile, "wb")
     try:
-        if is_running_as_root():
+        if SUDO_PASSWORD_REQUIRED==None:
             # if we are already root, run directly
             logger.debug(' '.join(program_and_args))
             subproc = subprocess.Popen(program_and_args,
@@ -694,13 +730,19 @@ def sudo_run_server(program_and_args, env_mapping, logfile, logger,
                         (program_and_args[0], subproc.pid, logfile))
             subproc.stdin.close()
             return subproc
-        elif sudo_password==None:
-            raise NoPasswordError("Operation '%s' requires sudo access, but no password provided" % ' '.join(program_and_args))
+        elif SUDO_PASSWORD_REQUIRED==False:
+            opts = ["-n",]
+            input_data = None
+        else: # SUDO_PASSWORD_REQUIRED==True
+            if sudo_password==None:
+                raise NoPasswordError("Operation '%s' requires sudo access, but no password provided" % ' '.join(program_and_args))
+            opts = ["-p", "", "-S"]
+            input_data = sudo_password + "\n"
 
         # we need to clear the sudo timestamp first so that sudo always expects a password and doesn't
         # give us a broken pipe error
         clear_sudo_timestamp(logger)
-        cmd = [_sudo_exe, "-p", "", "-S"] + program_and_args
+        cmd = [_sudo_exe,] + opts + program_and_args
         logger.debug(' '.join(cmd))
         subproc = subprocess.Popen(cmd,
                                    env=env_mapping, stdin=subprocess.PIPE,
@@ -708,7 +750,8 @@ def sudo_run_server(program_and_args, env_mapping, logfile, logger,
                                    stderr=subprocess.STDOUT, cwd=cwd)
         logger.debug("Started sudo server program %s, pid is %d, output written to %s" %
                     (program_and_args[0], subproc.pid, logfile))
-        subproc.stdin.write(sudo_password + "\n")
+        if input_data:
+            subproc.stdin.write(input_data)
         subproc.stdin.close()
         return subproc
     finally:
@@ -734,7 +777,7 @@ def sudo_stop_server_process(pidfile, logger, resource_id,
 
     logger.debug("%s: sending signal %d to process %d" %
                  (resource_id, signo, pid))
-    run_sudo_program([_kill_exe, str(signo), str(pid)], sudo_password,
+    run_sudo_program([_kill_exe, "-"+str(signo), str(pid)], sudo_password,
                      logger)
     
     for t in range(timeout_tries):
@@ -833,22 +876,28 @@ def run_sudo_program_and_scan_results(program_and_args, re_map, logger,
     """Run a program under sudo and scan the results as described in
     run_program_and_scan_results()
     """
-    if is_running_as_root():
+    if SUDO_PASSWORD_REQUIRED==None:
         # if we are already root, no need to sudo
         return run_program_and_scan_results(program_and_args, re_map, logger,
                                             env=env, cwd=cwd,
                                             log_output=log_output,
                                             return_mos=return_mos)
-    elif sudo_password==None:
-        raise NoPasswordError("Operation '%s' requires sudo access, but no password provided" % ' '.join(program_and_args))
+    elif SUDO_PASSWORD_REQUIRED==False:
+        input_data=None
+        opts = ["-n",]
+    else: # SUDO_PASSWORD_REQUIRED==True
+        if sudo_password==None:
+            raise NoPasswordError("Operation '%s' requires sudo access, but no password provided" % ' '.join(program_and_args))
+        input_data = sudo_password + "\n"
+        opts = ["-p", "", "-S"]
     
     # we need to clear the sudo timestamp first so that sudo always expects a password and doesn't
     # give us a broken pipe error
     clear_sudo_timestamp(logger)
 
-    cmd = [_sudo_exe, "-p", "", "-S"] + program_and_args
+    cmd = [_sudo_exe,] + opts + program_and_args
     return run_program_and_scan_results(cmd, re_map, logger,
-                                        env, cwd, input=sudo_password+"\n",
+                                        env, cwd, input=input_data,
                                         log_output=log_output,
                                         return_mos=return_mos,
                                         allow_broken_pipe=True)

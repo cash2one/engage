@@ -1,4 +1,4 @@
-from engage.utils.process import is_running_as_root
+from engage.utils.process import SUDO_PASSWORD_REQUIRED
 
 class PasswordRepoMixin(object):
     """This is a mixin for resource managers which provides shortcuts for
@@ -13,12 +13,13 @@ class PasswordRepoMixin(object):
         requirement is satisified by having an inside constraint on the host
         machine.
         """
-        if not is_running_as_root():
+        if SUDO_PASSWORD_REQUIRED==True:
             return \
                    self.install_context.password_repository.get_value(
                        self.metadata.input_ports['host']['sudo_password'])
         else:
-            # If running as root, we don't need a password. run_sudo_program()
+            # If running as root or with the appropriate sudoers permissions,
+            # we don't need a password. run_sudo_program()
             # is smart enough to figure that out and just run the command directly.
             # We always return None, even if there is an associated value in the pw
             # database, because we want sudo commands run directly.

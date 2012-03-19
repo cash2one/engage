@@ -363,7 +363,7 @@ class SudoAction(Action):
     """Subclass of action that includes sudo_run()
     """
     def __init__(self, ctx):
-        super(Action, self).__init__(ctx)
+        super(SudoAction, self).__init__(ctx)
 
     def sudo_run(self, *args, **kwargs):
         """Execute an action under sudo. This method should accept the same
@@ -542,6 +542,10 @@ class Context(object):
                  dry_run=False):
         self.props = _Config(resource_config_props)
         self.logger = logger
+        # we have an extra log level called "action" which is inbetween
+        # info and debug. If it isn't present, just map to debug.
+        if not hasattr(self.logger, "action"):
+            self.logger.action = self.logger.debug
         self.filepath = os.path.abspath(os.path.expanduser(filepath))
         self.sudo_password_fn = sudo_password_fn
         self.dry_run = dry_run
@@ -649,8 +653,9 @@ class Context(object):
         action_and_args = a.format_action_args(*args, **kwargs)
         self.logger.action(action_and_args)
         try:
-            if not procutils.is_running_as_root():
-                if not self.sudo_password_fn():
+            if procutils.SUDO_PASSWORD_REQUIRED!=None:
+                if procutils.SUDO_PASSWORD_REQUIRED==True and \
+                       (not self.sudo_password_fn()):
                     raise UserError(errors[ERR_NO_SUDO_PW],
                                     msg_args={"id":self.props.id,
                                               "action":a.name})
@@ -711,8 +716,9 @@ class Context(object):
         action_and_args = a.format_action_args(*args, **kwargs)
         self.logger.action(action_and_args)
         try:
-            if not procutils.is_running_as_root():
-                if not self.sudo_password_fn():
+            if procutils.SUDO_PASSWORD_REQUIRED!=None:
+                if procutils.SUDO_PASSWORD_REQUIRED==True and \
+                       (not self.sudo_password_fn()):
                     raise UserError(errors[ERR_NO_SUDO_PW],
                                     msg_args={"id":self.props.id,
                                               "action":a.name})
@@ -785,7 +791,8 @@ class Context(object):
     def _get_sudo_password(self, action):
         """Method for actions to get the superuser password.
         """
-        if procutils.is_running_as_root():
+        if procutils.SUDO_PASSWORD_REQUIRED==None or \
+           procutils.SUDO_PASSWORD_REQUIRED==False:
             return None
         elif self.sudo_password_fn==None:
             raise UserError(errors[ERR_NO_SUDO_PW],
