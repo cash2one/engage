@@ -708,7 +708,7 @@ def run_server(program_and_args, env_mapping, logfile, logger, pidfile_name,
 
 
 def sudo_run_server(program_and_args, env_mapping, logfile, logger,
-                    sudo_password, cwd=None):
+                    sudo_password, cwd="/"):
     """Script for running a server process as root. Unlike the vanilla
     run_server(), the program being run is responsible for creating a pidfile.
     We do this because, if we run under sudo, the child won't be the actual server
@@ -717,45 +717,55 @@ def sudo_run_server(program_and_args, env_mapping, logfile, logger,
     log_dir = os.path.dirname(logfile)
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
-    stdout = open(logfile, "wb")
-    try:
-        if SUDO_PASSWORD_REQUIRED==None:
-            # if we are already root, run directly
-            logger.debug(' '.join(program_and_args))
-            subproc = subprocess.Popen(program_and_args,
-                                       env=env_mapping, stdin=subprocess.PIPE,
-                                       stdout=stdout,
-                                       stderr=subprocess.STDOUT, cwd=cwd)
-            logger.debug("Started server program %s, pid is %d, output written to %s" %
-                        (program_and_args[0], subproc.pid, logfile))
-            subproc.stdin.close()
-            return subproc
-        elif SUDO_PASSWORD_REQUIRED==False:
-            opts = ["-n",]
-            input_data = None
-        else: # SUDO_PASSWORD_REQUIRED==True
-            if sudo_password==None:
-                raise NoPasswordError("Operation '%s' requires sudo access, but no password provided" % ' '.join(program_and_args))
-            opts = ["-p", "", "-S"]
-            input_data = sudo_password + "\n"
-
-        # we need to clear the sudo timestamp first so that sudo always expects a password and doesn't
-        # give us a broken pipe error
-        clear_sudo_timestamp(logger)
-        cmd = [_sudo_exe,] + opts + program_and_args
+    daemonize = os.path.abspath(os.path.join(os.path.dirname(__file__), "daemonize.py"))
+    if SUDO_PASSWORD_REQUIRED==None:
+        # if we are already root, run directly
+        cmd = [sys.executable, daemonize, program_and_args[0], logfile, cwd]
+        cmd.extend(program_and_args[1:])
         logger.debug(' '.join(cmd))
         subproc = subprocess.Popen(cmd,
                                    env=env_mapping, stdin=subprocess.PIPE,
-                                   stdout=stdout,
-                                   stderr=subprocess.STDOUT, cwd=cwd)
-        logger.debug("Started sudo server program %s, pid is %d, output written to %s" %
-                    (program_and_args[0], subproc.pid, logfile))
-        if input_data:
-            subproc.stdin.write(input_data)
-        subproc.stdin.close()
-        return subproc
-    finally:
-        stdout.close()
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.STDOUT, close_fds=True,
+                                   cwd=cwd)
+        (stdout, stderr) = subproc.communicate(input=None)
+        for line in stdout:
+            logger.debug("[%d] %s" % (subproc.pid, line))
+        if subproc.returncode!=0:
+            raise Exception("Problem in starting daemon %s" %
+                            program_and_args[0])
+        logger.debug("Daemonized subprocess %s" % program_and_args[0])
+        return
+    elif SUDO_PASSWORD_REQUIRED==False:
+        opts = ["-n",]
+        input_data = None
+    else: # SUDO_PASSWORD_REQUIRED==True
+        if sudo_password==None:
+            raise NoPasswordError("Operation '%s' requires sudo access, but no password provided" % ' '.join(program_and_args))
+        opts = ["-p", "", "-S"]
+        input_data = sudo_password + "\n"
+
+    # we need to clear the sudo timestamp first so that sudo always expects a password and doesn't
+    # give us a broken pipe error
+    clear_sudo_timestamp(logger)
+    cmd = [_sudo_exe,] + opts + [sys.executable, daemonize,
+                                 program_and_args[0], logfile, cwd]
+    cmd.extend(program_and_args[1:])
+    logger.debug(' '.join(cmd))
+
+    subproc = subprocess.Popen(cmd,
+                               env=env_mapping, stdin=subprocess.PIPE,
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.STDOUT, cwd=cwd,
+                               close_fds=True)
+    (stdout, stderr) = subproc.communicate(input=input_data)
+    for line in stdout:
+        logger.debug("[%d] %s" % (subproc.pid, line))
+    if subproc.returncode!=0:
+        raise Exception("Problem in starting daemon %s under sudo" %
+                        program_and_args[0])
+    logger.debug("Daemonized subprocess %s" % program_and_args[0])
+
 
 
 def sudo_stop_server_process(pidfile, logger, resource_id,
@@ -782,14 +792,18 @@ def sudo_stop_server_process(pidfile, logger, resource_id,
     
     for t in range(timeout_tries):
         if is_process_alive(pid):
+           logger.debug("Process %d still alive!" % pid)
            time.sleep(1.0)
         else:
+            logger.debug("Process %d has been stopped" % pid)
             run_sudo_program([_rm_exe, pidfile], sudo_password,
                              logger)
             logger.debug("%s: process %d stopped sucessfully" %
                          (resource_id, pid))
             return pid
 
+    print "timeout of stop, enter newline to continue",
+    sys.stdin.readline()
     raise ServerStopTimeout("%s: unable to stop process %d" %
                             (resource_id, pid))
 
