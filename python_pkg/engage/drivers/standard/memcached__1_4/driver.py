@@ -112,11 +112,6 @@ def start_memcached(self):
                       "-m", str(p.memsize)]
     if os.geteuid()==0:
         memcached_args.extend(["-u", "root"])
-    # rc = procutils.run_background_program([p.memcached_exe, "-d",
-    #                                        "-P", p.pidfile,
-    #                                        "-m", str(p.memsize)],
-    #                                       None, p.logfile,
-    #                                       self.ctx.logger)
     rc = procutils.run_and_log_program(memcached_args,
                                        None, self.ctx.logger)
     if rc != 0:

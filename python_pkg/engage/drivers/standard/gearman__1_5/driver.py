@@ -188,12 +188,16 @@ class Manager(service_manager.Manager, BackupFileMixin):
             raise UserError(errors[ERR_NO_GEARMAN_SCRIPT],
                             msg_args={"file":self.config.gearman_admin_script})
         prog_and_args = [self.config.gearman_admin_script, action]
-        rc = iuprocess.run_background_program(prog_and_args, {}, os.path.join(self.config.log_dir, "gearman_%s.log" % action),
+        try:
+            iuprocess.run_server(prog_and_args, {},
+                                 os.path.join(self.config.log_dir,
+                                              "gearman_%s.log" % action),
                                               logger)
-        if rc != 0:
+        except iuprocess.ServerStartupError, e:
+            logger.exception("Gearman startup failed: %s" % e)
             raise UserError(errors[ERR_GEARMAN_SCRIPT_FAILED],
                             msg_args={"action":action},
-                            developer_msg="script %s (run in background), rc was %d" % (self.config.gearman_admin_script, rc))
+                            developer_msg="script %s (run in background), error was %s" % (self.config.gearman_admin_script, e))
 
     def start(self):
         self._run_admin_script_in_background("start")

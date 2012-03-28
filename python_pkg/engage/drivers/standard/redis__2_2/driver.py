@@ -131,11 +131,8 @@ class Manager(service_manager.Manager):
     def start(self):
         redis_server = os.path.join(self.config.home_path, 'src/redis-server')
         log_file = os.path.join(self.config.log_dir, 'redis.log')
-        server = iuprocess.run_server([redis_server, self.config.conf_file], { }, log_file, logger, self.config.pid_file)
-        if server is None:
-            raise UserError(errors[ERR_REDIS_SCRIPT_FAILED],
-                            msg_args={"action":'start'},
-                            developer_msg="redis server startup (run_server), server=%s" % redis_server)
+        iuprocess.run_server([redis_server, self.config.conf_file], { }, log_file,
+                             logger, self.config.pid_file)
         for i in range(TIMEOUT_TRIES):
             pid = iuprocess.check_server_status(self.config.pid_file, logger,
                                                 self.config.id)

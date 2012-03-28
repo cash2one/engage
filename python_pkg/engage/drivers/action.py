@@ -1327,7 +1327,7 @@ def move_old_file_version(self, file_path, backup_name=None,
 
 
 @make_action
-def start_server(self, cmd_and_args, log_file, pid_file, cwd=None, environment={}):
+def start_server(self, cmd_and_args, log_file, pid_file, cwd="/", environment={}):
     """Action: start another process as a server. Does not wait for it to complete.
     If started successfully, the pid of the process is written to pidfile.
     """

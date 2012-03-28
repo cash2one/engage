@@ -720,12 +720,17 @@ class Manager(BackupFileMixin, PasswordRepoMixin, service_manager.Manager):
                 raise UserError(errors[ERR_NO_DJANGO_SCRIPT],
                                 msg_args={"file":self.config.app_admin_script, "appname":self.config.app_short_name})
             prog_and_args = [self.config.app_admin_script, "start"]
-            rc = iuprocess.run_background_program(prog_and_args, {}, os.path.join(self.config.config_port.log_directory, "%s_startup.log" % self.config.app_short_name),
-                                                  logger)
-            if rc != 0:
+            try:
+                iuprocess.run_server(prog_and_args, {},
+                                     os.path.join(self.config.config_port.log_directory,
+                                                  "%s_startup.log" % self.config.app_short_name),
+                                     logger)
+            except iuprocess.ServerStartupError, e:
+                logger.exception("Django startup failed: %s" % e)
                 raise UserError(errors[ERR_DJANGO_STARTUP],
                                 msg_args={"appname":self.config.app_short_name},
-                                developer_msg="script %s, rc was %d" % (self.config.app_admin_script, rc))
+                                developer_msg="script %s, error was %s" %
+                                (self.config.app_admin_script, e))
 
         # wait for startup
         self._check_server_response()

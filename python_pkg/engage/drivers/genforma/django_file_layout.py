@@ -152,15 +152,18 @@ class DjangoFileLayout(JsonObject):
         prog_and_args = [self.django_admin_py, command] + arglist
         if not cwd:
             cwd = self.settings_file_directory
-        rc = iuprocess.run_background_program(prog_and_args,
-                                              self.get_django_env_vars(),
-                                              logfile, logger, cwd=cwd,
-                                              pidfile=pidfile)
-        if rc != 0:
+        try:
+            iuprocess.run_server(prog_and_args,
+                                 self.get_django_env_vars(),
+                                 logfile, logger, pidfile_name=pidfile,
+                                 cwd=cwd)
+        except iuprocess.ServerStartupError, e:
+            logger.exception("Error in startup of django admin command %s: %s" %
+                             (command, e))
             raise UserError(errors[ERR_DJANGO_BACKGROUND_ADMIN_CMD_FAILED],
                             msg_args={"cmd":' '.join([command]+arglist)},
-                            developer_msg="return code was %d, PYTHONPATH was %s, DJANGO_SETTINGS_MODULE was %s, current working directory was %s" %
-                            (rc, self.get_python_path_director(),
+                            developer_msg="error was %s, PYTHONPATH was %s, DJANGO_SETTINGS_MODULE was %s, current working directory was %s" %
+                            (e, self.get_python_path_director(),
                              self.deployed_settings_module, cwd))
     
 

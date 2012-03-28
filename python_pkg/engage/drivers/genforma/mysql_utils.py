@@ -154,15 +154,11 @@ class start_mysql_server(Action, MysqlAdminMixin):
         cmd = ["-u", p.mysql_user, p.mysql_server_script]
         if init_file:
             cmd.append("--init-file=%s" % init_file)
-        proc = procutils.sudo_run_server(cmd,
-                                         None, p.mysql_startup_logfile,
-                                         self.ctx.logger,
-                                         self.ctx._get_sudo_password(self),
-                                         cwd=p.mysql_server_cwd)
-        rc = proc.poll()
-        if rc!=None:
-            raise UserError(errors[ERR_MYSQLD_START],
-                            msg_args={"rc":rc, "id":p.id})
+        procutils.sudo_run_server(cmd,
+                                  None, p.mysql_startup_logfile,
+                                  self.ctx.logger,
+                                  self.ctx._get_sudo_password(self),
+                                  cwd=p.mysql_server_cwd)
 
     def dry_run(self, mysql_admin_props, init_file=None):
         self._check_admin_props(mysql_admin_props)

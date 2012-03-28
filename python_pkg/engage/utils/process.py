@@ -492,36 +492,6 @@ def sudo_cat_file(path, logger, sudo_password):
         raise SudoBadRc(subproc.returncode, cmd)
     else:
         return output
-    
-    
-def run_background_program(program_and_args, env_mapping, logfile, logger,
-                           cwd=None, pidfile=None):
-    """Start another process in the background. Does not wait for it to complete,
-    but will check once to see if the process was terminated immediately. Returns
-    0 if start was successful (either the program is still running or
-    completed successfully).
-
-    If pidfile is specified, write the pid out to that file.
-    """
-    log_dir = os.path.dirname(logfile)
-    if not os.path.exists(log_dir):
-        os.makedirs(log_dir)
-    stdout = open(logfile, "wb")
-    logger.debug(' '.join(program_and_args))
-    subproc = subprocess.Popen(program_and_args,
-                               env=env_mapping, stdin=subprocess.PIPE,
-                               stdout=stdout,
-                               stderr=subprocess.STDOUT, cwd=cwd)
-    logger.debug("Started background program %s, pid is %d, output written to %s" %
-                (program_and_args[0], subproc.pid, logfile))
-    subproc.stdin.close()
-    rc = subproc.poll()
-    if rc==None:
-        if pidfile:
-            with open(pidfile, "w") as f:
-                f.write("%d" % subproc.pid)
-        return 0
-    else: return rc
 
 
 if sys.platform=="darwin":
@@ -682,29 +652,47 @@ def stop_server_process(pidfile, logger, resource_id,
                             (resource_id, pid))
 
 
-def run_server(program_and_args, env_mapping, logfile, logger, pidfile_name,
-               cwd=None):
+class ServerStartupError(Exception):
+    pass
+
+def run_server(program_and_args, env_mapping, logfile, logger, pidfile_name=None,
+               cwd="/"):
     """Start another process as a server. Does not wait for it to complete.
-    Returns the process object for the process. If started successfully, the pid
-    of the process is written to pidfile.
+    Returns the process object for the process. If started successfully, and if
+    the pidfile name is provide, the pid of the process is written to pidfile.
     """
+    assert isinstance(program_and_args, list), \
+           "run_server must have program_and args as list, instead was passed '%s' of type %s" % \
+           (program_and_args.__repr__(), type(program_and_args))
     log_dir = os.path.dirname(logfile)
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
-    stdout = open(logfile, "wb")
-    logger.debug(' '.join(program_and_args))
-    subproc = subprocess.Popen(program_and_args,
+    daemonize = os.path.join(os.path.dirname(__file__), "daemonize.py")
+    if pidfile_name:
+        cmd = [sys.executable, daemonize, program_and_args[0],
+               "--pid-file=%s" % pidfile_name, logfile, cwd] + \
+               program_and_args[1:]
+    else:
+        cmd = [sys.executable, daemonize, program_and_args[0],
+               logfile, cwd] + program_and_args[1:]
+    logger.debug(' '.join(cmd))
+    subproc = subprocess.Popen(cmd,
                                env=env_mapping, stdin=subprocess.PIPE,
-                               stdout=stdout,
-                               stderr=subprocess.STDOUT, cwd=cwd)
-    logger.debug("Started server program %s, pid is %d, output written to %s" %
-                (program_and_args[0], subproc.pid, logfile))
-    subproc.stdin.close()
-    if subproc.poll() == None: # still running
-        pidfile = open(pidfile_name, "w")
-        pidfile.write("%d" % subproc.pid)
-        pidfile.close()
-    return subproc
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.STDOUT,
+                               close_fds=True, cwd=cwd)
+    (stdout, stderr) = subproc.communicate(input=None)
+    for line in stdout:
+        logger.debug("[%d] %s" % (subproc.pid, line))
+    if subproc.returncode!=0:
+        raise ServerStartupError("Problem in starting daemon %s, rc=%d" %
+                                 (program_and_args[0], subproc.returncode))
+    if pidfile_name:
+        logger.debug("Started server program %s, pidfile is %s, output written to %s" %
+                     (program_and_args[0], pidfile_name, logfile))
+    else:
+        logger.debug("Started server program %s, output written to %s" %
+                     (program_and_args[0], logfile))
 
 
 def sudo_run_server(program_and_args, env_mapping, logfile, logger,
@@ -720,21 +708,8 @@ def sudo_run_server(program_and_args, env_mapping, logfile, logger,
     daemonize = os.path.abspath(os.path.join(os.path.dirname(__file__), "daemonize.py"))
     if SUDO_PASSWORD_REQUIRED==None:
         # if we are already root, run directly
-        cmd = [sys.executable, daemonize, program_and_args[0], logfile, cwd]
-        cmd.extend(program_and_args[1:])
-        logger.debug(' '.join(cmd))
-        subproc = subprocess.Popen(cmd,
-                                   env=env_mapping, stdin=subprocess.PIPE,
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.STDOUT, close_fds=True,
-                                   cwd=cwd)
-        (stdout, stderr) = subproc.communicate(input=None)
-        for line in stdout:
-            logger.debug("[%d] %s" % (subproc.pid, line))
-        if subproc.returncode!=0:
-            raise Exception("Problem in starting daemon %s" %
-                            program_and_args[0])
-        logger.debug("Daemonized subprocess %s" % program_and_args[0])
+        run_server(program_and_args, env_mapping, logfile, logger,
+                   pidfile_name=None, cwd=cwd)
         return
     elif SUDO_PASSWORD_REQUIRED==False:
         opts = ["-n",]
@@ -762,8 +737,8 @@ def sudo_run_server(program_and_args, env_mapping, logfile, logger,
     for line in stdout:
         logger.debug("[%d] %s" % (subproc.pid, line))
     if subproc.returncode!=0:
-        raise Exception("Problem in starting daemon %s under sudo" %
-                        program_and_args[0])
+        raise ServerStartupError("Problem in starting daemon %s under sudo" %
+                                 program_and_args[0])
     logger.debug("Daemonized subprocess %s" % program_and_args[0])
 
 
