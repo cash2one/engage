@@ -77,7 +77,7 @@
       }
     },
     { "key": { "name": "ubuntu-linux", "version": "11.10"},
-      "display_name": "Ubuntu Linux 11.10",
+      "display_name": "Ubuntu Linux 11.10 (Oneiric)",
       "config_port": {
         "hostname": {"type":"hostname", "default":"localhost"},
         "os_user_name" : "string",
@@ -104,7 +104,7 @@
       }
     },
     { "key": { "name": "ubuntu-linux", "version": "10.04"},
-      "display_name": "Ubuntu Linux 10.04",
+      "display_name": "Ubuntu Linux 10.04 LTS (Lucid Lynx)",
       "config_port": {
         "hostname": {"type":"hostname", "default":"localhost"},
         "os_user_name" : "string",
@@ -4526,8 +4526,28 @@
         ]
       }
     },
-    { "key":{"name":"lxml", "version":"2.3"},
-      "display_name": "lxml: XML processing library for python",
+    { "key": {"name":"python-lxml-apt", "version":"2.3"},
+      "display_name": "python-lxml (apt package)",
+      "input_ports": {
+        "host": { "sudo_password": "password" }
+      },
+      "output_ports": {
+        "apt_cfg": {
+          "package_name":{"type":"string", "fixed-value":"python-lxml"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"11.10"},
+            "port_mapping": {"host":"host"}}
+          ]
+      }
+    },
+    { "key":{"name":"lxml-pip", "version":"2.3"},
+      "display_name": "lxml (Python xml library)",
+      "comment":"Lxml installed via pip (works on MacOSX)",
       "input_ports" : {
          "python": {
               "home" : "string"
@@ -4545,9 +4565,7 @@
       "inside": {
         "one-of": [
           { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
-                                                 "less-than":"10.7"}}},
-          { "key": {"name": "ubuntu-linux", "version":"11.10"}},
-          { "key": {"name": "ubuntu-linux", "version":"10.04"}}
+                                                 "less-than":"10.7"}}}
           ]
       },
       "environment": {
@@ -4559,6 +4577,24 @@
                     "version":{"greater-than-or-equal":"2.3"}},
             "port_mapping": {"python":"python"}
           }
+        ]
+      }
+    },
+    { "key":{"name":"lxml", "version":"2.3"},
+      "display_name": "lxml: XML processing library for python",
+      "comment": "pulls in either the ubuntu package or the pip package",
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}}},
+          { "key": {"name": "ubuntu-linux", "version":"11.10"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"}}
+          ]
+      },
+      "environment": {
+        "one-of": [
+          {"key":{"name":"lxml-pip", "version":"2.3"}},
+          {"key": {"name":"python-lxml-apt", "version":"2.3"}}
         ]
       }
     },
