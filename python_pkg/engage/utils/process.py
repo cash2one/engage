@@ -643,7 +643,10 @@ def stop_server_process(pidfile, logger, resource_id,
         if is_process_alive(pid):
            time.sleep(1.0)
         else:
-            os.remove(pidfile)
+            try:
+                os.remove(pidfile)
+            except:
+                pass # if the server removes the pidfile on its own, that's ok
             logger.debug("%s: process %d stopped sucessfully" %
                          (resource_id, pid))
             return pid
