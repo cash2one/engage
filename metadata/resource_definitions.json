@@ -3334,16 +3334,23 @@
         ]
       }
     },
-    { "key" : {"name": "gunicorn", "version":"0.12"},
+    { "key" : {"name": "gunicorn", "version":"0.14"},
       "display_name" : "Green Unicorn: Python WSGI HTTP Server",
       "input_ports" : {
          "python": {
-              "home" : "string"
+              "home" : "string",
+              "python_bin_dir": "path"
             }, 
          "setuptools" : {
             "easy_install" : "string"
          },
          "host": {"genforma_home": "path"}
+      },
+      "output_ports": {
+        "gunicorn": {
+          "gunicorn_exe":{"type":"path",
+                          "fixed-value":"${input_ports.python.python_bin_dir}/gunicorn"}
+        }
       },
       "inside": {
         "one-of": [

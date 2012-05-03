@@ -80,11 +80,11 @@
       "platform": "macosx",
       "groups": ["Engage"]
     },
-     { "filename": "gunicorn-0.12.2.tar.gz",
-      "location": "http://pypi.python.org/packages/source/g/gunicorn/gunicorn-0.12.2.tar.gz#md5=acf40832274b01a92a13a20a5c6bdfb2",
+     { "filename": "gunicorn-0.14.2.tar.gz",
+      "location": "http://pypi.python.org/packages/source/g/gunicorn/gunicorn-0.14.2.tar.gz#md5=5e2f8f5c0892f3ff3813fe66bd46a754",
       "handler": "wget",
       "description": "webserver used for django installs",
-      "checksum": "4137481458 180741 gunicorn-0.12.2.tar.gz",
+      "checksum": "1991415031 203588 gunicorn-0.14.2.tar.gz",
       "groups": ["Django", "Engage"]
     },
    { "filename": "provision-0.9.3-dev.tar.gz",

@@ -318,8 +318,8 @@
       }
     ]
   },
-  { "id": "__gunicorn__0_12__0",
-    "key": {"name": "gunicorn", "version": "0.12"},
+  { "id": "__gunicorn__0_14__0",
+    "key": {"name": "gunicorn", "version": "0.14"},
     "input_ports": {
       "host": {
         "cpu_arch": "x86_64",
@@ -457,8 +457,8 @@
     },
     "environment": [
       {
-        "id": "__gunicorn__0_12__0",
-        "key": {"name": "gunicorn", "version": "0.12"}
+        "id": "__gunicorn__0_14__0",
+        "key": {"name": "gunicorn", "version": "0.14"}
       }
     ]
   },
