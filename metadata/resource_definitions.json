@@ -1833,7 +1833,8 @@
           "file_owner_group": "string",
           "config_file": "path",
           "additional_config_dir":"path",
-          "log_dir":"path"
+          "log_dir":"path",
+          "gunicorn_django_exe":"path"
         },
         "ocache" : {
           "provider" : "string",
@@ -2212,7 +2213,8 @@
           "additional_config_dir": {"type":"path",
                                     "source":"input_ports.apache.additional_config_dir"},
           "log_dir": {"type":"path",
-                      "source":"input_ports.apache.log_dir"}
+                      "source":"input_ports.apache.log_dir"},
+          "gunicorn_django_exe": {"type":"path", "fixed-value": ""}
         }
       },
       "environment": {
@@ -2249,7 +2251,8 @@
       },
       "input_ports": {
         "host": { "genforma_home": "path", "hostname":"string",
-                  "log_directory":"path" }
+                  "log_directory":"path" },
+       "gunicorn": {"gunicorn_django_exe": "path"}
       },
       "output_ports": {
         "webserver_config": {
@@ -2262,7 +2265,11 @@
           "file_owner_group": {"type":"string", "fixed-value":""},
           "config_file": {"type":"string", "fixed-value":""},
           "additional_config_dir": {"type":"string", "fixed-value":""},
-          "log_dir": {"type":"string", "fixed-value":""}
+          "log_dir": {"type":"string", "fixed-value":""},
+          "gunicorn_django_exe": {
+              "type":"path",
+              "source":"input_ports.gunicorn.gunicorn_django_exe"
+          }
         }
       },
       "inside": {
@@ -2279,7 +2286,8 @@
       "environment": {
         "all-of": [
           { "key": {"name":"gunicorn",
-                    "version":{"greater-than-or-equal":"0.12"}}
+                    "version":{"greater-than-or-equal":"0.14"}},
+            "port_mapping": {"gunicorn":"gunicorn"}
           }
         ]
       }
@@ -3349,7 +3357,11 @@
       "output_ports": {
         "gunicorn": {
           "gunicorn_exe":{"type":"path",
-                          "fixed-value":"${input_ports.python.python_bin_dir}/gunicorn"}
+                          "fixed-value":"${input_ports.python.python_bin_dir}/gunicorn"},
+          "gunicorn_django_exe":{
+            "type":"path",
+            "fixed-value":"${input_ports.python.python_bin_dir}/gunicorn_django"
+           }
         }
       },
       "inside": {

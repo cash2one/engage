@@ -51,7 +51,7 @@ import json
 import urlparse
 
 import fixup_python_path
-from django_file_layout import create_file_layout
+from django_file_layout import create_file_layout, create_file_layout_from_json
 import engage.drivers.service_manager as service_manager
 import engage.drivers.resource_metadata as resource_metadata
 import engage.utils.path as iupath
@@ -81,7 +81,7 @@ def define_error(error_code, msg):
     errors[error_info.error_code] = error_info
 
 ERR_NO_SETTINGS_FILE = 1
-ERR_NO_DJANGO_SCRIPT = 2
+ERR_NO_GUNICORN_SCRIPT = 2
 ERR_MISSING_INST_PROP = 3
 ERR_DJANGO_STARTUP = 4
 ERR_DJANGO_SHUTDOWN = 5
@@ -100,8 +100,8 @@ ERR_WSGI_SCRIPT = 18
 
 define_error(ERR_NO_SETTINGS_FILE,
              _("Settings file '%(file)s' does not exist."))
-define_error(ERR_NO_DJANGO_SCRIPT,
-             _("Django administration script file '%(file)s' for %(appname)s does not exist."))
+define_error(ERR_NO_GUNICORN_SCRIPT,
+             _("Gunicorn django script file '%(file)s' for %(appname)s does not exist."))
 define_error(ERR_MISSING_INST_PROP,
              _("Required django installer configuration property '%(prop)s' does not exist."))
 define_error(ERR_DJANGO_STARTUP,
@@ -265,6 +265,12 @@ class Config(resource_metadata.Config):
             else:
                 self._add_computed_prop("mod_wsgi_config_file",
                                         "/etc/apache2/mods-enabled/wsgi.conf")
+        else: # using gunicorn server
+            self._add_computed_prop("gunicorn_django_exe",
+                                    self.input_ports.webserver_config.gunicorn_django_exe)
+            assert self.gunicorn_django_exe != "", \
+                 "Webserver type was %s, but gunicorn_django_exe property not set" % \
+                 self.input_ports.webserver_config.webserver_type
 
 
 
@@ -716,21 +722,34 @@ class Manager(BackupFileMixin, PasswordRepoMixin, service_manager.Manager):
         if self.config.input_ports.webserver_config.webserver_type == "apache":
             self.ctx.r(apache_utils.start_apache, self.ctx.props.input_ports.webserver_config)
         else: # need to start the development webserver
-            if not os.path.exists(self.config.app_admin_script):
-                raise UserError(errors[ERR_NO_DJANGO_SCRIPT],
-                                msg_args={"file":self.config.app_admin_script, "appname":self.config.app_short_name})
-            prog_and_args = [self.config.app_admin_script, "start"]
+            if not os.path.exists(self.config.gunicorn_django_exe):
+                raise UserError(errors[ERR_NO_GUNICORN_SCRIPT],
+                                msg_args={"file":self.config.gunicorn_django_exe,
+                                          "appname":self.config.app_short_ename})
+            with open(self.config.output_ports.django.layout_cfg_file, "rb") as f:
+                file_layout = create_file_layout_from_json(json.load(f))
+            log_file = os.path.join(self.config.config_port.log_directory,
+                                    self.config.app_short_name + ".log")
+            bind_addr = "%s:%d" % \
+              (self.config.input_ports.webserver_config.listen_host,
+               self.config.input_ports.webserver_config.listen_port)
+            prog_and_args = [self.config.gunicorn_django_exe,
+                             "--log-level", "debug", "--log-file", log_file,
+                             "-w", "4", "--pid", self.get_pid_file_path(),
+                             "--pythonpath", file_layout.get_python_path(),
+                             "--settings",
+                             file_layout.get_deployed_settings_module(),
+                             "-b", bind_addr, "--daemon"]
+            env = file_layout.get_django_env_vars()
             try:
-                iuprocess.run_server(prog_and_args, {},
-                                     os.path.join(self.config.config_port.log_directory,
-                                                  "%s_startup.log" % self.config.app_short_name),
-                                     logger)
-            except iuprocess.ServerStartupError, e:
+                iuprocess.run_and_log_program(prog_and_args, env, logger,
+                                              cwd=file_layout.get_settings_file_directory())
+            except Exception, e:
                 logger.exception("Django startup failed: %s" % e)
                 raise UserError(errors[ERR_DJANGO_STARTUP],
                                 msg_args={"appname":self.config.app_short_name},
                                 developer_msg="script %s, error was %s" %
-                                (self.config.app_admin_script, e))
+                                (self.config.gunicorn_django_exe, e))
 
         # wait for startup
         self._check_server_response()
@@ -742,29 +761,18 @@ class Manager(BackupFileMixin, PasswordRepoMixin, service_manager.Manager):
         if self.config.input_ports.webserver_config.webserver_type == "apache":
             self.ctx.r(apache_utils.stop_apache, self.ctx.props.input_ports.webserver_config)
         else:
-            if not os.path.exists(self.config.app_admin_script):
-                raise UserError(errors[ERR_NO_DJANGO_SCRIPT],
-                                msg_args={"file":self.config.app_admin_script, "appname":self.config.app_short_name})
-            rc = iuprocess.run_and_log_program([self.config.app_admin_script, "stop"], {}, logger)
-            if rc != 0:
-                raise UserError(errors[ERR_DJANGO_SHUTDOWN], msg_args={"appname":self.config.app_short_name},
-                                developer_msg="script %s, rc was %d" % (self.config.app_admin_script, rc))
+            self.ctx.r(stop_server, self.get_pid_file_path())
+            self.ctx.check_poll(5, 2.0, lambda pid: pid==None,
+                                get_server_status, self.get_pid_file_path())
 
     def is_running(self):
         if self.config.input_ports.webserver_config.webserver_type == "apache":
             return self.ctx.rv(apache_utils.apache_is_running, self.ctx.props.input_ports.webserver_config)
         else:
-            if not os.path.exists(self.config.app_admin_script):
-                raise UserError(errors[ERR_NO_DJANGO_SCRIPT],
-                                msg_args={"file":self.config.app_admin_script, "appname":self.config.app_short_name})
-            rc = iuprocess.run_and_log_program([self.config.app_admin_script, "status"], {}, logger)
-            if rc == 0:
-                # if we think it is running, check the webserver's url
-                self._check_server_response()
-                return True
-            elif rc == 1:
+            pid = self.ctx.rv(get_server_status, self.get_pid_file_path())
+            if not pid:
                 return False
-            else:
-                raise UserError(errors[ERR_DJANGO_STATUS], msg_args={"appname":self.config.app_short_name},
-                                developer_msg="script %s, rc was %d" % (self.config.app_admin_script, rc))
+            # if we think it is running, check the webserver's url
+            self._check_server_response() # throw an error if no response via http
+            return True
 

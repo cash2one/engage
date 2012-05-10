@@ -67,12 +67,8 @@ if [[ "$$1" == "start" ]]; then
   echo "Starting ${app_short_name} on ${websvr_hostname}:${port}"
   echo `date` " Startup" >$$logfile
   # serve using gunicorn
-  cd ${settings_file_dir}; export PYTHONPATH=${python_path};export DJANGO_SETTINGS_MODULE="${django_settings_module}";${python_bin_dir}/gunicorn_django ${settings_file_dir}/deployed_settings.py -b ${websvr_hostname}:${port} -w 2 >>$$logfile 2>&1 &
-  #original: django dev server
-  #cd ${settings_file_dir}; export PYTHONPATH=${python_path};export DJANGO_SETTINGS_MODULE="${django_settings_module}";${python_bin_dir}/python ${python_bin_dir}/django-admin.py runserver ${websvr_hostname}:${port} --noreload >>$$logfile 2>&1 &
-  pid=$$!
-  echo $$pid >$$pidfile
-  echo "${app_short_name} started, pid is" `cat $$pidfile`
+  cd ${settings_file_dir}; export PYTHONPATH=${python_path};export DJANGO_SETTINGS_MODULE="${django_settings_module}";${python_bin_dir}/gunicorn_django --log-level=debug --logfile=$$logfile -w 4 --pid=$$pidfile --pythonpath=${python_path} --settings=${django_settings_module} -b ${websvr_hostname}:${port} --daemon
+  echo "${app_short_name} started, pidfile at $$pidfile"
   exit 0
 else
   if [[ "$$1" == "stop" ]]; then
@@ -95,9 +91,9 @@ else
         # now do the actual startup
         echo "Starting ${app_short_name} on ${websvr_hostname}:${port}"
         set -m # enable job control
-        cd ${settings_file_dir}; export PYTHONPATH=${python_path};export DJANGO_SETTINGS_MODULE="${django_settings_module}";${python_bin_dir}/gunicorn_django ${settings_file_dir}/deployed_settings.py -b ${websvr_hostname}:${port} -w 2 --log-file $$logfile --log-level debug  &
-        #original: django dev server
-        #cd ${settings_file_dir}; export PYTHONPATH=${python_path};export DJANGO_SETTINGS_MODULE="${django_settings_module}";${python_bin_dir}/python ${python_bin_dir}/django-admin.py runserver ${websvr_hostname}:${port} --noreload 2>&1 &
+        #cd ${settings_file_dir}; export PYTHONPATH=${python_path};export DJANGO_SETTINGS_MODULE="${django_settings_module}";${python_bin_dir}/gunicorn_django --settings=${settings_file_dir}/deployed_settings.py --pythonpath=${python_path} -b ${websvr_hostname}:${port} -w 1 --log-file $$logfile --log-level debug --pid=$$pidfile
+        # we use the django dev server for this
+        cd ${settings_file_dir}; export PYTHONPATH=${python_path};export DJANGO_SETTINGS_MODULE="${django_settings_module}";${python_bin_dir}/python ${python_bin_dir}/django-admin.py runserver ${websvr_hostname}:${port} --noreload 2>&1 &
         pid=$$!
         echo $$pid >$$pidfile
         echo "${app_short_name} started, pid is" `cat $$pidfile`

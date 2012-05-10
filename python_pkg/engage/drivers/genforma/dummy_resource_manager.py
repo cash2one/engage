@@ -26,7 +26,7 @@ define_error(ERR_ALREADY_INSTALLED,
              
 
 class Manager(resource_manager.Manager):
-    def __init__(self, metadata):
+    def __init__(self, metadata, dry_run=False):
         package_name = "%s %s (dummy_resouce_manager)" % \
             (metadata.key["name"], metadata.key["version"])
         resource_manager.Manager.__init__(self, metadata, package_name)
