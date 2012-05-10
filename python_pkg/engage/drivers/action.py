@@ -206,7 +206,7 @@ The following actions are defined by this module:
  * run_program <program_and_args> {cwd=None} {env_mapping=None} {input=None} {hide_input=False} {hide_command=False}
  * set_file_mode_bits <path> <mode_bits>
  * move_old_file_version <file_path> {backup_name=None} {leave_old_backup_file=False}
- * start_server <cmd_and_args> <log_file> <pid_file> {cwd=None} {environment={}}
+ * start_server <cmd_and_args> <log_file> <pid_file> {cwd="/"} {environment={}} {timeout_tries=10} {time_between_tries=2.0}
  * stop_server <pid_file> {timeout_tries=10} {force_stop=False}
  * subst_in_file <filename> <pattern_list> {subst_in_place=False}
  * sudo_add_config_file_line <config-file> <line>
@@ -284,6 +284,8 @@ ERR_CREATE_DIST_FAILED       = 13
 ERR_CHECK_POLL_TIMEOUT       = 14
 ERR_SUBPROCESS_RC            = 15
 ERR_PORT_TAKEN               = 16
+ERR_ACTION_POLL_TIMEOUT      = 17
+ERR_SERVER_STOP_TIMEOUT      = 18
 
 
 define_error(ERR_DIR_NOT_FOUND,
@@ -318,6 +320,10 @@ define_error(ERR_SUBPROCESS_RC,
              _("Subprocess execution filed in resource %(id)s, command was '%(cmd)s'"))
 define_error(ERR_PORT_TAKEN,
              _("Pre-install check failed for resource %(id)s: something is already running on port %(port)d."))
+define_error(ERR_ACTION_POLL_TIMEOUT,
+             _("Action %(action)s timed out waiting for %(description)s after %(time).1f in resource %(id)s"))
+define_error(ERR_SERVER_STOP_TIMEOUT,
+             _("Action %(action)s timed out waiting for pid %(pid)d to stop in resource %(id)s"))
 
 
 
@@ -1326,23 +1332,74 @@ def move_old_file_version(self, file_path, backup_name=None,
     os.rename(file_path, backup_name)
 
 
-@make_action
-def start_server(self, cmd_and_args, log_file, pid_file, cwd="/", environment={}):
-    """Action: start another process as a server. Does not wait for it to complete.
-    If started successfully, the pid of the process is written to pidfile.
+def _check_poll(calling_action, stop_pred, description,
+                timeout_tries=10, time_between_tries=2.0):
+    """This is a utility function for use within actions when we want to
+    poll multiple times waiting for something to happen. stop_pred is a function
+    that will be called until it returns True. If the timeout happens before
+    stop_pred returns true, then the ERR_ACTION_POLL_TIMEOUT error is thrown.
     """
-    _check_file_exists(cmd_and_args[0], self)
-    procutils.run_server(cmd_and_args, environment, log_file,
-                         self.ctx.logger, pid_file, cwd)
+    if calling_action.ctx.dry_run:
+        return
+    for i in range(timeout_tries):
+        v = stop_pred()
+        if v==True:
+            return
+        else:
+            if i != (timeout_tries-1): time.sleep(time_between_tries)
+    raise UserError(errors[ERR_ACTION_POLL_TIMEOUT],
+                    msg_args={"id":calling_action.ctx.props.id,
+                              "action":calling_action.NAME,
+                              "description":description,
+                              "time":timeout_tries*time_between_tries})
+                    
+
+
+class start_server(Action):
+    """Action: start another process as a server.
+    If started successfully, the pid of the process is written to pidfile.
+    If timeout_tries>0, then we wait until the pid file has been written with
+    a live process id before returning.
+
+    Note that, if the program you are starting can daemonize itself (through an
+    option like --daemonize or --detach), you should use the run_program action
+    instead.
+    """
+    NAME="start_server"
+    def __init__(self, ctx):
+        super(start_server, self).__init__(ctx)
+
+    def run(self, cmd_and_args, log_file, pid_file, cwd="/", environment={},
+                 timeout_tries=10, time_between_tries=2.0):
+        _check_file_exists(cmd_and_args[0], self)
+        procutils.run_server(cmd_and_args, environment, log_file,
+                             self.ctx.logger, pid_file, cwd)
+        if timeout_tries>0:
+            _check_poll(self,
+                        lambda : procutils.check_server_status(pid_file,
+                                                               self.ctx.logger,
+                                                               self.ctx.props.id) != None,
+                        "server startup", timeout_tries, time_between_tries)
+
+    def dry_run(self, cmd_and_args, log_file, pid_file, cwd="/", environment={},
+                timeout_tries=10, time_between_tries=2.0):
+        pass
+    
 
 
 @make_action
 def stop_server(self, pid_file, timeout_tries=10, force_stop=False):
-    """Action: stop a server process started using start_server.
+    """Action: stop a server process started using start_server. Waits for
+    process to exit.
     """
-    procutils.stop_server_process(pid_file, self.ctx.logger,
-                                  self.ctx.props.id, timeout_tries,
-                                  force_stop)
+    try:
+        procutils.stop_server_process(pid_file, self.ctx.logger,
+                                      self.ctx.props.id, timeout_tries,
+                                      force_stop)
+    except procutils.ServerStopTimeout, e:
+        raise UserError(errors[ERR_SERVER_STOP_TIMEOUT],
+                        msg_args={"action":self.NAME,
+                                  "id":self.ctx.props.id, "pid":e.pid})
 
 
 class get_server_status(SudoValueAction):
@@ -1374,11 +1431,15 @@ class get_server_status(SudoValueAction):
     def dry_run(self, pid_file, remove_pidfile_if_dead_proc=False):
         pass
 
-
+        
 @make_action
 def sudo_start_server(self, cmd_and_args, log_file, cwd=None, environment={}):
     """Action: start another process as a server, under root. Does not wait for
     it to complete.
+
+    Unlike the vanilla start_server(), the program being run is responsible for
+    creating a pidfile. We do this because, if we run under sudo, the child
+    won't be the actual server process.
     """
     _check_file_exists(cmd_and_args[0], self)
     procutils.sudo_run_server(cmd_and_args, environment, log_file,

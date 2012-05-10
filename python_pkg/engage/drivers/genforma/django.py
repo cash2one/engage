@@ -762,8 +762,6 @@ class Manager(BackupFileMixin, PasswordRepoMixin, service_manager.Manager):
             self.ctx.r(apache_utils.stop_apache, self.ctx.props.input_ports.webserver_config)
         else:
             self.ctx.r(stop_server, self.get_pid_file_path())
-            self.ctx.check_poll(5, 2.0, lambda pid: pid==None,
-                                get_server_status, self.get_pid_file_path())
 
     def is_running(self):
         if self.config.input_ports.webserver_config.webserver_type == "apache":

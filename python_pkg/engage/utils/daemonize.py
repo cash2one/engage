@@ -32,6 +32,8 @@ def daemonize(exe_path, args, log_file, cwd, pid_file=None):
         sys.stdout.write("Starting %s" % exe_path)
         sys.stdout.flush()
         os.chdir(cwd)
+        os.setsid() # detach from parent session
+        os.umask(0)
         os.execv(exe_path, [exe_path,]+args)
     else:
         sys.stdout.close()

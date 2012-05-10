@@ -610,7 +610,9 @@ class ServerStopTimeout(Exception):
     """This exception used to signal that the server process did not respond
     to sigterm or sigkill without the specified timeout period.
     """
-    pass
+    def __init__(self, msg, pid):
+        Exception.__init__(self, msg)
+        self.pid = pid
 
 
 def stop_server_process(pidfile, logger, resource_id,
@@ -652,7 +654,8 @@ def stop_server_process(pidfile, logger, resource_id,
             return pid
 
     raise ServerStopTimeout("%s: unable to stop process %d" %
-                            (resource_id, pid))
+                            (resource_id, pid),
+                            pid)
 
 
 class ServerStartupError(Exception):
