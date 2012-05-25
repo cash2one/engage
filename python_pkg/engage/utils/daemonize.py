@@ -15,33 +15,38 @@ def _setup_fds(log_file):
 def fixpath(path):
     return os.path.abspath(os.path.expanduser(path))
 
+def detach(cwd):
+    os.closerange(0, resource.RLIMIT_NOFILE)
+    os.chdir(cwd)
+    os.setsid() # detach from parent session
+    os.umask(0)
+    
 def daemonize(exe_path, args, log_file, cwd, pid_file=None):
     if not os.path.exists(log_file):
         with open(log_file, "w") as f:
-            pass
-        ## try:
-        ##     mode = 0644 | stat.S_IFREG
-        ##     os.mknod(log_file, mode)
-        ## except Exception, e:
-        ##     sys.stderr.write("Error trying to create file %s mode %o: %s\n" % (log_file, mode, e))
-        ##     raise
-    os.closerange(0, resource.RLIMIT_NOFILE)
-    _setup_fds(log_file)
+            f.write("Starting %s %s" % (exe_path, ' '.join(args)))
+            f.flush()
+    
     pid = os.fork()
     if pid==0: # child
-        sys.stdout.write("Starting %s" % exe_path)
-        sys.stdout.flush()
-        os.chdir(cwd)
-        os.setsid() # detach from parent session
-        os.umask(0)
-        os.execv(exe_path, [exe_path,]+args)
-    else:
-        sys.stdout.close()
-        sys.stderr.close()
+        detach(cwd)
+        pid = os.fork()
+        if pid==0: # grandchild
+            if pid_file:
+                with open(pid_file, "w") as f:
+                    f.write(str(os.getpid()))
+            detach(cwd)
+            _setup_fds(log_file)
+            os.execv(exe_path, [exe_path,]+args)
+        else: # child
+            sys.exit(0)
+    else: # parent
         if pid_file:
-            with open(pid_file, "w") as f:
-                f.write(str(pid))
-        return pid
+            print "Forked child, log file is %s, pid file is %s" % \
+                  (log_file, pid_file)
+        else:
+            print "Forked child, log file is %s" % log_file
+        return
 
 def print_usage(rc):
     sys.stderr.write("daemonize.py exe_path [--pid-file=pid_file] log_file cwd [arg1 arg2 ...]\n")

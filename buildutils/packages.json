@@ -28,27 +28,6 @@
       "checksum": "1509846116 105820 pip-1.0.2.tar.gz",
       "groups":["Engage", "Django"]
     },
-    { "filename": "paramiko-1.7.6.zip",
-      "location": "http://pypi.python.org/packages/source/p/paramiko/paramiko-1.7.6.zip#md5=b1cfe0cd55772115f808a11c1baba8a0",
-      "handler": "wget",
-      "description": "Python ssh client library",
-      "checksum": "647877205 215160 paramiko-1.7.6.zip",
-      "groups": ["Engage"]
-    },
-    { "filename": "apache-libcloud-0.6.2.tar.bz2",
-      "location": "http://archive.apache.org/dist/libcloud/apache-libcloud-0.6.2.tar.bz2",
-      "handler": "wget",
-      "description": "apache-libcloud python package (used by provision)",
-      "checksum": "629143068 220380 apache-libcloud-0.6.2.tar.bz2",
-      "groups": ["Engage"]
-    },
-    { "filename": "argparse-1.2.1.tar.gz",
-      "location": "http://argparse.googlecode.com/files/argparse-1.2.1.tar.gz",
-      "handler": "wget",
-      "description": "argparse python package (used by provision)",
-      "checksum": "2511882229 69297 argparse-1.2.1.tar.gz",
-      "groups": ["Engage"]
-    },
     { "filename": "nose-1.0.0.tar.gz",
       "location": "http://pypi.python.org/packages/source/n/nose/nose-1.0.0.tar.gz#md5=47a4784c817afa6ef11a505b574584ed",
       "handler": "wget",
@@ -86,12 +65,5 @@
       "description": "webserver used for django installs",
       "checksum": "1991415031 203588 gunicorn-0.14.2.tar.gz",
       "groups": ["Django", "Engage"]
-    },
-   { "filename": "provision-0.9.3-dev.tar.gz",
-      "location": "https://github.com/genforma/provision/tarball/0.9.3-dev",
-      "handler": "wget",
-      "description": "genForma Provision utility",
-      "checksum": "1342310383 26697 provision-0.9.3-dev.tar.gz",
-      "groups": ["Engage-public"]
     }
 ]

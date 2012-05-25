@@ -273,10 +273,12 @@ def main(argv):
                     logger, "pycrypto",
                     never_download=options.never_download)
 
-    bootstrap_packages = [(["paramiko-1.7.6.zip"], "paramiko"),
-                          (["apache-libcloud-0.6.2.tar.bz2"], None),
-                          (["argparse-1.2.1.tar.gz"], "argparse"),
-                          (["provision-0.9.3-dev.tar.gz"], None),
+    bootstrap_packages = [# JF 2012-05-11: Don't install provision and its
+                          # dependencies - moving down to DJM level.
+                          #(["paramiko-1.7.6.zip"], "paramiko"),
+                          #(["apache-libcloud-0.6.2.tar.bz2"], None),
+                          #(["argparse-1.2.1.tar.gz"], "argparse"),
+                          #(["provision-0.9.3-dev.tar.gz"], None),
                           (["nose-1.0.0.tar.gz"], "nose")]
     # run install for all of the bootstrap packages
     for (package_file_list, alternate) in bootstrap_packages:
