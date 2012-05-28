@@ -610,13 +610,16 @@ class ServerStopTimeout(Exception):
     """This exception used to signal that the server process did not respond
     to sigterm or sigkill without the specified timeout period.
     """
-    def __init__(self, msg, pid):
-        Exception.__init__(self, msg)
+    def __init__(self, resource_id, pid, timeout_in_secs):
+        Exception.__init__(self, "%s: Unable to stop process %d after %d seconds" %
+                           (resource_id, pid, timeout_in_secs))
+        self.resource_id = resource_id
         self.pid = pid
+        self.timeout_in_secs = timeout_in_secs
 
 
 def stop_server_process(pidfile, logger, resource_id,
-                        timeout_tries=10, force_stop=False):
+                        timeout_tries=20, force_stop=False):
     """Stop a server process whose pid is given by the pidfile.
     Sends sigterm to process, unless force_stop is True. Then check up
     to timeout_tries times, waiting 1 second between each try, to see if the
@@ -653,9 +656,7 @@ def stop_server_process(pidfile, logger, resource_id,
                          (resource_id, pid))
             return pid
 
-    raise ServerStopTimeout("%s: unable to stop process %d" %
-                            (resource_id, pid),
-                            pid)
+    raise ServerStopTimeout(resource_id, pid, timeout_tries)
 
 
 class ServerStartupError(Exception):
@@ -751,7 +752,7 @@ def sudo_run_server(program_and_args, env_mapping, logfile, logger,
 
 def sudo_stop_server_process(pidfile, logger, resource_id,
                              sudo_password,
-                             timeout_tries=10, force_stop=False):
+                             timeout_tries=20, force_stop=False):
     """This is a version of stop_server_process() for when the
     server was started under root. We need to use sudo to
     run the kill command
@@ -783,10 +784,9 @@ def sudo_stop_server_process(pidfile, logger, resource_id,
                          (resource_id, pid))
             return pid
 
-    print "timeout of stop, enter newline to continue",
-    sys.stdin.readline()
-    raise ServerStopTimeout("%s: unable to stop process %d" %
-                            (resource_id, pid))
+    ## print "timeout of stop, enter newline to continue",
+    ## sys.stdin.readline()
+    raise ServerStopTimeout(resource_id, pid, timeout_tries)
 
 
 def run_program_and_scan_results(program_and_args, re_map, logger, env=None,

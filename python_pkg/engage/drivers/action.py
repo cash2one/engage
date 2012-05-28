@@ -323,7 +323,7 @@ define_error(ERR_PORT_TAKEN,
 define_error(ERR_ACTION_POLL_TIMEOUT,
              _("Action %(action)s timed out waiting for %(description)s after %(time).1f in resource %(id)s"))
 define_error(ERR_SERVER_STOP_TIMEOUT,
-             _("Action %(action)s timed out waiting for pid %(pid)d to stop in resource %(id)s"))
+             _("Action %(action)s timed out after %(timeout)d seconds waiting for pid %(pid)d to stop in resource %(id)s"))
 
 
 
@@ -1388,9 +1388,10 @@ class start_server(Action):
 
 
 @make_action
-def stop_server(self, pid_file, timeout_tries=10, force_stop=False):
+def stop_server(self, pid_file, timeout_tries=20, force_stop=False):
     """Action: stop a server process started using start_server. Waits for
-    process to exit.
+    process to exit. timeout_tries is the number of times to poll the process
+    after sending the signal, with one second between each try.
     """
     try:
         procutils.stop_server_process(pid_file, self.ctx.logger,
@@ -1399,7 +1400,8 @@ def stop_server(self, pid_file, timeout_tries=10, force_stop=False):
     except procutils.ServerStopTimeout, e:
         raise UserError(errors[ERR_SERVER_STOP_TIMEOUT],
                         msg_args={"action":self.NAME,
-                                  "id":self.ctx.props.id, "pid":e.pid})
+                                  "id":self.ctx.props.id, "pid":e.pid,
+                                  "timeout":e.timeout_in_secs})
 
 
 class get_server_status(SudoValueAction):
