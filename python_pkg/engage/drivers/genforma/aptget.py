@@ -5,6 +5,7 @@ import os
 import os.path
 import sys
 import re
+import copy
 
 import engage.drivers.resource_manager as resource_manager
 import engage.drivers.resource_metadata as resource_metadata
@@ -49,17 +50,29 @@ define_error(ERR_PKG_NOT_INSTALLED,
 APT_GET_PATH = "/usr/bin/apt-get"
 DPKG_QUERY_PATH = "/usr/bin/dpkg-query"
 
+def _get_env_for_aptget():
+    """The apt-get utility may in some cases require that the PATH environment
+    variable be set. We take the current environment and then add a resonable
+    default path if one is not already present.
+    """
+    env = copy.deepcopy(os.environ)
+    if not env.has_key("PATH"):
+        env["PATH"] = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+    return env
+
+
 def apt_get_install(package_list, sudo_password):
+    env = _get_env_for_aptget()
     if not os.path.exists(APT_GET_PATH):
         raise UserError(errors[ERR_APT_GET_NOT_FOUND],
                         msg_args={"path":APT_GET_PATH})
     
     try:
         iuprocess.run_sudo_program([APT_GET_PATH, "-q", "-y", "update"], sudo_password,
-                                   logger)
+                                   logger, env=env)
         iuprocess.run_sudo_program([APT_GET_PATH, "-q", "-y", "install"]+package_list, sudo_password,
-                                logger,
-                                   env=None)
+                                   logger,
+                                   env=env)
     except iuprocess.SudoError, e:
         exc_info = sys.exc_info()
         sys.exc_clear()
