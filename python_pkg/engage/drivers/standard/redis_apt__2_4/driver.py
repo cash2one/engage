@@ -102,7 +102,7 @@ class Manager(service_manager.Manager, PasswordRepoMixin):
 
 
     def validate_post_install(self):
-        self.ctx.r(check_installed, PACKAGE_NAME)
+        self.ctx.r(aptget.check_installed, PACKAGE_NAME)
 
 
     def start(self):
