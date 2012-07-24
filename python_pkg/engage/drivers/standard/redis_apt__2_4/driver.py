@@ -21,6 +21,7 @@ import engage.drivers.utils
 # Drivers compose *actions* to implement their methods.
 from engage.drivers.action import *
 import engage.drivers.genforma.aptget as aptget
+from engage.drivers.password_repo_mixin import PasswordRepoMixin
 
 
 # setup errors
@@ -94,11 +95,10 @@ class Manager(service_manager.Manager, PasswordRepoMixin):
 
 
     def is_installed(self):
-        return self.ctx.rv(is_pkg_installed, PACKAGE_NAME)
+        return self.ctx.rv(aptget.is_pkg_installed, PACKAGE_NAME)
 
     def install(self, package):
-        p = self.ctx.props
-        self.ctx.r(ensure_installed, PACKAGE_NAME)
+        self.ctx.r(aptget.ensure_installed, PACKAGE_NAME)
 
 
     def validate_post_install(self):
