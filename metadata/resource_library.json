@@ -623,6 +623,15 @@
         }
       ]
     },
+    { "key":{"name":"redis", "version":"2.4"},
+      "mgr_module_name": "engage.drivers.genforma.dummy_resource_manager",
+      "packages": [
+        { "type": "Reference",
+          "package_class": "DummyPackage",
+          "location":""
+        }
+      ]
+    },
     { "key":{"name":"redis-py", "version":""},
       "mgr_module_name":"engage.drivers.genforma.easy_install",
       "packages": [

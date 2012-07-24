@@ -2349,40 +2349,66 @@
         ]
       }
     },
-    {"key" : { "name" : "redis", "version" : "2.2" },
-      "display_name" : "Redis (version 2.2)",
+    {"key" : { "name" : "redis-macports", "version" : "2.4" },
+      "display_name" : "Redis via macports (version 2.4)",
+      "comment": "Currently, we only allow the use of the default port. Apps should refer to the generic redis resource rather than this one.",
       "config_port": {
+        "home": { "type":"path", "default":"${input_ports.host.genforma_home}/redis"}
       },
       "input_ports": {
-        "host": { "genforma_home": "path", "os_type":"string", "hostname":"string" },
-        "python" : { "PYTHONPATH": "string",
-                     "home": "string" }
-      },
-      "output_ports": {
-        "redis": {
-          "home" : {"type":"path",
-                    "fixed-value":"${input_ports.host.genforma_home}/redis_package"}
+        "host": {
+          "hostname": "string",
+          "genforma_home": "path",
+          "sudo_password": "password",
+          "log_directory": "path"
+        },
+        "macports": {
+          "macports_exe": "path"
         }
       },
       "inside": {
         "one-of": [
           { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
                                                  "less-than":"10.7"}},
-            "port_mapping": {"host":"host"}},
-          { "key": {"name": "ubuntu-linux", "version":"11.10"},
-            "port_mapping": {"host":"host"}},
-          { "key": {"name": "ubuntu-linux", "version":"10.04"},
-            "port_mapping": {"host":"host"}}
+            "port_mapping":{"host":"host"}}
           ]
       },
       "environment": {
         "all-of": [
-          { "key": {"name":"g++", "version":"4.2"}
-          },
-          { "key": {"name":"python",
-                    "version":{"greater-than-or-equal":"2.3"}},
-            "port_mapping": {"python":"python"}
-          }
+        { "key": {"name":"macports", "version":{"greater-than-or-equal":"1.9"}},
+          "port_mapping": {"macports":"macports"}}
+        ]
+      }
+    },
+    {"key" : { "name" : "redis-apt", "version" : "2.4" },
+      "display_name" : "Redis via apt-get (version 2.4)",
+      "comment": "Currently, we only allow the use of the default port. Apps should refer to the generic redis resource rather than this one.",
+      "config_port": {
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name": "ubuntu-linux", "version":"11.10"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"}}
+        ]
+      }
+    },
+    {"key" : { "name" : "redis", "version" : "2.4" },
+      "display_name" : "Redis (version 2.4)",
+      "comment": "This is an abstract resource that pulls in either the mac or linux versions. Currently, we only allow the use of the default port.",
+      "config_port": {
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}}},
+          { "key": {"name": "ubuntu-linux", "version":"11.10"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"}}
+        ]
+      },
+      "environment": {
+        "one-of": [
+          { "key": {"name": "redis-macports", "version":"2.4"}},
+          { "key": {"name": "redis-apt", "version":"2.4"}}
         ]
       }
     },

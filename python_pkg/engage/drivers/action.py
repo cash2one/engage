@@ -197,6 +197,7 @@ The following actions are defined by this module:
  * check_file_exists <file-path>
  * check_installable_to_dir <install-dir>
  * check_port_available <hostname> <port>
+ * copy_file <src> <dest>
  * create_engage_dist <target_path>
  * ensure_dir_exists <dir-path>
  * ensure_shared_perms<path> <group_name> {writable_to_group=False}
@@ -205,10 +206,12 @@ The following actions are defined by this module:
  * instantiate_template_str <src_string> <target_path>
  * run_program <program_and_args> {cwd=None} {env_mapping=None} {input=None} {hide_input=False} {hide_command=False}
  * set_file_mode_bits <path> <mode_bits>
+ * mkdir <dir_path>
  * move_old_file_version <file_path> {backup_name=None} {leave_old_backup_file=False}
  * start_server <cmd_and_args> <log_file> <pid_file> {cwd="/"} {environment={}} {timeout_tries=10} {time_between_tries=2.0}
  * stop_server <pid_file> {timeout_tries=10} {force_stop=False}
  * subst_in_file <filename> <pattern_list> {subst_in_place=False}
+ * subst_in_file_and_check_count <filename> <pattern_list> <num_expected_changes> {subst_in_place=False}
  * sudo_add_config_file_line <config-file> <line>
  * sudo_copy <copy_args>
  * sudo_mkdir <path> {create_intermediate_dirs=False}
@@ -286,6 +289,7 @@ ERR_SUBPROCESS_RC            = 15
 ERR_PORT_TAKEN               = 16
 ERR_ACTION_POLL_TIMEOUT      = 17
 ERR_SERVER_STOP_TIMEOUT      = 18
+ERR_WRONG_SUBST_COUNT        = 19
 
 
 define_error(ERR_DIR_NOT_FOUND,
@@ -324,7 +328,8 @@ define_error(ERR_ACTION_POLL_TIMEOUT,
              _("Action %(action)s timed out waiting for %(description)s after %(time).1f in resource %(id)s"))
 define_error(ERR_SERVER_STOP_TIMEOUT,
              _("Action %(action)s timed out after %(timeout)d seconds waiting for pid %(pid)d to stop in resource %(id)s"))
-
+define_error(ERR_WRONG_SUBST_COUNT,
+             _("Incorrect number of substitutions for file %(file)s: expecting %(exp)d, actual was %(actual)d in resource %(id)s"))
 
 
 def _format_action_args(action_name, *args, **kwargs):
@@ -1135,7 +1140,7 @@ class instantiate_template_str(Action):
 @make_value_action
 def subst_in_file(self, filename, pattern_list, subst_in_place=False):
     """Scan the specified file and substitute patterns. pattern_list is
-    list of pairs, where the first element is a regular expressison pattern
+    list of pairs, where the first element is a regular expression pattern
     and the second element is a either a string or a function. If the
     second element is a string, then occurrances of the pattern in the file
     are all replaced with the string. If the value is a function, then
@@ -1156,6 +1161,23 @@ def subst_in_file(self, filename, pattern_list, subst_in_place=False):
     
 
 @make_action
+def subst_in_file_and_check_count(self, filename, pattern_list,
+                                  num_expected_changes, subst_in_place=False):
+    """Action: Just like the subst_in_file value action, but checks the
+    count returned against an expected count (num_expected_changes) and
+    raises an error if the number does not match.
+    """
+    cnt = fileutils.subst_in_file(filename, pattern_list,
+                                   subst_in_place=subst_in_place)
+    if cnt != num_expected_changes:
+        raise UserError(errors[ERR_WRONG_SUBST_COUNT],
+                        msg_args={"id":self.ctx.props.id,
+                                  "file":filename,
+                                  "exp":num_expected_changes,
+                                  "actual":cnt},
+                        developer_msg="pattern_list: %s" % pattern_list.__repr__())
+
+@make_action
 def set_file_mode_bits(self, path, mode_bits):
     """Action: set the file's mode bits as specified.
     This is itempotent.
@@ -1165,6 +1187,28 @@ def set_file_mode_bits(self, path, mode_bits):
     if current_mode != mode_bits:
         os.chmod(path, mode_bits)
     
+
+class mkdir(SudoAction):
+    """SudoAction: Create a directory. If parent does not exist, include the -p option.
+    """
+    NAME="mkdir"
+    def __init__(self, ctx):
+        super(mkdir, self).__init__(ctx)
+
+    def run(self, dir_path):
+        if os.path.exists(os.path.dirname(dir_path)):
+            os.mkdir(dir_path)
+        else:
+            os.makedirs(dir_path)
+
+    def sudo_run(self, dir_path):
+        procutils.sudo_mkdir(dir_path, self.ctx._get_sudo_password(self),
+                             self.ctx.logger,
+                             create_intermediate_dirs=not os.path.exists(os.path.dirname(dir_path)))
+        
+    def dry_run(self, dir_path):
+        pass
+
 
 @make_action
 def sudo_mkdir(self, dir_path, create_intermediate_dirs=False):
@@ -1185,6 +1229,27 @@ def sudo_cat_file(self, path):
     return procutils.sudo_cat_file(path, self.ctx.logger,
                                    self.ctx._get_sudo_password(self))
 
+
+class copy_file(SudoAction):
+    """SudoAction: Copy a file src to dest.
+    """
+    NAME="copy_file"
+
+    def __init__(self, ctx):
+        super(copy_file, self).__init__(ctx)
+
+    def run(self, src, dest):
+        _check_file_exists(src, self)
+        shutil.copyfile(src, dest)
+
+    def sudo_run(self, src, dest):
+        procutils.sudo_copy([src, dest], self.ctx._get_sudo_password(self),
+                            self.ctx.logger)
+
+    def dry_run(self, src, dest):
+        pass
+
+    
 @make_action
 def sudo_copy(self, copy_args):
     """Action: copy files (as in the unix cp command) running as the superuser.
@@ -1437,7 +1502,8 @@ class get_server_status(SudoValueAction):
 @make_action
 def sudo_start_server(self, cmd_and_args, log_file, cwd=None, environment={}):
     """Action: start another process as a server, under root. Does not wait for
-    it to complete.
+    it to complete. This daemonizes the server process, doing the voodoo needed
+    (e.g. two forks, closing all fds).
 
     Unlike the vanilla start_server(), the program being run is responsible for
     creating a pidfile. We do this because, if we run under sudo, the child
