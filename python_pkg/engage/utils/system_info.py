@@ -103,7 +103,9 @@ def get_machine_info(os_choices=default_os_choices):
     os_type = None
     if system == "Darwin":
         if release[0:2] == "9.": os_type = MACOSX_10_5
-        elif release[0:3] == "10.": os_type = MACOSX_10_6
+        # Hack: we should disinguish 10.7 and 10.8 from 10.6
+        # See issue genforma/engage#15
+        elif release[0:3] == "10." or release[0:3]=="11.": os_type = MACOSX_10_6
         private_ip = None
         public_ip = socket.gethostbyname(socket.gethostname())
     elif system == "Linux":

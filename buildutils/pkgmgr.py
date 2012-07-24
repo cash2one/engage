@@ -37,7 +37,9 @@ def get_platform():
     uname = (run_subproc_and_get_output("uname")).rstrip()
     if uname == "Darwin":
         release = (run_subproc_and_get_output("uname -r")).rstrip().split('.')
-        assert release[0] == '10', "Mac OS release expected to start with 10, actual was %s" % release[0]
+        if release[0]=='11' and release[1]=='4':
+            return "maxosx64" # mac osx lion
+        assert release[0] == '10', "Mac OS release expected to start with 10 or 11, actual was %s" % release[0]
         sub_release = int(release[1])
         if sub_release >= 6:
             return "macosx64"
