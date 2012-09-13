@@ -22,7 +22,7 @@ runTest() {
   echo "--- [${testname}] $* ---"
   if $CONFIG_EXE $@ >${testname}.log 2>&1; then
     mv install.script ${testname}.script
-    if diff -b ${basetestname}.exp ${testname}.script >${testname}.dif; then
+    if ./compare_resource_insts.py ${basetestname}.exp ${testname}.script >${testname}.dif; then
       echo "  Test" ${testname} "successful."
       rm ${testname}.dif ${testname}.log ${testname}.script
       success=$[$success + 1 ]

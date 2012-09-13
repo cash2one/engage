@@ -107,7 +107,10 @@ def get_machine_info(os_choices=default_os_choices):
         # See issue genforma/engage#15
         elif release[0:3] == "10." or release[0:3]=="11.": os_type = MACOSX_10_6
         private_ip = None
-        public_ip = socket.gethostbyname(socket.gethostname())
+        try:
+            public_ip = socket.gethostbyname(socket.gethostname())
+        except socket.gaierror:
+            public_ip = "127.0.0.1" # handle case where not connected to a network
     elif system == "Linux":
         # Each linux distribution has its own file in /etc with info about the
         # distribution name and version. We need to have a special case for

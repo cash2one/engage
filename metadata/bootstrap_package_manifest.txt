@@ -3,6 +3,6 @@ pycrypto-2.3-macosx.tar.gz optional macosx
 pycrypto-2.3.tar.gz optional
 nose-1.0.0.tar.gz optional
 pip-1.0.2.tar.gz optional
-monit-5.3.1-macosx-universal.tar.gz required macosx64
-monit-5.3.1.tar.gz required macosx
-monit-5.3.1-linux-x64.tar.gz required linux64
+monit-5.5-macosx-universal.tar.gz required macosx64
+monit-5.5.tar.gz required macosx
+monit-5.5-linux-x64.tar.gz required linux64
