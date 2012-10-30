@@ -69,7 +69,11 @@ def _initialize_logging(log_directory, logfile_name):
     global initialized
     if not initialized:
         log_file_path = os.path.join(log_directory, logfile_name)
-        file_handler = logging.FileHandler(log_file_path)
+        #file_handler = logging.FileHandler(log_file_path)
+        do_rollover = os.path.exists(log_file_path)
+        file_handler = logging.handlers.RotatingFileHandler(log_file_path, backupCount=10)
+        if do_rollover:
+            file_handler.doRollover()
         file_handler.setLevel(logging.DEBUG)
         formatter = logging.Formatter("[%(levelname)s][%(name)s] %(message)s")
         file_handler.setFormatter(formatter)

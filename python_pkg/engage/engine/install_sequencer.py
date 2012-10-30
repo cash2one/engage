@@ -96,7 +96,7 @@ def get_install_target_mgr(mgr_pkg_list):
 
 def run_install(mgr_pkg_list, library, force_stop_on_error=False):
     install_target_mgr = get_install_target_mgr(mgr_pkg_list)
-    undo_list = []
+    installed_list = []
     try:
         for (mgr, pkg) in mgr_pkg_list:
             get_logger().info("Processing resource '%s'." % mgr.id)
@@ -104,6 +104,7 @@ def run_install(mgr_pkg_list, library, force_stop_on_error=False):
                 mgr.validate_post_install()
                 # we force the installed_bit to true
                 mgr.metadata.set_installed()
+                installed_list.append(mgr)
                 get_logger().info("Resource %s already installed." % mgr.package_name)
             else:
                 if pkg == None:
@@ -114,9 +115,9 @@ def run_install(mgr_pkg_list, library, force_stop_on_error=False):
                 mgr.validate_pre_install()
                 mgr.install(pkg)
                 mgr.metadata.set_installed()
+                installed_list.append(mgr)
                 get_logger().info("Install of %s successful." % mgr.package_name)
             if mgr.is_service():
-                undo_list.append(mgr)
                 if mgr.is_running():
                     get_logger().info("Service %s already running." % mgr.package_name)
                 else:
@@ -125,10 +126,13 @@ def run_install(mgr_pkg_list, library, force_stop_on_error=False):
         install_target_mgr.write_resources_to_file([mgr for (mgr, pkg) in mgr_pkg_list])
         get_logger().info("Install completed successfully.")
     except Exception, e:
+        # write out what was actually installed
+        install_target_mgr.write_resources_to_file(installed_list)
         if not force_stop_on_error:
             raise # leave in the error state
         else:
             logger.error("Got exception: %s, will attempt to force stop all services" % e)
+            undo_list = filter(installed_list, lambda mgr: mgr.is_service())
             undo_list.reverse()
             for mgr in undo_list:
                 get_logger().info("Attempting to force stop resource %s" % mgr.id)
@@ -226,7 +230,6 @@ def test_multi_node():
             environment=[resource_metadata.ResourceRef("r3", r3_key)])
     r5 = resource_metadata.ResourceMD("r5", r5_key,
             peers=[resource_metadata.ResourceRef("r2", r2_key)])
-    print "ready to import install_plan" # XXXX
     import install_plan
     plan = install_plan.create_multi_node_install_plan([r2, r5, r3, r4, r1])
     for m in plan:

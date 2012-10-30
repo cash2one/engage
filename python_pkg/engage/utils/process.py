@@ -79,6 +79,55 @@ def run_and_log_program(program_and_args, env_mapping, logger, cwd=None,
     return subproc.returncode
 
 
+class SubprocBadRcError(Exception):
+    def __init__(self, exe_path, rc):
+        Exception.__init__("%s exited with return code %d" % (exe_path, rc))
+        self.exe_path = exe_path
+        self.rc = rc
+
+
+def run_program_and_capture_results(program_and_args, env_mapping, logger,
+                                    cwd=None, input=None, expected_rcs=[0,]):
+    """Run the program as a subprocess and return the stdout/stderr as a big string.
+    Also logs it to the logger at the debug level. If the return code is not in the
+    expected set of returned codes, throws a SubprocBadRcError exception.
+    """
+    logger.debug(' '.join(program_and_args))
+    if cwd != None:
+        logger.debug("Subprocess working directory is %s" % cwd)
+    if env_mapping == None or len(env_mapping)>0 and (env_mapping==os.environ):
+        logger.debug("Subprocess inheriting parent process's environment")
+    elif len(env_mapping)>0:
+        logger.debug("Subprocess environment is %s" % str(env_mapping))
+    else:
+        logger.debug("Subprocess passed empty environment")
+
+    try:
+        subproc = subprocess.Popen(program_and_args,
+                                   env=env_mapping, stdin=subprocess.PIPE,
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.STDOUT, cwd=cwd)
+        logger.debug("Started program %s, pid is %d" % (program_and_args[0],
+                                                       subproc.pid))
+        if input!=None:
+            logger.debug("Input is " + input)
+        (output, dummy) = subproc.communicate(input)
+        for line in output.split("\n"):
+            logger.debug("[%d] %s" % (subproc.pid, line.rstrip()))
+        subproc.wait()
+    except Exception, e:
+        logger.error("Call to %s failed with exception %s" % (program_and_args[0],
+                                                              e))
+        raise
+    logger.debug("[%d] %s exited with return code %d" % (subproc.pid,
+                                                        program_and_args[0],
+                                                        subproc.returncode))
+    if subproc.returncode not in expected_rcs:
+        raise SubprocBadRcError(program_and_args[0], subproc.returncode)
+    return output
+
+
+
 def system(shell_command_string, logger, log_output_as_info=False, cwd=None):
     """Replacement for os.system(), which doesn't handle return codes correctly.
     We also do logging. Set log_output_as_info to True if you have a really

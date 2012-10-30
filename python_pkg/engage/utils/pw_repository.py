@@ -19,12 +19,13 @@ import json
 import getpass
 import traceback
 import gettext
+import base64
 _ = gettext.gettext
 
 from user_error import UserError, convert_exc_to_user_error, InstErrInf
-from log_setup import setup_engine_logger
+import logging
 
-logger = setup_engine_logger(__name__)
+logger = logging.getLogger(__name__)
 
 errors = { }
 
@@ -182,18 +183,28 @@ def decrypt(user_key, salt, key_len, ciphertext):
     return obj.decrypt(ciphertext)
 
 
-def encrypt_object(user_key, obj, salt=None, key_len=KEY_LENGTH):
+def encrypt_object(user_key, obj, salt=None, key_len=KEY_LENGTH, add_random_padding=True):
     """Encrypt a json-able python object, returning a pair consisting of
-    the ciphertext and a random salt.
+    the ciphertext and a random salt. The resulting cyphertext is binary.
     """
     data = json.dumps(obj)
     data = data + '\0' # end of object character
     data_len = len(data)
-    padding_len = (DATA_MOD - (data_len % DATA_MOD)) + (randint(0, 10)*DATA_MOD)
+    random_padding_blocks = randint(0, 10) if add_random_padding else 0
+    padding_len = (DATA_MOD - (data_len % DATA_MOD)) + (random_padding_blocks*DATA_MOD)
     padding = ''.join([ choice(string.printable) for i in range(padding_len) ])
     data = data + padding
     assert (len(data) % DATA_MOD) == 0
     return encrypt(user_key, data, key_len, salt)
+
+
+def encrypt_object_as_string(user_key, obj, salt=None, key_len=KEY_LENGTH, add_random_padding=True):
+    """Encrypt a json-able python object, returning a pair consisting of
+    the ciphertext and a random salt. The resulting cyphertext is an
+    ASCII string.
+    """
+    (ciphertext, salt) = encrypt_object(user_key, obj, salt, key_len, add_random_padding)
+    return (base64.standard_b64encode(ciphertext), salt)
 
 
 def decrypt_object(user_key, salt, ciphertext, key_len=KEY_LENGTH):
@@ -217,6 +228,12 @@ def decrypt_object(user_key, salt, ciphertext, key_len=KEY_LENGTH):
     except:
         raise UserError(errors[ERR_PW_DECRYPTION],
                         developer_msg="Unable to parse decrypted, serialized representation")
+
+def decrypt_object_from_string(user_key, salt, ciphertext, key_len=KEY_LENGTH):
+    """Decrypt the object, where the cipher text was base64 encoced
+    """
+    binary_ciphertext = base64.standard_b64decode(ciphertext)
+    return decrypt_object(user_key, salt, binary_ciphertext, key_len)
 
 
 class StaticMethod:
