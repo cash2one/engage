@@ -279,7 +279,8 @@ def main(argv):
                           #(["apache-libcloud-0.6.2.tar.bz2"], None),
                           #(["argparse-1.2.1.tar.gz"], "argparse"),
                           #(["provision-0.9.3-dev.tar.gz"], None),
-                          (["nose-1.0.0.tar.gz"], "nose")]
+                          (["nose-1.0.0.tar.gz"], "nose"),
+                          (["engage_utils-1.0.tar.gz"], "git+git://github.com/genforma/engage-utils.git")]
     # run install for all of the bootstrap packages
     for (package_file_list, alternate) in bootstrap_packages:
         run_install(engage_bin_dir, sw_packages_src_loc,

@@ -63,13 +63,14 @@ def get_deployment_home(options, parser, file_layout, allow_overrides=False):
         parser.error("Deployment home %s does not exist" % dh)
     return dh
 
-def process_standard_options(options, parser, precreated_file_layout=None, installer_name=None, allow_overrides_of_dh=False):
+def process_standard_options(options, parser, precreated_file_layout=None, installer_name=None, allow_overrides_of_dh=False, rotate_logfiles=True):
     if precreated_file_layout:
         file_layout = precreated_file_layout
     else:
         file_layout = get_engine_layout_mgr(installer_name)
     dh = get_deployment_home(options, parser, file_layout, allow_overrides=allow_overrides_of_dh)
-    log_setup.parse_log_options(options, file_layout.get_log_directory())
+    log_setup.parse_log_options(options, file_layout.get_log_directory(),
+                                rotate_logfiles=rotate_logfiles)
     if hasattr(options, "master_password_file") and \
        options.master_password_file and \
        (not os.path.exists(options.master_password_file)):

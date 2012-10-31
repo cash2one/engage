@@ -4930,6 +4930,42 @@
             "port_mapping": {"host":"host"}}
         ]
       }
+    },
+    { "key":{"name":"engage_utils", "version":"1.0"},
+      "display_name": "Common utilities defined by Engage",
+      "input_ports" : {
+         "python": {
+              "home" : "string"
+            }, 
+         "pip" : {
+            "pipbin" : "string"
+         }
+      },
+      "output_ports": {
+        "pkg_info": {
+          "provides_pkg": { "type": "string", "fixed-value": "engage_utils"},
+          "test_module": { "type": "string", "fixed-value": "engage_utils.process" }
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}}},
+          { "key": {"name": "ubuntu-linux", "version":"11.10"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"pip", "version":"any"},
+            "port_mapping": { "pip": "pip" }
+          },
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.6"}},
+            "port_mapping": {"python":"python"}
+          }
+        ]
+      }
     }
   ]
 }

@@ -65,15 +65,18 @@ def extract_log_options_from_options_obj(options):
     return args
 
 
-def _initialize_logging(log_directory, logfile_name):
+def _initialize_logging(log_directory, logfile_name,
+                        rotate_logfiles=True):
     global initialized
     if not initialized:
         log_file_path = os.path.join(log_directory, logfile_name)
-        #file_handler = logging.FileHandler(log_file_path)
-        do_rollover = os.path.exists(log_file_path)
-        file_handler = logging.handlers.RotatingFileHandler(log_file_path, backupCount=10)
-        if do_rollover:
-            file_handler.doRollover()
+        if rotate_logfiles:
+            do_rollover = os.path.exists(log_file_path)
+            file_handler = logging.handlers.RotatingFileHandler(log_file_path, backupCount=10)
+            if do_rollover:
+                file_handler.doRollover()
+        else:
+            file_handler = logging.FileHandler(log_file_path)
         file_handler.setLevel(logging.DEBUG)
         formatter = logging.Formatter("[%(levelname)s][%(name)s] %(message)s")
         file_handler.setFormatter(formatter)
@@ -86,7 +89,7 @@ def _initialize_logging(log_directory, logfile_name):
         initialized = True
 
     
-def parse_log_options(options, log_directory):
+def parse_log_options(options, log_directory, rotate_logfiles=True):
     """Given parsed options, parse the loglevel and set the level
     appropriately. If the level is bad, print an error message, the
     valid options, and exit"""
@@ -100,7 +103,8 @@ def parse_log_options(options, log_directory):
         raise UserError(AREA_INSTALL, "Logging", ERROR_LOG_BAD_ARG,
                         "Invalid log level: '%s', valid levels are ERROR, WARNING, INFO, ACTION, and DEBUG"
                         % options.loglevel)
-    _initialize_logging(log_directory, options.logfile)
+    _initialize_logging(log_directory, options.logfile,
+                        rotate_logfiles=rotate_logfiles)
 
 
 def setup_logger(area, subarea):

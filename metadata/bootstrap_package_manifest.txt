@@ -1,4 +1,5 @@
 # Packages used by Engage itself
+engage_utils-1.0.tar.gz optional
 pycrypto-2.3-macosx.tar.gz optional macosx
 pycrypto-2.3.tar.gz optional
 nose-1.0.0.tar.gz optional

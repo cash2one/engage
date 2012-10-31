@@ -223,7 +223,8 @@ def main():
     if len(args)<1:
         parser.error("Missing command name. Must be one of %s" % valid_commands)
 
-    (file_layout, deployment_home) = process_standard_options(options, parser, allow_overrides_of_dh=True)
+    (file_layout, deployment_home) = process_standard_options(options, parser, allow_overrides_of_dh=True,
+                                                              rotate_logfiles=False)
 
     if options.resource_file:
         installed_resources_file = os.path.abspath(os.path.expanduser(options.resource_file))

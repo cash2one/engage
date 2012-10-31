@@ -966,6 +966,19 @@
           "location": ""
         }
       ]
+    },
+    { "key":{"name":"engage_utils", "version":"1.0"},
+      "mgr_module_name":"engage.drivers.genforma.pip",
+      "packages": [
+        { "type": "Archive",
+          "package_class": "GzippedTarArchive",
+          "location": "engage_utils-1.0.tar.gz"
+        },
+        { "type": "Reference",
+          "package_class": "PipLink",
+          "location": "git+git://github.com/genforma/engage-utils.git"
+        }
+      ]
     }
   ]
 }
