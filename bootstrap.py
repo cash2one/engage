@@ -16,10 +16,11 @@ assert os.path.exists(python_pkg_dir), "Python package directory %s does not exi
 sys.path.append(python_pkg_dir)
 
 # now do the required engage imports
+from engage.utils.process_bootstrap import system
+from engage.utils.system_info_bootstrap import get_platform
+
 from engage.utils.find_exe import find_executable, find_python_executable, get_python_search_paths
-from engage.utils.process import system
 from engage.utils.log_setup import setup_logger, parse_log_options, add_log_option
-from engage.utils.system_info import get_platform
 
 
 def compare_versions(vstr1, vstr2):

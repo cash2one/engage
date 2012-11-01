@@ -81,7 +81,7 @@ from engage.engine.json_metadata_utils import MetadataContainer, get_json_proper
                                               get_opt_json_property, UnionType
 import engage.utils.file as fileutils
 import engage.utils.path
-import engage.utils.system_info as system_info
+import engage.utils.system_info_bootstrap as system_info
 from engage.extensions import installed_extensions
 from engage.utils.log_setup import setup_engine_logger
 from engage.utils.user_error import UserError, InstErrInf, convert_exc_to_user_error

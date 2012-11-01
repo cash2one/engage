@@ -12,7 +12,7 @@ except:
         sys.path.append(dir_to_add_to_python_path)
 
 
-import engage.utils.system_info
+import engage.utils.system_info_bootstrap
 from engage.extensions import installed_extensions
 from engage.utils.user_error import UserError, InstErrInf
 
@@ -478,7 +478,7 @@ class DistFileLayout(BaseFileLayout):
             
             self.configurator_exe = os.path.join(self._get_bin_dir(),
                                                  "configurator-" +
-                                                 engage.utils.system_info.get_platform())
+                                                 engage.utils.system_info_bootstrap.get_platform())
             self._check_for_file(self.configurator_exe)
         return self.configurator_exe
 

@@ -5,8 +5,6 @@ import os.path
 
 import fixup_python_path
 import engage.utils.log_setup as log_setup
-from library import parse_library_files
-import install_plan
 from engage.engine.engage_file_layout import get_engine_layout_mgr
 from engage.drivers.resource_metadata import parse_resource_from_json
 
@@ -113,17 +111,20 @@ def get_mgrs_and_pkgs(file_layout, deployment_home, options,
     """Perform common initialization operations, returning
     a list of (mgr, pkg) pairs sorted in dependency order.
     """
-    library = parse_library_files(file_layout)
+    import library
+    import install_plan
+    l = library.parse_library_files(file_layout)
     import engage.engine.password
     pw_database = engage.engine.password.get_password_db(file_layout, options)
     import install_context
-    install_context.setup_context(file_layout.get_password_file_directory(), options.subproc, library, pw_database)
+    install_context.setup_context(file_layout.get_password_file_directory(),
+                                  options.subproc, l, pw_database)
 
     if not resource_file:
         resource_file = file_layout.get_installed_resources_file(deployment_home)
 
     def get_manager_and_pkg(resource):
-        entry = library.get_entry(resource)
+        entry = l.get_entry(resource)
         assert entry, "Unable to find entry for resource %s in library file %s" % (resource.id, file_layout.get_software_library_file())
         resource_manager_class = entry.get_manager_class()
         mgr = resource_manager_class(resource)

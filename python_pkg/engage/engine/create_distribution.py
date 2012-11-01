@@ -13,7 +13,7 @@ from engage.engine.cmdline_script_utils import add_standard_cmdline_options, pro
 from engage.utils.log_setup import setup_engage_logger
 logger = setup_engage_logger(__name__)
 
-from engage.utils.system_info import SUPPORTED_PLATFORMS
+from engage.utils.system_info_bootstrap import SUPPORTED_PLATFORMS
 
 def _validate_dir_exists(dirname):
     if not os.path.isdir(dirname):
