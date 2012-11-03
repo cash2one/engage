@@ -25,10 +25,15 @@ test: config-engine download-packages
 	mkdir $(ENGAGE_CODE_HOME)/test_output
 	cd $(ENGAGE_CODE_HOME)/buildutils; python test_engage.py
 
-docs:
+$(ENGAGE_CODE_HOME)/disthome_for_docs: config-engine download-packages
+	cd $(ENGAGE_CODE_HOME); ./bootstrap.py $(ENGAGE_CODE_HOME)/disthome_for_docs
+	$(ENGAGE_CODE_HOME)/disthome_for_docs/engage/bin/pip install -I sphinx
+
+docs: $(ENGAGE_CODE_HOME)/disthome_for_docs
 	@if [[ `which sphinx-build` == "" ]]; then echo "Need to install Sphinx before building docs"; exit 1; fi
-	cd $(ENGAGE_CODE_HOME)/docs/users_guide; make html
-	cd $(ENGAGE_CODE_HOME)/docs/dev_guide; make html
+	export PATH=$(ENGAGE_CODE_HOME)/disthome_for_docs/engage/bin:$$PATH; echo `which python`; cd $(ENGAGE_CODE_HOME)/docs/users_guide; make html
+	export PATH=$(ENGAGE_CODE_HOME)/disthome_for_docs/engage/bin:$$PATH; cd $(ENGAGE_CODE_HOME)/docs/dev_guide; make html
+	rm -rf $(ENGAGE_CODE_HOME)/disthome_for_docs # don't leave it around afterward
 
 clean:
 	cd $(ENGAGE_CODE_HOME)/config_src; make clean
@@ -36,6 +41,7 @@ clean:
 	cd $(ENGAGE_CODE_HOME)/docs/users_guide; make clean
 	cd $(ENGAGE_CODE_HOME)/docs/dev_guide; make clean
 	cd $(ENGAGE_CODE_HOME)/python_pkg; rm -rf ./build ./dist ./engage.egg-info
+	rm -rf $(ENGAGE_CODE_HOME)/disthome_for_docs
 
 
 # The clean-all target also deletes the downloaded packages

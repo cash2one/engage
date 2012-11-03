@@ -476,6 +476,15 @@ let build_graph inst_list =
     let resources = filter_rdef
 	(fun key data -> matches key a.R.key_constraints)
     in
+    if (resources = [] ) then
+      begin
+	let sref = ref "" in
+	let to_str = R_pp.make_pp_state (R_pp.output_to_str sref) in
+	R_pp.pp_atomic_constraint a to_str;
+	raise (L.UserError (L.ConsGen, 0, 
+			    "Unknown key in constraint: " ^ !sref,
+			    "", []))
+      end;
     (* TODO: need to update machine for peer constraints *)
     List.iter (fun r ->
       let possible_resources = lookup_instance_with_key r.R.key currentm in 
@@ -518,7 +527,10 @@ let build_graph inst_list =
 	    (fun acon ->
 	      process_atomic currentn acon (kind, num, !i);
 	      incr i)
-	    alist
+	    alist;
+(*
+	  L.log_debug L.ConsGen (string_of_int(!i) ^ " constraints processed")
+*)
     in
     try
       let work m rr =
@@ -575,8 +587,8 @@ let build_graph inst_list =
          let (b, p) = exists_match cc inst.R.environment_refs in
          if b then
 	   match p with Some rr -> work m rr | None -> assert false
-         else process ()
-    with Not_found -> process ()
+         else ( process () )
+    with Not_found -> (process () )
   in
   (* 1. create a node for each instance in the install script *)
   List.iter (fun inst ->
@@ -608,7 +620,7 @@ let build_graph inst_list =
 	    match cc with
 	      R.AllOfConstraint cclist ->
                 L.log_always L.ConsGen "environment:: All of constraint" ;
-		let _ = List.fold_left 
+                let _ = List.fold_left 
                   (fun num thiscc -> 
                      process_choicecon currentn ENVIRONMENT thiscc num ; num + 1) 0 cclist in
                 L.log_always L.ConsGen "environment:: done!!" ;
@@ -822,7 +834,7 @@ let generate_constraints install_spec =
       [] install_spec
   in
   (* for every "machine" that is generated temporarily, assert that it is
-     not set to true (we cannot "manufacture" machines from thin air 
+     not set to true (we cannot "manufacture" machines from thin air )
   *)
   let tmp_machine_plist = 
     Hashtbl.fold (fun (m,k) n psofar ->
@@ -849,10 +861,12 @@ let find_port_map_from_resource_ref rref k =
     Some (rref.R.ref_key, rref.R.ref_id, R.SymbolMap.find k rref.R.ref_port_mapping)
   else None
 
+
 let find_port_map rinst rdef k =
   L.log_debug L.ConsGen "find_port_map:::";
 (*
   R_pp.pp_resource_inst rinst (R_pp.make_pp_state L.system_print_string);
+  R_pp.pp_resource_def rdef (R_pp.make_pp_state L.system_print_string);
 *)
   L.log_debug L.ConsGen ("key = " ^k );
   let ip_map =
@@ -877,7 +891,12 @@ let find_port_map rinst rdef k =
       end
     else env_map
   in
-  peer_map
+  if peer_map = None then
+    begin
+      assert false
+    end
+  else
+    peer_map
 
 
 let rec json_of_port_reference rinst rdef pref =
@@ -1086,7 +1105,7 @@ let find_env_refs n pmodel rinst (node_id_tbl, id_node_tbl) =
       | _ -> false
 			    ) incoming
     in
-    L.log_debug L.ConsGen ("elist length = " ^ (string_of_int (List.length elist)));
+    L.log_debug L.ConsGen ("find_env_refs: elist length = " ^ (string_of_int (List.length elist)));
     List.map (fun e ->
       let (sn, _, _) = G.deconstruct_edge e in
       let (_,(k,id)) = G.get_node_label sn in
@@ -1153,7 +1172,7 @@ let map_input_ports rdef rinst =
 	  in
 	  R.SymbolMap.add k pl smap
 	end
-    | None -> assert false
+    | None -> L.log_debug L.ConsGen ("Assertion hit with key " ^ k ^"\n") ;assert false
   in
   R.SymbolMap.fold _input_port_worker
     rdef.R.input_port_defs
