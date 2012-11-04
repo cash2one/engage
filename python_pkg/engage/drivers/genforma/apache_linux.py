@@ -9,7 +9,7 @@ import time
 import fixup_python_path
 import engage.drivers.service_manager as service_manager
 import engage.drivers.resource_metadata as resource_metadata
-import engage.utils.process as iuprocess
+import engage_utils.process as iuprocess
 import engage.utils.log_setup
 import aptget
 from engage.drivers.password_repo_mixin import PasswordRepoMixin

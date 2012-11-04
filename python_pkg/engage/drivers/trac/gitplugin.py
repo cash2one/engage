@@ -8,7 +8,7 @@ import os
 import engage.drivers.resource_manager as resource_manager
 import engage.drivers.resource_metadata as resource_metadata
 import engage.utils.path as iupath
-import engage.utils.process as iuprocess
+import engage_utils.process as iuprocess
 
 import engage.utils.log_setup
 logger = engage.utils.log_setup.setup_script_logger("GitPlugin")

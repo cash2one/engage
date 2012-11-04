@@ -14,7 +14,7 @@ from engage.engine.preprocess_resources import create_install_spec, validate_ins
 import config_engine
 import install_engine
 from engage.utils.file import NamedTempFile
-import engage.utils.process as procutils
+import engage_utils.process as procutils
 import engage.utils.log_setup as log_setup
 from engage.utils.user_error import UserError, EngageErrInf, convert_exc_to_user_error, UserErrorParseExc, parse_user_error
 

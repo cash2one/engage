@@ -1,4 +1,4 @@
-from engage.utils.process import SUDO_PASSWORD_REQUIRED
+from engage_utils.process import SUDO_PASSWORD_REQUIRED
 
 class PasswordRepoMixin(object):
     """This is a mixin for resource managers which provides shortcuts for

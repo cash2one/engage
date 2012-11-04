@@ -6,7 +6,7 @@ import json
 # fix path if necessary (if running from source or running as test)
 import fixup_python_path
 
-import engage.utils.process as procutils
+import engage_utils.process as procutils
 import preprocess_resources
 from engage.utils.user_error import UserError, EngageErrInf, convert_exc_to_user_error, UserErrorParseExc, parse_user_error, AREA_CONFIG
 

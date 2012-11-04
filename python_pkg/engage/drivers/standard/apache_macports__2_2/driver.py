@@ -29,7 +29,7 @@ from engage.drivers.genforma.apache_utils import start_apache, stop_apache, rest
 import engage.drivers.genforma.macports_pkg as macports_pkg
 import engage.drivers.service_manager as service_manager
 import engage.drivers.resource_metadata as resource_metadata
-import engage.utils.process as processutils
+import engage_utils.process as processutils
 import engage.utils.log_setup
 import engage.drivers.utils
 from engage.drivers.password_repo_mixin import PasswordRepoMixin

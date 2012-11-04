@@ -11,7 +11,7 @@ import os.path
 import engage.drivers.resource_manager as resource_manager
 import engage.drivers.resource_metadata as resource_metadata
 import engage.utils.log_setup
-import engage.utils.process as iuprocess
+import engage_utils.process as iuprocess
 import engage.utils.file as iufile
 
 

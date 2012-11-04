@@ -10,7 +10,7 @@ import copy
 import fixup_python_path
 
 import engage.utils.system_info as system_info
-import engage.utils.process as procutils
+import engage_utils.process as procutils
 from engage.utils.user_error import UserError, EngageErrInf
 from engage.utils.find_exe import find_python_executable
 from engage.utils.log_setup import setup_engine_logger

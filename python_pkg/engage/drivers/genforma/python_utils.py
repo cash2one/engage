@@ -2,7 +2,7 @@
 
 import os
 import re
-from engage.utils.process import run_and_log_program
+from engage_utils.process import run_and_log_program
 
 
 def is_python_package_installed(site_packages_dir, package_file_regexp,

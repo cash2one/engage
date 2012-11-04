@@ -17,7 +17,7 @@ except:
     sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
     import engage
 
-import engage.utils.process as process
+import engage_utils.process as process
 import engage.drivers.action as action
 from engage.drivers.action import _check_file_exists
 import engage.tests.test_common as tc

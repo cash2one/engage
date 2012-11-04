@@ -19,7 +19,7 @@ import engage.utils.log_setup
 logger = engage.utils.log_setup.setup_engage_logger(__name__)
 
 from engage.utils.json_utils import JsonObject
-import engage.utils.process as iuprocess
+import engage_utils.process as iuprocess
 from engage.utils.user_error import EngageErrInf, UserError
 import gettext
 _ = gettext.gettext

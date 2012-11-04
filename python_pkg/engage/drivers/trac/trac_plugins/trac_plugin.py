@@ -18,7 +18,7 @@ import copy
 import engage.drivers.resource_manager as resource_manager
 import engage.drivers.resource_metadata as resource_metadata
 import engage.utils.path as iupath
-import engage.utils.process as iuprocess
+import engage_utils.process as iuprocess
 from engage.drivers.genforma.python_utils import is_python_package_installed
 from engage.drivers.patch_resource_mixin import PatchResourceMixin
 

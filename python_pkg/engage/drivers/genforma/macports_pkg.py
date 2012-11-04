@@ -16,7 +16,7 @@ import fixup_python_path
 import engage.drivers.resource_manager as resource_manager
 import engage.drivers.resource_metadata as resource_metadata
 import engage.drivers.action as action
-import engage.utils.process as iuprocess
+import engage_utils.process as iuprocess
 import engage.utils.log_setup
 from engage.utils.regexp import *
 from engage.drivers.password_repo_mixin import PasswordRepoMixin

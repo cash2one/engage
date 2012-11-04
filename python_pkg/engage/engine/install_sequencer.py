@@ -11,7 +11,7 @@ import fixup_python_path
 
 from engage.utils.log_setup import setup_engine_logger
 import install_context
-import engage.utils.process
+import engage_utils.process
 
 #from provision.deploy import parser, deploy
 #from provision.config import reconfig
@@ -186,7 +186,7 @@ def run_multi_node_install(multi_node_install_plan, library, dev_mode=True, forc
         for machine_install_plan in multi_node_install_plan:
             m = machines[machine_install_plan[0].id]
             # run bootstrap in the directory
-            retcode = engage.utils.process.run_and_log_program(['python', 'bootstrap.py', m.private_ip], logger=get_logger())
+            retcode = engage_utils.process.run_and_log_program(['python', 'bootstrap.py', m.private_ip], logger=get_logger())
             resources = [r.to_json() for r in machine_install_plan ]
             fp = open(os.path.join(m.private_ip, 'install.script'), "wb")
             json.dump(resources, fp, sort_keys=True, indent=2)

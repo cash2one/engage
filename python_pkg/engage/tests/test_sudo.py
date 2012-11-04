@@ -1,4 +1,4 @@
-"""Tests for sudo handling of engage.utils.process and engage.drivers.action.
+"""Tests for sudo handling of engage_utils.process and engage.drivers.action.
 There are three modes that we can be running in:
  1. If running as root, sudo actions will be transparently run directly
  2. If running as normal user, but no password is needed for sudo access,
@@ -25,7 +25,7 @@ except:
     sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
     import engage
 
-import engage.utils.process as process
+import engage_utils.process as process
 import engage.drivers.action as action
 from engage.drivers.action import _check_file_exists
 import engage.tests.test_common as tc

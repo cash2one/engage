@@ -254,7 +254,7 @@ except:
         os.path.expanduser(os.path.join(os.path.dirname(__file__), "../.."))))
 
 import engage.utils.file as fileutils
-import engage.utils.process as procutils
+import engage_utils.process as procutils
 import engage.utils.regexp as regexp
 import engage.utils.path as pathutils
 import engage.utils.cfg_file as cfg_file

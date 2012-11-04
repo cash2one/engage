@@ -300,7 +300,7 @@ def set_shared_file_group_and_permissions(path, group_name, logger=None,
     TODO: don't system commands if file already has permissions
     """
     assert os.path.exists(path)
-    import process
+    import engage_utils.process
     statinfo = os.stat(path)
     # grant rw for user and r for group
     permissions = stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP
@@ -311,13 +311,13 @@ def set_shared_file_group_and_permissions(path, group_name, logger=None,
         permissions = permissions | stat.S_IWGRP
     gid = grp.getgrnam(group_name).gr_gid
     if sudo_password:
-        process.sudo_chgrp(group_name, [path], sudo_password, logger)
+        engage_utils.process.sudo_chgrp(group_name, [path], sudo_password, logger)
     else:
         if logger:
             logger.action("chgrp %s %s" % (group_name, path))
         os.chown(path, -1, gid)
     if sudo_password:
-        process.sudo_chmod(permissions, [path], sudo_password, logger)
+        engage_utils.process.sudo_chmod(permissions, [path], sudo_password, logger)
     else:
         if logger:
             logger.action("chmod %o %s" % (permissions, path))
@@ -344,7 +344,7 @@ def sudo_set_shared_directory_group_and_permissions(path, group_name, logger,
                                                     sudo_password,
                                                     writable_to_group=False):
     assert os.path.isdir(path), "%s is not a directory" % path
-    import process
+    import engage_utils.process
     statinfo = os.stat(path)
     # grant rw for user and r for group
     permissions = stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP
@@ -353,8 +353,8 @@ def sudo_set_shared_directory_group_and_permissions(path, group_name, logger,
         permissions = permissions | stat.S_IXUSR | stat.S_IXGRP
     if writable_to_group:
         permissions = permissions | stat.S_IWGRP
-    process.sudo_chgrp(group_name, [path], sudo_password, logger, recursive=True)
-    process.sudo_chmod(permissions, [path], sudo_password, logger, recursive=True)
+    engage_utils.process.sudo_chgrp(group_name, [path], sudo_password, logger, recursive=True)
+    engage_utils.process.sudo_chmod(permissions, [path], sudo_password, logger, recursive=True)
 
 def sudo_ensure_directory_group_reachable(path, group_name, logger,
                                           sudo_password):
@@ -368,7 +368,7 @@ def sudo_ensure_directory_group_reachable(path, group_name, logger,
     To get around this, we would need to run the entire function as root or grab the
     permissions using sudo in a subprocess.
     """
-    import process
+    import engage_utils.process
     pdir = os.path.dirname(path)
     gid = grp.getgrnam(group_name).gr_gid
     while pdir != '/':
@@ -376,11 +376,11 @@ def sudo_ensure_directory_group_reachable(path, group_name, logger,
         if statinfo.st_gid == gid:
             if (stinfo.st_mode & stat.S_IXGRP) == 0:
                 permissions = statinfo.st_mode | stat.S_IXGRP
-                process.sudo_chmod(permissions, [pdir], sudo_password, logger,
+                engage_utils.process.sudo_chmod(permissions, [pdir], sudo_password, logger,
                                    recursive=False)
         elif (statinfo.st_mode & stat.S_IXOTH) == 0:
             permissions = statinfo.st_mode | stat.S_IXOTH
-            process.sudo_chmod(permissions, [pdir], sudo_password, logger,
+            engage_utils.process.sudo_chmod(permissions, [pdir], sudo_password, logger,
                                recursive=False)
         pdir = os.path.dirname(pdir)
             

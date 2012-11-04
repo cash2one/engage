@@ -17,7 +17,7 @@ import engage.utils.rdef as rdef
 import engage.utils.pw_repository as pw_repository
 from engage.drivers.resource_metadata import parse_resource_from_json
 import engage.engine.engage_file_layout as engage_file_layout
-import engage.utils.process as procutils
+import engage_utils.process as procutils
 from engage.utils.log_setup import setup_engage_logger
 logger = setup_engage_logger(__name__)
 

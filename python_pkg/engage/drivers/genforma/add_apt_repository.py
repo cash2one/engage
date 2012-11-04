@@ -23,7 +23,7 @@ import engage.drivers.utils
 from engage.drivers.action import *
 from engage.drivers.password_repo_mixin import PasswordRepoMixin
 from engage.drivers.genforma.aptget import update
-import engage.utils.process as procutils
+import engage_utils.process as procutils
 
 # setup errors
 from engage.utils.user_error import UserError, EngageErrInf

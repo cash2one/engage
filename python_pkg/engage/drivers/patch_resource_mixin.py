@@ -5,7 +5,7 @@ import os.path
 import shutil
 
 import resource_metadata
-from engage.utils.process import run_and_log_program
+from engage_utils.process import run_and_log_program
 
 class PatchInstallError(Exception):
     pass

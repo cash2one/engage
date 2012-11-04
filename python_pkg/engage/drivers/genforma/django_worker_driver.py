@@ -18,7 +18,7 @@ import engage.drivers.service_manager as service_manager
 import engage.drivers.resource_metadata as resource_metadata
 from engage.drivers.genforma.django_file_layout import create_file_layout_from_json
 import engage.utils.log_setup
-import engage.utils.process as iuprocess
+import engage_utils.process as iuprocess
 
 
 from engage.utils.user_error import ScriptErrInf, UserError
