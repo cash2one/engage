@@ -11,7 +11,7 @@ if sys.version_info[0]!=2 or sys.version_info[1]<6:
                     (sys.version_info[0], sys.version_info[1], sys.executable))
 import bootstrap
 from engage.utils.log_setup import setup_engage_logger, parse_log_options, add_log_option
-from engage.utils.process import run_and_log_program, run_sudo_program
+from engage.utils.process_bootstrap import run_and_log_program, run_sudo_program
 import engage.engine.backup as backup
 
 class UpgradeRequest(object):

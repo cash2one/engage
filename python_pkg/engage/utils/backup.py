@@ -12,7 +12,7 @@ import sys
 import shutil
 import tempfile
 
-import process
+import process_bootstrap as process
 import log_setup
 
 logger = log_setup.setup_engage_logger(__name__)
