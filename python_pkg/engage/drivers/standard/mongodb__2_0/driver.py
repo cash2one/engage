@@ -20,6 +20,7 @@ import engage.drivers.service_manager as service_manager
 import engage.drivers.utils
 # Drivers compose *actions* to implement their methods.
 from engage.drivers.action import *
+from engage_utils.process import run_and_log_program
 
 # setup errors
 from engage.utils.user_error import UserError, EngageErrInf
@@ -51,6 +52,20 @@ logger = setup_engage_logger(__name__)
 def get_packages_filename():
     return engage.drivers.utils.get_packages_filename(__file__)
 
+@make_value_action
+def test_mongodb_connection(self, python_exe, connectTimeoutMS=1000):
+    """To see if mongodb is really responding to client connections we
+    create a pymongo connection. Unfortunately, this has to be done in the
+    python virtualenv where we've installed pymongo as a dependency. To do
+    this, we run the script as a subprocess and check the return code.
+    """
+    rc = run_and_log_program([python_exe, "-c",
+                              "import pymongo.connection; pymongo.connection.Connection(connectTimeoutMS=%d)" % connectTimeoutMS],
+                             None, self.ctx.logger,
+                             cwd=os.path.dirname(python_exe))
+    return rc == 0
+
+
 def make_context(resource_json, sudo_password_fn, dry_run=False):
     """Create a Context object (defined in engage.utils.action). This contains
     the resource's metadata in ctx.props, references to the logger and sudo
@@ -72,6 +87,8 @@ def make_context(resource_json, sudo_password_fn, dry_run=False):
                   os_user_name=unicode,
                   hostname=unicode,
                   log_directory=unicode)
+    ctx.check_port('input_ports.python',
+                   home=unicode)
     ctx.check_port('output_ports.mongodb',
                   home=unicode,
                   hostname=unicode,
@@ -103,6 +120,7 @@ class Manager(service_manager.Manager):
     def validate_pre_install(self):
         p = self.ctx.props
         self.ctx.r(check_installable_to_dir, p.config_port.home)
+        self.ctx.r(check_file_exists, p.input_ports.python.home)
 
 
     def is_installed(self):
@@ -128,7 +146,14 @@ class Manager(service_manager.Manager):
            "--port", str(p.config_port.port),
            "--logappend"],
           cwd=os.path.dirname(p.server_exe))
-        self.ctx.check_poll(10, 1.0, lambda x: x!=None, get_server_status, p.pid_file)
+        self.ctx.check_poll(20, 2.0, lambda x: x!=None, get_server_status,
+                            p.pid_file)
+        # the process is running, but it might take some time to actually
+        # get to the point that it can accept connections. We try connecting
+        # via the python client API until it accepts us
+        python_exe = p.input_ports.python.home # yes, the name is misleading!
+        self.ctx.check_poll(10, 10.0, lambda x: x,
+                            test_mongodb_connection, python_exe)
 
     def stop(self):
         self.ctx.r(stop_server, self.ctx.props.pid_file)

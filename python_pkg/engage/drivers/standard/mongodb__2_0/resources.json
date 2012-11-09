@@ -12,6 +12,9 @@
           "os_user_name" : {"type": "string"},
           "genforma_home": {"type": "path"},
           "log_directory": {"type": "path"}
+        },
+        "python": {
+          "home" : "string"
         }
       },
       "output_ports": {
@@ -30,6 +33,15 @@
             "port_mapping": {"host":"host"}},
           { "key": {"name": "ubuntu-linux", "version":"10.04"},
             "port_mapping": {"host":"host"}}
+        ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"pymongo", "version":"2.1"}},
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.3"}},
+            "port_mapping": {"python":"python"}
+          }
         ]
       }
     }
