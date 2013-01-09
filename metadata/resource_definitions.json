@@ -4966,6 +4966,43 @@
           }
         ]
       }
+    },
+    { "key":{"name":"urllib3", "version":"1.5"},
+      "display_name": "urllib3 Python package",
+      "comment": "HTTP library with thread-safe connection pooling, file post, and more.",
+      "input_ports" : {
+         "python": {
+              "home" : "string"
+            }, 
+         "pip" : {
+            "pipbin" : "string"
+         }
+      },
+      "output_ports": {
+        "pkg_info": {
+          "provides_pkg": { "type": "string", "fixed-value": "urllib3"},
+          "test_module": { "type": "string", "fixed-value": "urllib3" }
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}}},
+          { "key": {"name": "ubuntu-linux", "version":"11.10"}},
+          { "key": {"name": "ubuntu-linux", "version":"10.04"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"pip", "version":"any"},
+            "port_mapping": { "pip": "pip" }
+          },
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.6"}},
+            "port_mapping": {"python":"python"}
+          }
+        ]
+      }
     }
   ]
 }

@@ -979,6 +979,15 @@
           "location": "git+git://github.com/genforma/engage-utils.git"
         }
       ]
+    },
+    { "key":{"name":"urllib3", "version":"1.5"},
+      "mgr_module_name":"engage.drivers.genforma.pip",
+      "packages": [
+        { "type": "Reference",
+          "package_class": "PipLink",
+          "location": "urllib3"
+        }
+      ]
     }
   ]
 }
