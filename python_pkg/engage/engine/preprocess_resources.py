@@ -74,7 +74,10 @@ def preprocess_resource_file(primary_resource_file, extension_resource_files,
     definitions or can be a dict containig a resource_definitions property.
     """
     with open(primary_resource_file, "rb") as prf:
-        resource_file = json.load(prf)
+        try:
+            resource_file = json.load(prf)
+        except ValueError, e:
+            raise Exception("JSON parsing error in %s: %s" % (primary_resource_file, e))
     resources = resource_file['resource_definitions']
     assert isinstance(resources, list)
 
@@ -84,7 +87,10 @@ def preprocess_resource_file(primary_resource_file, extension_resource_files,
                          (os.path.basename(os.path.dirname(res_file)),
                           os.path.basename(res_file)))
             with open(res_file, "rb") as rf:
-                driver_resources = json.load(rf)
+                try:
+                    driver_resources = json.load(rf)
+                except ValueError, e:
+                    raise Exception("JSON parsing error in %s: %s" % (res_file, e))
             if isinstance(driver_resources, list):
                 resources.extend(driver_resources)
             elif isinstance(driver_resources, dict) and \

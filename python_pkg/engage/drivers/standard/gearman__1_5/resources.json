@@ -21,7 +21,7 @@
             "port_mapping": {"host":"host"}},
           { "key": {"name": "ubuntu-linux", "version":"11.10"},
             "port_mapping": {"host":"host"}},
-          { "key": {"name": "ubuntu-linux", "version":"10.04"},
+          { "key": {"name": "ubuntu-linux", "version":"12.04"},
             "port_mapping": {"host":"host"}}
           ]
       },

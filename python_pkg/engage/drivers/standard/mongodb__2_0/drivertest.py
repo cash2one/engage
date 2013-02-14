@@ -34,7 +34,9 @@ _install_script = """
         "os_user_name": "${username}",
         "private_ip": null,
         "sudo_password": "GenForma/${username}/sudo_password"
-      }
+      },
+     "python": {"home":"${deployment_home}/apps/python"}
+
     },
     "output_ports": {
       "mongodb": {

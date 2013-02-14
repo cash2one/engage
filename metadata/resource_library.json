@@ -158,7 +158,7 @@
     { "key": { "name": "ubuntu-linux", "version": "11.10"},
       "mgr_module_name": "engage.drivers.install_target_resource"
     },
-    { "key": { "name": "ubuntu-linux", "version": "10.04"},
+    { "key": { "name": "ubuntu-linux", "version": "12.04"},
       "mgr_module_name": "engage.drivers.install_target_resource"
     },
     { "key": { "name": "apache-mac", "version": "2.2"},

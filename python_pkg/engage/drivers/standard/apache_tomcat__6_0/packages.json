@@ -2,7 +2,7 @@
 [
   { "type": "Archive",
     "package_class": "GzippedTarArchive",
-    "location": ["http://mirror.uoregon.edu/apache/tomcat/tomcat-6/v6.0.35/bin/apache-tomcat-6.0.35.tar.gz", "http://www.eu.apache.org/dist/tomcat/tomcat-6/v6.0.35/bin/apache-tomcat-6.0.35.tar.gz"],
+    "location": "http://archive.apache.org/dist/tomcat/tomcat-6/v6.0.35/bin/apache-tomcat-6.0.35.tar.gz",
     "filename": "apache-tomcat-6.0.35.tar.gz",
     "downloader":"HTTPDownloader"
   }
