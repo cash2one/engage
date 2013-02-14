@@ -1060,7 +1060,7 @@
       },
       "inside": {
         "one-of": [
-          { "key": {"name":"ubuntu-linux", "version":{"greater-than-or-equal":"12.04"}},
+          { "key": {"name":"ubuntu-linux", "version":{"greater-than-or-equal":"11.10"}},
             "port_mapping": {"host":"host"}}
         ]
       }
