@@ -940,12 +940,12 @@
         "location":""}
      ]
     },
-    { "key":{"name":"pyzmq-linux", "version":"2.1"},
+    { "key":{"name":"pyzmq-linux", "version":"13.0"},
       "mgr_module_name":"engage.drivers.genforma.pip",
       "packages": [
         { "type": "Reference",
           "package_class": "PipLink",
-          "location": "pyzmq"
+          "location": "pyzmq>=13.0.0"
         }
       ]
     },

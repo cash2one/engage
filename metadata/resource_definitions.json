@@ -4348,7 +4348,7 @@
           { "key": {"name":"python-dev-headers", "version": "2.x"}}
       ]}
     },
-    { "key": {"name":"pyzmq-linux", "version":"2.1"},
+    { "key": {"name":"pyzmq-linux", "version":"13.0"},
       "display_name": "ZeroMQ python bindings, with dependencies for Linux",
       "comment": "In your install specs, you should refer to pyzmq-abstract rather than directly to this resource. This package provides zeromq python bindings. The driver just uses pip, but the dependencies include those needed to install the underlying zeromq libraries under ubuntu.",
       "input_ports" : {
@@ -4491,7 +4491,7 @@
           {"one-of": [
             { "key": {"name": "pyzmq-macports", "version":"2.7"},
               "port_mapping": {"zeromq":"zeromq"}},
-            { "key": {"name": "pyzmq-linux", "version":"2.1"},
+            { "key": {"name": "pyzmq-linux", "version":"13.0"},
               "port_mapping": {"zeromq":"zeromq"}}
           ]}
       ]}
