@@ -668,17 +668,17 @@
        ]
    },
    {
-       "key": {"name": "gunicorn", "version":"0.14"},
-       "mgr_module_name": "engage.drivers.genforma.easy_install",
+       "key": {"name": "gunicorn", "version":"0.17"},
+       "mgr_module_name": "engage.drivers.genforma.pip",
        "packages": [
            { "type": "Archive",
              "package_class": "GzippedTarArchive",
-             "filename": "gunicorn-0.14.2.tar.gz",
-             "location": "http://pypi.python.org/packages/source/g/gunicorn/gunicorn-0.14.2.tar.gz#md5=5e2f8f5c0892f3ff3813fe66bd46a754",
+             "filename": "gunicorn-0.17.2.tar.gz",
+             "location": "https://pypi.python.org/packages/source/g/gunicorn/gunicorn-0.17.2.tar.gz",
              "downloader": "HTTPDownloader"
            },
            { "type": "Reference",
-             "package_class": "EasyInstallLink",
+             "package_class": "PipLink",
              "location": "gunicorn"
            }
        ]

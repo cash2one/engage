@@ -4,13 +4,14 @@ import os
 import sys
 import os.path
 from optparse import OptionParser
+import json
 
 # fix path if necessary (if running from source or running as test)
 import fixup_python_path
 
 import cmdline_script_utils
 from host_resource_utils import get_target_machine_resource
-from engage.engine.preprocess_resources import create_install_spec, validate_install_spec
+from engage.engine.preprocess_resources import create_install_spec, validate_install_spec, merge_new_install_spec_into_existing
 import config_engine
 import install_engine
 from engage.utils.file import NamedTempFile
@@ -54,6 +55,9 @@ class DeployRequest(object):
     def process_args(self, argv, engage_file_layout=None):
         usage = "usage: %prog [options] install_specification_file"
         parser = OptionParser(usage=usage)
+        parser.add_option("-a", "--additive-install", default=False,
+                          action="store_true",
+                          help="If specified, an install already exists and we are adding resources to the deployment")
         cmdline_script_utils.add_standard_cmdline_options(parser,
                                                           uses_pw_file=True)
         (self.options, args) = parser.parse_args(args=argv)
@@ -69,6 +73,15 @@ class DeployRequest(object):
             cmdline_script_utils.process_standard_options(self.options, parser,
                                                           engage_file_layout,
                                                           installer_name=None)
+        ir_file = self.efl.get_installed_resources_file(self.deployment_home)
+        if self.options.additive_install:
+            if not os.path.exists(ir_file):
+                parser.error("--additive-install specified, but existing install file %s does not exist" % ir_file)
+        else:
+            if os.path.exists(ir_file):
+                parser.error("Installed resources file %s already exists. Specify --additive-install if you want to add resources to this deployment home" %
+                             ir_file)
+                
         self.error_file = os.path.join(self.efl.get_log_directory(),
                                        "user_error.json")
         self.config_error_file = config_engine.get_config_error_file(self.efl)
@@ -82,15 +95,48 @@ class DeployRequest(object):
                                                     parser)
 
     def run(self, logger):
-        hosts = create_install_spec(self.tr, self.input_spec_file,
-                                    self.efl.get_install_spec_file(),
-                                    self.efl, logger)
-        validate_install_spec(self.efl.get_install_spec_file())
-        config_engine.preprocess_and_run_config_engine(self.efl,
-                                                       self.efl.get_install_spec_file())
-        ie_args = cmdline_script_utils.extract_standard_options(self.options)
-        return install_engine.main(ie_args, file_layout=self.efl,
-                                   installer_supplied_pw_key_list=None)
+        if self.options.additive_install:
+            # For an additive install, we rename the original install spec
+            # and then create a new one that merges the spec with the already
+            # installed resources.
+            orig_spec_file = self.input_spec_file
+            self.input_spec_file = orig_spec_file.replace('.json', '.merged.json') \
+                                   if orig_spec_file.endswith('.json') \
+                                   else orig_spec_file + '.merged'
+            with open(orig_spec_file, 'rb') as f:
+                install_spec_resources = json.load(f)
+            irf = self.efl.get_installed_resources_file(self.deployment_home)
+            with open(irf, 'rb') as f:
+                installed_resources = json.load(f)
+            merged_spec = merge_new_install_spec_into_existing(install_spec_resources,
+                                                               installed_resources,
+                                                               logger)
+            with open(self.input_spec_file, 'wb') as f:
+                json.dump(merged_spec, f)
+            # Rename the old installed resource file so we don't lose it if
+            # things fail.
+            os.rename(irf, irf + '.prev') 
+        try:
+            hosts = create_install_spec(self.tr, self.input_spec_file,
+                                        self.efl.get_install_spec_file(),
+                                        self.efl, logger)
+            validate_install_spec(self.efl.get_install_spec_file())
+            config_engine.preprocess_and_run_config_engine(self.efl,
+                                                           self.efl.get_install_spec_file())
+        except:
+            if self.options.additive_install:
+                logger.debug("Additive install: Problem in preparing new install spec, reverting old install spec file")
+                os.rename(irf + '.prev', irf)
+            raise
+        try:
+            ie_args = cmdline_script_utils.extract_standard_options(self.options)
+            return install_engine.main(ie_args, file_layout=self.efl,
+                                       installer_supplied_pw_key_list=None)
+        except:
+            if self.options.additive_install and not os.path.exists(irf):
+                logger.debug("Additive install: Problem in new install, reverting old install spec file")
+                os.rename(irf + '.prev', irf)
+            raise
 
         
 def main(argv, engage_file_layout=None):

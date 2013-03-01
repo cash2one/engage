@@ -29,11 +29,19 @@ def define_error(error_code, msg):
     errors[error_info.error_code] = error_info
 
 
-ERR_SPEC_VALIDATION = 1
+ERR_SPEC_VALIDATION           = 1
+ERR_MISSING_MASTER            = 2
+ERR_UNABLE_TO_UPGRADE         = 3
+ERR_UNABLE_TO_RENAME_RESOURCE = 4
 
 define_error(ERR_SPEC_VALIDATION,
              _("Error in validation of resource spec %(file)s: %(msg)s"))
-
+define_error(ERR_MISSING_MASTER,
+             _("Could not find master-host resource in installed resources file %(file)s"))
+define_error(ERR_UNABLE_TO_UPGRADE,
+             _("Problem with resource %(id)s: additive installs do not current support upgrades or resource replacement. Old resource was %(old_res)s, new resource was %(new_res)s"))
+define_error(ERR_UNABLE_TO_RENAME_RESOURCE,
+             _("Additive install attempting to add resource %(new_id)s, which is of the same type as %(old_id)s"))
 
 # Versions of preinstalled packages
 PYTHON_VERSION = "%d.%d" % (sys.version_info[0], sys.version_info[1])
@@ -148,6 +156,29 @@ def query_install_spec(spec, inside=None, **kwargs):
             results.append(inst)
     return results
 
+def _iterate_rinst_references(inst, fn):
+    """Helper that goes through a resource instance and calls the
+    specified function for each of the instance's reference (inside,
+    environment, and peer)
+    """
+    if inst.has_key("inside") and len(inst["inside"])>0:
+        inst_ref = inst["inside"]
+        assert inst_ref.has_key("id"), \
+            "Install spec instance %s inside ref missing 'id' key" % \
+            inst["id"]
+        fn(inst_ref)
+    if inst.has_key("environment"):
+        assert isinstance(inst["environment"], list)
+        for inst_ref in inst["environment"]:
+            assert inst_ref.has_key("id")
+            fn(inst_ref)
+    if inst.has_key("peers"):
+        assert isinstance(inst["peers"], list)
+        for inst_ref in inst["peers"]:
+            assert inst_ref.has_key("id")
+            fn(inst_ref)
+
+
 def fixup_installed_resources_in_install_spec(json_data, inst_list):
     """Given a parsed raw install spec file and a list of resource instances to
     update in the spec, fixup the
@@ -182,23 +213,10 @@ def fixup_installed_resources_in_install_spec(json_data, inst_list):
     for idx in range(len(data)):
         inst = data[idx]
         assert inst.has_key("id")
-        if inst.has_key("inside") and len(inst["inside"])>0:
-            inst_ref = inst["inside"]
-            assert inst_ref.has_key("id"), \
-                "Install spec instance %s inside ref missing 'id' key" % \
-                inst["id"]
+        def update_fn(inst_ref):
             if inst_ref["id"] in updated_insts:
                 inst_ref["key"] = id_to_key[inst_ref["id"]]
-        if inst.has_key("environment"):
-            assert isinstance(inst["environment"], list)
-            for inst_ref in inst["environment"]:
-                if inst_ref["id"] in updated_insts:
-                    inst_ref["key"] = id_to_key[inst_ref["id"]]
-        if inst.has_key("peers"):
-            assert isinstance(inst["peers"], list)
-            for inst_ref in inst["peers"]:
-                if inst_ref["id"] in updated_insts:
-                    inst_ref["key"] = id_to_key[inst_ref["id"]]                
+        _iterate_rinst_references(inst, update_fn)
     return data
 
 
@@ -326,7 +344,78 @@ def _add_preinstalled_resource_to_spec(name, version, all_hosts,
                 inst["properties"]["installed"] = True
             
 
-                                               
+def _update_resource_id_references(resource_list, old_id, new_id):
+    """Helper to update all references of old_id to new_id.
+    """
+    for inst in resource_list:
+        def update_fn(inst_ref):
+            if inst_ref['id']==old_id:
+                inst_ref['id'] = new_id
+        _iterate_rinst_references(inst, update_fn)
+                
+
+def merge_new_install_spec_into_existing(install_spec,
+                                         installed_resources,
+                                         logger):
+    """When running an additive install, we merge the install spec into
+    the existing installed resources file. This is done before calling
+    create_install_spec().
+    """
+    def mangle_key(key):
+        return '%s__%s' % (key['name'], key['version'])
+    master_inst = None
+    resources_by_id = {}
+    resources_by_key = {}
+    updated = copy.deepcopy(installed_resources)
+    for inst in updated:
+        resources_by_id[inst["id"]] = inst
+        resources_by_key[mangle_key(inst['key'])] = inst
+        if inst["id"]=="master-host":
+            master_inst = inst
+    if not master_inst:
+        raise UserError(errors[ERR_MISSING_MASTER],
+                        msg_args={'file':installed_resources_file})
+    
+    # NOTE: for now, ignoring the config properties, which might be different
+    for new_res in install_spec:
+        new_res_mangled_key = mangle_key(new_res['key'])
+        if new_res['id'] in resources_by_id:
+            old_res = resources_by_id[new_res["id"]]
+            old_res_mangled_key = mangle_key(old_res['key'])
+            if new_res_mangled_key==old_res_mangled_key or \
+                   (new_res['id']=='master-host' and new_res['key']['name']=='dynamic-host'):
+                logger.info("Additive install: ignoring resource %s, already present in install" % new_res['id'])
+            else:
+                raise UserError(errors[ERR_UNABLE_TO_UPGRADE],
+                                msg_args={'id': new_res['id'],
+                                          'old_res':'%s %s' % (old_res['key']['name'], old_res['key']['version']),
+                                          'new_res':'%s %s' % (new_res['key']['name'], new_res['key']['version'])})
+            
+        elif new_res_mangled_key in resources_by_key:
+            old_res = resources_by_key[new_res_mangled_key]
+            old_id = old_res['id']
+            new_id = new_res['id']
+            assert old_id!=new_id # should not match, otherwise previous case should have been taken
+            if old_id.startswith('__'):
+                # if the old resource had an auto-generated id, we change it to use the new id
+                old_res['id'] = new_id
+                _update_resource_id_references(updated, old_id, new_id)
+                logger.info("Additive install: renaming resource %s to %s" % (old_id, new_id))
+            else:
+                raise UserError(errors[ERR_UNABLE_TO_RENAME_RESOURCE],
+                                msg_args={'old_id':old_id, 'new_id':new_id})
+        else:
+            if ('inside' not in new_res) or new_res['inside']['id']=='master-host':
+                new_res['inside'] = {
+                    "id": "master-host",
+                    "key": master_inst["key"],
+                    "port_mapping": {"host":"host"}
+                }
+            updated.append(new_res)
+            logger.info("Additive install: adding resource %s" % new_res['id'])
+    return updated
+
+            
 def create_install_spec(master_node_resource, install_spec_template_file,
                         install_spec_file,
                         installer_file_layout, logger):

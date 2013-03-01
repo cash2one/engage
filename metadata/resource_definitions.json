@@ -3368,19 +3368,23 @@
         ]
       }
     },
-    { "key" : {"name": "gunicorn", "version":"0.14"},
+    { "key" : {"name": "gunicorn", "version":"0.17"},
       "display_name" : "Green Unicorn: Python WSGI HTTP Server",
       "input_ports" : {
          "python": {
               "home" : "string",
               "python_bin_dir": "path"
-            }, 
-         "setuptools" : {
-            "easy_install" : "string"
+         }, 
+         "pip" : {
+            "pipbin" : "string"
          },
          "host": {"genforma_home": "path"}
       },
       "output_ports": {
+        "pkg_info": {
+          "provides_pkg": { "type": "string", "fixed-value": "gunicorn"},
+          "test_module": { "type": "string", "fixed-value": "gunicorn" }
+        },
         "gunicorn": {
           "gunicorn_exe":{"type":"path",
                           "fixed-value":"${input_ports.python.python_bin_dir}/gunicorn"},
@@ -3403,11 +3407,11 @@
       },
       "environment": {
         "all-of": [
-          { "key": {"name":"setuptools", "version":"0.6"},
-            "port_mapping": { "setuptools": "setuptools" }
+          { "key": {"name":"pip", "version":"any"},
+            "port_mapping": { "pip": "pip" }
           },
           { "key": {"name":"python",
-                    "version":{"greater-than-or-equal":"2.3"}},
+                    "version":{"greater-than-or-equal":"2.6"}},
             "port_mapping": {"python":"python"}
           }
         ]

@@ -59,11 +59,11 @@
       "platform": "macosx",
       "groups": ["Engage"]
     },
-     { "filename": "gunicorn-0.14.2.tar.gz",
-      "location": "http://pypi.python.org/packages/source/g/gunicorn/gunicorn-0.14.2.tar.gz#md5=5e2f8f5c0892f3ff3813fe66bd46a754",
+     { "filename": "gunicorn-0.17.2.tar.gz",
+      "location": "https://pypi.python.org/packages/source/g/gunicorn/gunicorn-0.17.2.tar.gz",
       "handler": "wget",
       "description": "webserver used for django installs",
-      "checksum": "1991415031 203588 gunicorn-0.14.2.tar.gz",
+      "checksum": "2551214238 360120 gunicorn-0.17.2.tar.gz",
       "groups": ["Django", "Engage"]
     }
 ]

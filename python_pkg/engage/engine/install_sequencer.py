@@ -97,6 +97,7 @@ def get_install_target_mgr(mgr_pkg_list):
 def run_install(mgr_pkg_list, library, force_stop_on_error=False):
     install_target_mgr = get_install_target_mgr(mgr_pkg_list)
     installed_list = []
+    installed_resource_ids = set()
     try:
         for (mgr, pkg) in mgr_pkg_list:
             get_logger().info("Processing resource '%s'." % mgr.id)
@@ -105,6 +106,7 @@ def run_install(mgr_pkg_list, library, force_stop_on_error=False):
                 # we force the installed_bit to true
                 mgr.metadata.set_installed()
                 installed_list.append(mgr)
+                installed_resource_ids.add(mgr.id)
                 get_logger().info("Resource %s already installed." % mgr.package_name)
             else:
                 if pkg == None:
@@ -116,6 +118,7 @@ def run_install(mgr_pkg_list, library, force_stop_on_error=False):
                 mgr.install(pkg)
                 mgr.metadata.set_installed()
                 installed_list.append(mgr)
+                installed_resource_ids.add(mgr.id)
                 get_logger().info("Install of %s successful." % mgr.package_name)
             if mgr.is_service():
                 if mgr.is_running():
@@ -126,7 +129,15 @@ def run_install(mgr_pkg_list, library, force_stop_on_error=False):
         install_target_mgr.write_resources_to_file([mgr for (mgr, pkg) in mgr_pkg_list])
         get_logger().info("Install completed successfully.")
     except Exception, e:
-        # write out what was actually installed
+        # Write out what was actually installed. We also need to go through
+        # the list of all resources and see if any are already installed but haven't
+        # been processed yet. Those should be added to the list.
+        for (mgr, pkg) in mgr_pkg_list:
+            if (mgr.id not in installed_resource_ids) and (mgr.metadata.is_installed()):
+                installed_list.append(mgr)
+                installed_resource_ids.add(mgr.id)
+                logger.debug('Adding resouce %s to installed list -- it was in the original installed set'
+                             % mgr.id)
         install_target_mgr.write_resources_to_file(installed_list)
         if not force_stop_on_error:
             raise # leave in the error state
