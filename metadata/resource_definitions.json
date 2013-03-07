@@ -4370,7 +4370,8 @@
         "zeromq": { },
         "pkg_info": {
           "test_module": {"type":"string", "fixed-value":"zmq"},
-          "provides_pkg": { "type":"string", "fixed-value":"zmq" }
+          "provides_pkg": { "type":"string", "fixed-value":"zmq" },
+          "version_property": {"type":"string", "fixed-value":"zmq.__version__"}
         }
       },
       "inside": {

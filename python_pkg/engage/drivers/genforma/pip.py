@@ -18,6 +18,7 @@ import engage.engine.library as library
 import engage.utils.path as path
 import engage_utils.process as iuproc
 import engage.utils.log_setup as iulog_setup
+from engage_utils.versions import compare_versions
 
 from engage.utils.user_error import UserError, ScriptErrInf
 import gettext
@@ -43,6 +44,14 @@ define_error(ERR_PKG,
 define_error(ERR_POST_INSTALL,
              _("Ran pip for resource %(id)s, but Python module %(module)s was not found afterward."))
 
+@make_value_action
+def is_module_at_version(self, python_exe, test_module, version_property, expected_version):
+    cmd = [python_exe, "-c", "import %s; print %s" % (test_module, version_property)]
+    data = iuproc.run_program_and_capture_results(cmd, None, self.ctx.logger,
+                                                  cwd=os.path.dirname(python_exe))
+    cmp = compare_versions(data.rstrip(), expected_version)
+    return (cmd==0) or (cmd==1) # true if data >= expected_version
+    
 
 def make_context(resource_json, dry_run=False):
     ctx = Context(resource_json, logger, __file__,
@@ -60,6 +69,12 @@ def make_context(resource_json, dry_run=False):
         ctx.add("test_module", ctx.props.output_ports.pkg_info.test_module)
     else:
         ctx.add("test_module", None)
+    # if version_property is specified, we'll use that to see if the right
+    # version was installed
+    if ctx.substitutions.has_key("output_ports.pkg_info.version_property"):
+        ctx.add("version_property", ctx.props.output_ports.pkg_info.version_property)
+    else:
+        ctx.add("version_property", None)
     return ctx
 
 
@@ -98,11 +113,27 @@ class Manager(resource_manager.Manager):
         else:
             # try importing the test module specified in the metadata
             # to see if the package is installed
-            return self.ctx.rv(is_module_installed, p.test_module)
+            installed = self.ctx.rv(is_module_installed, p.test_module)
+            if installed and p.version_property!=None:
+                # we have a version property, compare it to the resource's
+                # version. If the installed version is older, we'll assume we
+                # need to reinstall.
+                return self.ctx.rv(is_module_at_version, p.python_exe,
+                                   p.test_module,
+                                   p.version_property,
+                                   self.metadata.key['version'])
+            else:
+                return installed
+            
 
     def install(self, package):
+        p = self.ctx.props
         cmd = [self.pip, 'install', "--use-mirrors",
                "--timeout=%d" % PIP_TIMEOUT]
+        if p.test_module and self.ctx.rv(is_module_installed, p.test_module):
+            # if there is already a module with the same name, we need to force
+            # an upgrade
+            cmd.append('--upgrade')
         if self.editable:
             cmd.append('-e')
         if self.prefix_dir != None:
