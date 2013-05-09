@@ -146,7 +146,7 @@ dry-run mode.
 
 Defining an action involves a bit of boilerplate code. If you do not have any code
 that should be executed in dry_run mode, you can use the @make_action and
-@make_value action decorators to create action classes directly from a function,
+@make_value_action decorators to create action classes directly from a function,
 avoiding the boilerplate.
 
 

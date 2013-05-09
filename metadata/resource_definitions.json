@@ -1773,6 +1773,42 @@
           ]
       }
     },
+    { "key" : { "name" : "Django", "version" : "1.4" },
+      "display_name" : "Django Web Framework",
+      "input_ports": {
+        "host": { "genforma_home": "path" },
+        "python" : { "PYTHONPATH" : "string", "home":"string" }, 
+	"pip" : { "pipbin" : "string" }
+      },
+      "output_ports": {
+        "pkg_info": {
+          "provides_pkg": { "type": "string", "fixed-value": "django"},
+          "test_module": { "type": "string", "fixed-value": "django" }
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"11.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"12.04"},
+            "port_mapping": {"host":"host"}}
+        ]
+      },
+      "environment": {
+          "all-of": [
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.6"}},
+            "port_mapping": {"python":"python"}
+          },
+          { "key": {"name":"pip", "version":"any"},
+            "port_mapping": { "pip": "pip" }
+          }
+          ]
+      }
+    },
     {"key" : { "name" : "Django-App", "version" : "1.0" },
       "display_name" : "Django Application",
       "config_port": {
@@ -4881,6 +4917,165 @@
           { "key": {"name":"python",
                     "version":{"greater-than-or-equal":"2.6"}},
             "port_mapping": {"python":"python"}
+          }
+        ]
+      }
+    },
+    { "key":{"name":"celery", "version":"3.0"},
+      "display_name": "Celery library",
+      "comment": "Python-based queuing API",
+      "input_ports" : {
+         "python": {
+              "home" : "string"
+            }, 
+         "pip" : {
+            "pipbin" : "string"
+         }
+      },
+      "output_ports": {
+        "pkg_info": {
+          "provides_pkg": { "type": "string", "fixed-value": "celery"},
+          "test_module": { "type": "string", "fixed-value": "celery" },
+          "version_property":{"type":"string", "fixed-value":"celery.__version__"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}}},
+          { "key": {"name": "ubuntu-linux", "version":"11.10"}},
+          { "key": {"name": "ubuntu-linux", "version":"12.04"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"pip", "version":"any"},
+            "port_mapping": { "pip": "pip" }
+          },
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.6"}},
+            "port_mapping": {"python":"python"}
+          }
+        ]
+      }
+    },
+    { "key":{"name":"django-tables2", "version":"0.13"},
+      "display_name": "Django Tables 2",
+      "comment": "See https://pypi.python.org/pypi/django-tables2",
+      "input_ports" : {
+         "python": {
+              "home" : "string"
+            }, 
+         "pip" : {
+            "pipbin" : "string"
+         }
+      },
+      "output_ports": {
+        "pkg_info": {
+          "provides_pkg": { "type": "string", "fixed-value": "django_tables2"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}}},
+          { "key": {"name": "ubuntu-linux", "version":"11.10"}},
+          { "key": {"name": "ubuntu-linux", "version":"12.04"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"pip", "version":"any"},
+            "port_mapping": { "pip": "pip" }
+          },
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.6"}},
+            "port_mapping": {"python":"python"}
+          }
+        ]
+      }
+    },
+    { "key":{"name":"pytz", "version":"2013"},
+      "display_name": "Python timezone database",
+      "input_ports" : {
+         "python": {
+              "home" : "string"
+            }, 
+         "pip" : {
+            "pipbin" : "string"
+         }
+      },
+      "output_ports": {
+        "pkg_info": {
+          "provides_pkg": { "type": "string", "fixed-value": "pytz"},
+          "test_module": { "type": "string", "fixed-value": "pytz" },
+          "version_property":{"type":"string", "fixed-value":"pytz.__version__"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}}},
+          { "key": {"name": "ubuntu-linux", "version":"11.10"}},
+          { "key": {"name": "ubuntu-linux", "version":"12.04"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"pip", "version":"any"},
+            "port_mapping": { "pip": "pip" }
+          },
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.6"}},
+            "port_mapping": {"python":"python"}
+          }
+        ]
+      }
+    },
+    { "key":{"name":"django-celery", "version":"3.0"},
+      "display_name": "django-celery library",
+      "comment": "Integration of celery quueing API with Django web framework",
+      "input_ports" : {
+         "python": {
+              "home" : "string"
+            }, 
+         "pip" : {
+            "pipbin" : "string"
+         }
+      },
+      "output_ports": {
+        "pkg_info": {
+          "provides_pkg": { "type": "string", "fixed-value": "djcelery"},
+          "test_module": { "type": "string", "fixed-value": "djcelery" },
+          "version_property":{"type":"string", "fixed-value":"djcelery.__version__"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}}},
+          { "key": {"name": "ubuntu-linux", "version":"11.10"}},
+          { "key": {"name": "ubuntu-linux", "version":"12.04"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"pip", "version":"any"},
+            "port_mapping": { "pip": "pip" }
+          },
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.6"}},
+            "port_mapping": {"python":"python"}
+          },
+          { "key": {"name":"celery",
+                    "version":{"greater-than-or-equal":"3.0",
+                               "less-than":"4.0"}}
+          },
+          { "key": {"name":"pytz",
+                    "version":{"greater-than-or-equal":"2013"}}
+          },
+          { "key": {"name":"Django",
+                    "version":{"greater-than-or-equal":"1.4"}}
           }
         ]
       }

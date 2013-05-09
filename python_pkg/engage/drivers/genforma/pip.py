@@ -48,8 +48,14 @@ define_error(ERR_POST_INSTALL,
 def is_module_at_version(self, python_exe, test_module, version_property, expected_version):
     cmd = [python_exe, "-c", "import %s; print %s" % (test_module, version_property)]
     data = iuproc.run_program_and_capture_results(cmd, None, self.ctx.logger,
-                                                  cwd=os.path.dirname(python_exe))
-    cmp = compare_versions(data.rstrip(), expected_version)
+                                                  cwd=os.path.dirname(python_exe)).rstrip()
+    if data.startswith('(') and data.endswith(')'):
+        # the version is a tuple, not a string. convert to a string.
+        cmd = [python_exe, "-c",
+               'import %s; print ".".join([str(e) for e in %s])' % (test_module, version_property)]
+        data = iuproc.run_program_and_capture_results(cmd, None, self.ctx.logger,
+                                                      cwd=os.path.dirname(python_exe)).rstrip()
+    cmp = compare_versions(data, expected_version)
     return (cmd==0) or (cmd==1) # true if data >= expected_version
     
 
