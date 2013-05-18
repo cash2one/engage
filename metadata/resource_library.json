@@ -1037,6 +1037,15 @@
           "location": "django-celery>=3.0"
         }
       ]
+    },
+    { "key":{"name":"django_logtail", "version":"0.0.6"},
+      "mgr_module_name":"engage.drivers.genforma.pip",
+      "packages": [
+        { "type": "Reference",
+          "package_class": "PipLink",
+          "location": "django_logtail"
+        }
+      ]
     }
   ]
 }
