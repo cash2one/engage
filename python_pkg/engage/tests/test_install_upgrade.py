@@ -15,6 +15,7 @@ from engage.engine.password import create_password_db
 
 join = os.path.join
 
+# JF 2013-05-20: Django installer is obsolete - not supporting anymore
 INSTALLERS = {
     'tomcat': {
         'hello': {
@@ -26,14 +27,14 @@ INSTALLERS = {
                 },
             }
         },
-    'django': {
-        'test-app': {
-            'install': {
-                APPLICATION_ARCHIVE_PROP: join(tc.TEST_APP_DIR, 'django_test_app_v1.tgz')},
-            'upgrade': {
-                APPLICATION_ARCHIVE_PROP: join(tc.TEST_APP_DIR, 'django_test_app_v2.tgz')}
-            }
-        }
+    ## 'django': {
+    ##     'test-app': {
+    ##         'install': {
+    ##             APPLICATION_ARCHIVE_PROP: join(tc.TEST_APP_DIR, 'django_test_app_v1.tgz')},
+    ##         'upgrade': {
+    ##             APPLICATION_ARCHIVE_PROP: join(tc.TEST_APP_DIR, 'django_test_app_v2.tgz')}
+    ##         }
+    ##     }
     }
 
 
