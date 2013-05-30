@@ -1426,6 +1426,10 @@ class start_server(Action):
     If timeout_tries>0, then we wait until the pid file has been written with
     a live process id before returning.
 
+    If child_will_create_pid_file is True, then it is expected that the server
+    process generates its own pid file using the specified name. Otherwise,
+    the pidfile is written by this action.
+
     Note that, if the program you are starting can daemonize itself (through an
     option like --daemonize or --detach), you should use the run_program action
     instead.
@@ -1435,10 +1439,13 @@ class start_server(Action):
         super(start_server, self).__init__(ctx)
 
     def run(self, cmd_and_args, log_file, pid_file, cwd="/", environment={},
-                 timeout_tries=10, time_between_tries=2.0):
+                 timeout_tries=10, time_between_tries=2.0,
+            child_will_create_pid_file=False):
         _check_file_exists(cmd_and_args[0], self)
         procutils.run_server(cmd_and_args, environment, log_file,
-                             self.ctx.logger, pid_file, cwd)
+                             self.ctx.logger,
+                             pidfile_name=pid_file if not child_will_create_pid_file else None,
+                             cwd=cwd)
         if timeout_tries>0:
             _check_poll(self,
                         lambda : procutils.check_server_status(pid_file,
