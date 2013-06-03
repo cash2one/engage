@@ -64,6 +64,7 @@
       "handler": "wget",
       "description": "webserver used for django installs",
       "checksum": "2551214238 360120 gunicorn-0.17.2.tar.gz",
+      "no_check_certificate": true,
       "groups": ["Django", "Engage"]
     }
 ]
