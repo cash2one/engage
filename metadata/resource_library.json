@@ -1046,6 +1046,24 @@
           "location": "django_logtail"
         }
       ]
+    },
+    { "key":{"name":"six", "version":"1.3"},
+      "mgr_module_name":"engage.drivers.genforma.pip",
+      "packages": [
+        { "type": "Reference",
+          "package_class": "PipLink",
+          "location": "six"
+        }
+      ]
+    },
+    { "key":{"name":"django_transaction_signals", "version":"1.0"},
+      "mgr_module_name":"engage.drivers.genforma.pip",
+      "packages": [
+        { "type": "Reference",
+          "package_class": "PipLink",
+          "location": "django_transaction_signals"
+        }
+      ]
     }
   ]
 }
