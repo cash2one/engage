@@ -5187,6 +5187,144 @@
           }
         ]
       }
+    },
+    { "key": {"name": "psycopg2-macports", "version":"2.4"},
+      "display_name": "pyscopg2 - Python PostgreSQL interface, MacPorts version",
+      "input_ports": {
+        "macports": {
+          "macports_exe": "path"
+        },
+        "host": {
+          "sudo_password": {"type": "password"}
+        }
+      },
+      "output_ports": {
+        "port_cfg": {
+          "package_name": {"type":"string", "fixed-value":"py-psycopg2"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}}
+        ]
+      },
+      "environment": {
+          "all-of": [
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.5"}},
+            "port_mapping": {"python":"python"}
+          },
+          { "key": {"name":"macports", "version":{"greater-than-or-equal":"1.9"}},
+            "port_mapping": {"macports":"macports"}}
+          ]
+      }
+    },
+    { "key": {"name": "psycopg2-abstract", "version":"2.4"},
+      "display_name": "psycopg2 python package, pulls in platform-specific version",
+      "input_ports": {
+      },
+      "output_ports": {
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}}},
+          { "key": {"name": "ubuntu-linux", "version":"11.10"}},
+          { "key": {"name": "ubuntu-linux", "version":"12.04"}}
+        ]
+      },
+      "environment": {
+          "one-of": [
+            {"key":{"name":"psycopg2-macports", "version":"2.4"}}
+          ]
+      }
+    },
+    { "key": {"name": "postgres-server-macports", "version":"9.2"},
+      "display_name": "PostgreSQL database server, MacPorts version",
+      "input_ports": {
+        "macports": {
+          "macports_exe": "path"
+        },
+        "host": {
+          "sudo_password": {"type": "password"}
+        }
+      },
+      "output_ports": {
+        "port_cfg": {
+          "package_name": {"type":"string", "fixed-value":"postgresql92-server"}
+        },
+        "postgres": {
+          "initdb_exe" : {"type":"path",
+                          "fixed-value":"/opt/local/lib/postgresql92/bin/initdb"},
+          "pg_ctl_exe":  {"type":"path",
+                          "fixed-value":"/opt/local/lib/postgresql92/bin/pg_ctl"},
+          "psql_exe" :   {"type":"path",
+                          "fixed-value":"/opt/local/lib/postgresql92/bin/psql"},
+          "createuser_exe" :   {"type":"path",
+                                "fixed-value":"/opt/local/lib/postgresql92/bin/createuser"},
+          "createdb_exe" :   {"type":"path",
+                              "fixed-value":"/opt/local/lib/postgresql92/bin/createdb"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping": {"host":"host"}}
+        ]
+      },
+      "environment": {
+          "all-of": [
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.5"}},
+            "port_mapping": {"python":"python"}
+          },
+          { "key": {"name":"macports", "version":{"greater-than-or-equal":"1.9"}},
+            "port_mapping": {"macports":"macports"}}
+          ]
+      }
+    },
+    { "key": {"name": "postgres-server-abstract", "version":"9.2"},
+      "display_name": "PostgreSQL database server, pulls in platform-specific version",
+      "input_ports": {
+        "postgres": {
+          "initdb_exe" : {"type":"path"},
+          "pg_ctl_exe":  {"type":"path"},
+          "psql_exe" :   {"type":"path"},
+          "createdb_exe": {"type":"path"},
+          "createuser_exe": {"type":"path"}
+        }
+      },
+      "output_ports": {
+        "postgres": {
+          "initdb_exe" : {"type":"path",
+                          "source":"input_ports.postgres.initdb_exe"},
+          "pg_ctl_exe":  {"type":"path",
+                          "source":"input_ports.postgres.pg_ctl_exe"},
+          "psql_exe" :   {"type":"path",
+                          "source":"input_ports.postgres.psql_exe"},
+          "createdb_exe" :   {"type":"path",
+                              "source":"input_ports.postgres.createdb_exe"},
+          "createuser_exe" :   {"type":"path",
+                                "source":"input_ports.postgres.createuser_exe"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}}},
+          { "key": {"name": "ubuntu-linux", "version":"11.10"}},
+          { "key": {"name": "ubuntu-linux", "version":"12.04"}}
+        ]
+      },
+      "environment": {
+          "one-of": [
+            {"key":{"name":"postgres-server-macports", "version":"9.2"},
+             "port_mapping":{"postgres":"postgres"}}
+          ]
+      }
     }
   ]
 }

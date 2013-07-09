@@ -1,0 +1,32 @@
+[
+    { "key": {"name": "postgres-database", "version":"9.2"},
+      "display_name": "PostgreSQL database (inside of an instance)",
+      "config_port": {
+        "database_name": {"type":"string"},
+        "create_schema_script": {"type":"path", "default":""}
+      },
+      "input_ports": {
+        "postgres": {
+          "initdb_exe" : {"type":"path"},
+          "pg_ctl_exe":  {"type":"path"},
+          "psql_exe" :   {"type":"path"},
+          "createdb_exe":{"type":"path"},
+          "createuser_exe":{"type":"path"}
+        },
+        "postgres_inst": {
+          "database_dir":{"type":"path"},
+          "user":{"type":"string"}
+        }
+      },
+      "inside": {
+         "key": {"name":"postgres-instance", "version":"9.2"},
+         "port_mapping": {"postgres_inst":"postgres_inst"}
+      },
+      "environment": {
+          "all-of": [
+            {"key":{"name":"postgres-server-abstract", "version":"9.2"},
+             "port_mapping":{"postgres":"postgres"}}
+          ]
+      }
+    }
+]

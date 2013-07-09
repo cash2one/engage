@@ -1064,6 +1064,38 @@
           "location": "django_transaction_signals"
         }
       ]
-    }
+    },
+   {"key": {"name":"psycopg2-macports", "version":"2.4"},
+    "mgr_module_name": "engage.drivers.genforma.macports_pkg",
+    "packages": [
+      {"type":"Reference", "package_class":"MacPorts",
+       "location":"py-psycopg2"}
+    ]
+   },
+   {"key": {"name":"postgres-server-macports", "version":"9.2"},
+    "mgr_module_name": "engage.drivers.genforma.macports_pkg",
+    "packages": [
+      {"type":"Reference", "package_class":"MacPorts",
+       "location":"postgresql92-server"}
+    ]
+   },
+   { "key": { "name": "psycopg2-abstract", "version":"2.4"},
+     "mgr_module_name": "engage.drivers.genforma.dummy_resource_manager",
+     "packages": [
+       { "type": "Reference",
+         "package_class": "DummyPackage",
+         "location": ""
+       }
+     ]
+   },
+   { "key": { "name": "postgres-server-abstract", "version":"9.2"},
+     "mgr_module_name": "engage.drivers.genforma.dummy_resource_manager",
+     "packages": [
+       { "type": "Reference",
+         "package_class": "DummyPackage",
+         "location": ""
+       }
+     ]
+   }
   ]
 }

@@ -1,0 +1,47 @@
+[
+    { "key": {"name": "postgres-instance", "version":"9.2"},
+      "display_name": "PostgreSQL database instance",
+      "config_port": {
+        "database_dir":{"type":"path", "default":"${input_ports.host.genforma_home}/postgres"}
+      },
+      "input_ports": {
+        "host": {
+          "os_user_name" : {"type": "string"},
+          "sudo_password": {"type": "password"},
+          "log_directory": {"type":"path"},
+          "genforma_home" : {"type":"path"}
+        },
+        "postgres": {
+          "initdb_exe" : {"type":"path"},
+          "pg_ctl_exe":  {"type":"path"},
+          "psql_exe" :   {"type":"path"},
+          "createdb_exe":{"type":"path"},
+          "createuser_exe":{"type":"path"}
+        }
+      },
+      "output_ports": {
+        "postgres_inst": {
+          "database_dir":{"type":"path", "source":"config_port.database_dir"},
+          "user":{"type":"string", "source":"input_ports.host.os_user_name"},
+          "pid_file":{"type":"path", "fixed-value":"${config_port.database_dir}/postgres.pid"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}},
+            "port_mapping":{"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"11.10"},
+            "port_mapping":{"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"12.04"},
+            "port_mapping":{"host":"host"}}
+        ]
+      },
+      "environment": {
+          "all-of": [
+            {"key":{"name":"postgres-server-abstract", "version":"9.2"},
+             "port_mapping":{"postgres":"postgres"}}
+          ]
+      }
+    }
+]

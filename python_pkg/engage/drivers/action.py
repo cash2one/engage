@@ -245,6 +245,7 @@ import shutil
 import unittest
 import pwd
 import grp
+import getpass
 
 try:
     import engage.utils
@@ -1520,6 +1521,24 @@ def sudo_start_server(self, cmd_and_args, log_file, cwd=None, environment={}):
     procutils.sudo_run_server(cmd_and_args, environment, log_file,
                               self.ctx.logger, self.ctx._get_sudo_password(self),
                               cwd)
+
+@make_action
+def start_server_as_user(self, user, cmd_and_args, log_file, cwd=None, environment={}):
+    """Action: start another process as a server, under the desired user. Does
+    not wait for it to complete. This daemonizes the server process, doing the
+    voodoo needed (e.g. two forks, closing all fds).
+
+    Unlike the vanilla start_server(), the program being run is responsible for
+    creating a pidfile. We do this because, if we run under sudo, the child
+    won't be the actual server process.
+    """
+    _check_file_exists(cmd_and_args[0], self)
+    procutils.run_server_as_user(user, cmd_and_args, environment, log_file,
+                                 self.ctx.logger,
+                                 self.ctx._get_sudo_password(self) \
+                                 if user!=getpass.getuser() \
+                                 else None,
+                                 cwd)
 
 @make_action
 def sudo_run_program(self, program_and_args, cwd=None):
