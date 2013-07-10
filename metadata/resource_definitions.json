@@ -5221,6 +5221,35 @@
           ]
       }
     },
+    { "key": {"name": "psycopg2-apt", "version":"2.4"},
+      "display_name": "pyscopg2 - Python PostgreSQL interface, apt Linux version",
+      "input_ports": {
+        "host": {
+          "sudo_password": {"type": "password"}
+        }
+      },
+      "output_ports": {
+        "apt_cfg": {
+          "package_name": {"type":"string", "fixed-value":"python-psycopg2"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name": "ubuntu-linux", "version":"11.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"12.04"},
+            "port_mapping": {"host":"host"}}
+        ]
+      },
+      "environment": {
+          "all-of": [
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.5"}},
+            "port_mapping": {"python":"python"}
+          }
+          ]
+      }
+    },
     { "key": {"name": "psycopg2-abstract", "version":"2.4"},
       "display_name": "psycopg2 python package, pulls in platform-specific version",
       "input_ports": {
@@ -5237,7 +5266,8 @@
       },
       "environment": {
           "one-of": [
-            {"key":{"name":"psycopg2-macports", "version":"2.4"}}
+            {"key":{"name":"psycopg2-macports", "version":"2.4"}},
+            {"key":{"name":"psycopg2-apt", "version":"2.4"}}
           ]
       }
     },
@@ -5277,12 +5307,49 @@
       },
       "environment": {
           "all-of": [
-          { "key": {"name":"python",
-                    "version":{"greater-than-or-equal":"2.5"}},
-            "port_mapping": {"python":"python"}
-          },
           { "key": {"name":"macports", "version":{"greater-than-or-equal":"1.9"}},
             "port_mapping": {"macports":"macports"}}
+          ]
+      }
+    },
+    { "key": {"name": "postgres-server-apt", "version":"9.2"},
+      "display_name": "PostgreSQL database server, Linux apt version",
+      "input_ports": {
+        "macports": {
+          "macports_exe": "path"
+        },
+        "host": {
+          "sudo_password": {"type": "password"}
+        }
+      },
+      "output_ports": {
+         "apt_cfg": {
+           "package_name":{"type":"string", "fixed-value":"postgresql-9.2"}
+         },
+         "postgres": {
+          "initdb_exe" : {"type":"path",
+                          "fixed-value":"/usr/lib/postgresql/9.2/bin/initdb"},
+          "pg_ctl_exe":  {"type":"path",
+                          "fixed-value":"/usr/lib/postgresql/9.2/bin/pg_ctl"},
+          "psql_exe" :   {"type":"path",
+                          "fixed-value":"/usr/lib/postgresql/9.2/bin/psql"},
+          "createuser_exe" :   {"type":"path",
+                                "fixed-value":"/usr/lib/postgresql/9.2/bin/createuser"},
+          "createdb_exe" :   {"type":"path",
+                              "fixed-value":"/usr/lib/postgresql/9.2/bin/createdb"}
+         }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name": "ubuntu-linux", "version":"11.10"},
+            "port_mapping": {"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"12.04"},
+            "port_mapping": {"host":"host"}}
+        ]
+      },
+      "environment": {
+          "all-of": [
+            { "key": {"name":"postgres-apt-ppa", "version":"any"}}
           ]
       }
     },
@@ -5322,7 +5389,39 @@
       "environment": {
           "one-of": [
             {"key":{"name":"postgres-server-macports", "version":"9.2"},
+             "port_mapping":{"postgres":"postgres"}},
+            {"key":{"name":"postgres-server-apt", "version":"9.2"},
              "port_mapping":{"postgres":"postgres"}}
+          ]
+      }
+    },
+    { "key": {"name": "postgres-apt-ppa", "version":"any"},
+      "display_name": "ppa with more recent postgres builds for ubuntu",
+      "input_ports": {
+        "host": {
+          "sudo_password": "password"
+        },
+        "exe_info": {
+          "add_apt_repository_exe":"path"
+        }
+      },
+      "output_ports": {
+        "repository": {
+          "repo_name": {"type":"string", "fixed-value":"ppa:pitti/postgresql"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name": "ubuntu-linux", "version":"11.10"},
+            "port_mapping":{"host":"host"}},
+          { "key": {"name": "ubuntu-linux", "version":"12.04"},
+            "port_mapping":{"host":"host"}}
+        ]
+      },
+      "environment": {
+          "all-of": [
+            {"key":{"name":"python-software-properties", "version":"any"},
+             "port_mapping":{"exe_info":"exe_info"}}
           ]
       }
     }

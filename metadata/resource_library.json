@@ -1072,11 +1072,25 @@
        "location":"py-psycopg2"}
     ]
    },
+   {"key": {"name":"psycopg2-apt", "version":"2.4"},
+    "mgr_module_name": "engage.drivers.genforma.aptget",
+    "packages": [
+      {"type":"Reference", "package_class":"AptGet",
+       "location":"python-psycopg2"}
+    ]
+   },
    {"key": {"name":"postgres-server-macports", "version":"9.2"},
     "mgr_module_name": "engage.drivers.genforma.macports_pkg",
     "packages": [
       {"type":"Reference", "package_class":"MacPorts",
        "location":"postgresql92-server"}
+    ]
+   },
+   {"key": {"name":"postgres-server-apt", "version":"9.2"},
+    "mgr_module_name": "engage.drivers.genforma.aptget",
+    "packages": [
+      {"type":"Reference", "package_class":"AptGet",
+       "location":"postgresql-9.2"}
     ]
    },
    { "key": { "name": "psycopg2-abstract", "version":"2.4"},
@@ -1095,6 +1109,13 @@
          "package_class": "DummyPackage",
          "location": ""
        }
+     ]
+   },
+   {"key": {"name":"postgres-apt-ppa", "version":"any"},
+     "mgr_module_name": "engage.drivers.genforma.add_apt_repository",
+     "packages": [
+       {"type":"Reference", "package_class":"DummyPackage",
+        "location":""}
      ]
    }
   ]
