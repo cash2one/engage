@@ -144,11 +144,8 @@ class Manager(service_manager.Manager):
                    os.path.join(p.input_ports.host.log_directory,
                                 'postgres.log'),
                    cwd=p.config_port.database_dir)
-        _check_poll(self,
-                    lambda : procutils.check_server_status(p.output_ports.postgres_inst.pid_file,
-                                                           self.ctx.logger,
-                                                           self.ctx.props.id) != None,
-                    "server startup", 10, 2.0)
+        self.ctx.check_poll(10, 2.0, lambda v:v,
+                            get_server_status, p.output_ports.postgres_inst.pid_file)
         
 
     def is_running(self):
