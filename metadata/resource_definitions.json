@@ -5189,7 +5189,7 @@
       }
     },
     { "key": {"name": "psycopg2-macports", "version":"2.4"},
-      "display_name": "pyscopg2 - Python PostgreSQL interface, MacPorts version",
+      "display_name": "psycopg2 - Python PostgreSQL interface, MacPorts version",
       "input_ports": {
         "macports": {
           "macports_exe": "path"
@@ -5213,16 +5213,14 @@
       "environment": {
           "all-of": [
           { "key": {"name":"python",
-                    "version":{"greater-than-or-equal":"2.5"}},
-            "port_mapping": {"python":"python"}
-          },
+                    "version":{"greater-than-or-equal":"2.5"}}},
           { "key": {"name":"macports", "version":{"greater-than-or-equal":"1.9"}},
             "port_mapping": {"macports":"macports"}}
           ]
       }
     },
     { "key": {"name": "psycopg2-apt", "version":"2.4"},
-      "display_name": "pyscopg2 - Python PostgreSQL interface, apt Linux version",
+      "display_name": "psycopg2 - Python PostgreSQL interface, apt Linux version",
       "input_ports": {
         "host": {
           "sudo_password": {"type": "password"}
@@ -5244,9 +5242,7 @@
       "environment": {
           "all-of": [
           { "key": {"name":"python",
-                    "version":{"greater-than-or-equal":"2.5"}},
-            "port_mapping": {"python":"python"}
-          }
+                    "version":{"greater-than-or-equal":"2.5"}}}
           ]
       }
     },
@@ -5315,9 +5311,6 @@
     { "key": {"name": "postgres-server-apt", "version":"9.2"},
       "display_name": "PostgreSQL database server, Linux apt version",
       "input_ports": {
-        "macports": {
-          "macports_exe": "path"
-        },
         "host": {
           "sudo_password": {"type": "password"}
         }
