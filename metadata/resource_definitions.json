@@ -5394,7 +5394,7 @@
         "host": {
           "sudo_password": "password"
         },
-        "exe_info": {
+        "add_rep_exe_info": {
           "add_apt_repository_exe":"path"
         }
       },
@@ -5414,7 +5414,7 @@
       "environment": {
           "all-of": [
             {"key":{"name":"python-software-properties", "version":"any"},
-             "port_mapping":{"exe_info":"exe_info"}}
+             "port_mapping":{"add_rep_exe_info":"exe_info"}}
           ]
       }
     }
