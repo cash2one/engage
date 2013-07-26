@@ -157,6 +157,16 @@ class Manager(service_manager.Manager):
         p = self.ctx.props
         self.ctx.r(stop_server, p.output_ports.postgres_inst.pid_file)
 
+    def force_stop(self):
+        p = self.ctx.props
+        r = self.ctx.r
+        logger.info("Doing a force-stop of postgres...")
+        db_dir = p.output_ports.postgres_inst.database_dir
+        r(run_program, [p.input_ports.postgres.pg_ctl_exe, '-D',
+                        db_dir, 'stop', '-m', 'fast'],
+          cwd=db_dir)
+        return True
+
     def get_pid_file_path(self):
         # Method to return the path to the pid file for an installed service.
         # If there is no pid file for this service, just return None. This is

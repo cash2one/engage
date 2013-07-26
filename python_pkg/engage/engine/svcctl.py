@@ -77,6 +77,7 @@ def list_resources(command, command_args, mgr_pkg_list, resource_map, logger, dr
             print "%s (%s) [service]" % (mgr.id, _format_key(mgr.metadata.key))
         else:
             print "%s (%s)" % (mgr.id, _format_key(mgr.metadata.key))
+    return 0
 
 
 def status(command, command_args, mgr_pkg_list, resource_map, logger, dry_run):
@@ -97,6 +98,7 @@ def status(command, command_args, mgr_pkg_list, resource_map, logger, dry_run):
         for resource_id in command_args:
             rm = resource_map[resource_id]
             print_status(rm)
+    return 0
 
 def _filter_mgr_pkg_list(mgr_pkg_list, filter_fn, target_res_id_list):
     """The filter function takes two resource lists: the set of all resources
@@ -111,19 +113,31 @@ def _filter_mgr_pkg_list(mgr_pkg_list, filter_fn, target_res_id_list):
                                mgr_pkg_list)]
 
 
-def _stop_mgr(mgr, dry_run):
-    if not mgr.is_service(): return
+def _stop_mgr(mgr, dry_run, force):
+    if not mgr.is_service(): return True
     if not dry_run:
         if mgr.is_running():
-            mgr.stop()
-            print "%s stopped." % mgr.id
+            if force:
+                print "Attempting to force stop %s" % mgr.id
+                result = mgr.force_stop()
+                if result:
+                    print "%s stopped successfully." % mgr.id
+                else:
+                    print "Unable to force stop %s" % mgr.id
+                    return False
+            else:
+                mgr.stop()
+                print "%s stopped." % mgr.id
         else:
             print "%s already stopped." % mgr.id
+            
     else:
         print "%s: stop if not already stopped [dry-run]" % mgr.id
+    return True
 
 
-def stop(command, command_args, mgr_pkg_list, resource_map, logger, dry_run):
+def stop(command, command_args, mgr_pkg_list, resource_map, logger, dry_run, force=False):
+    had_errors = False
     if len(command_args)==0:
         target_resource_ids = ["all"]
     else:
@@ -133,7 +147,8 @@ def stop(command, command_args, mgr_pkg_list, resource_map, logger, dry_run):
     reversed_mgr_pkg_list.reverse()
     if target_resource_ids == ["all"]:
         for (mgr, pkg) in reversed_mgr_pkg_list:
-            _stop_mgr(mgr, dry_run)
+            ok = _stop_mgr(mgr, dry_run, force)
+            if not ok: had_errors = True
     else:
         filtered_list = _filter_mgr_pkg_list(reversed_mgr_pkg_list,
                                              install_plan.get_transitive_resources_depending_on_resource,
@@ -142,7 +157,9 @@ def stop(command, command_args, mgr_pkg_list, resource_map, logger, dry_run):
             if not mgr.is_service() and mgr.id in target_resource_ids:
                 print "%s is not a service" % mgr.id
                 continue
-            _stop_mgr(mgr, dry_run)
+            ok = _stop_mgr(mgr, dry_run, force)
+            if not ok: had_errors = True
+    return 1 if had_errors else 0
 
 
 def _start_mgr(mgr, dry_run):
@@ -174,18 +191,20 @@ def start(command, command_args, mgr_pkg_list, resource_map, logger, dry_run):
                 print "%s is not a service." % mgr.id
                 continue
             _start_mgr(mgr, dry_run)
+    return 0
 
 
-def restart(command, command_args, mgr_pkg_list, resource_map, logger, dry_run):
+def restart(command, command_args, mgr_pkg_list, resource_map, logger, dry_run, force=False):
     if len(command_args)>0:
         raise Exception("Restart does not take any extra command arguments")
     reversed_mgr_pkg_list = copy.copy(mgr_pkg_list)
     reversed_mgr_pkg_list.reverse()
     for (mgr, pkg) in reversed_mgr_pkg_list:
-        _stop_mgr(mgr, dry_run)
+        _stop_mgr(mgr, dry_run, force)
 
     for (mgr, pkg) in mgr_pkg_list:
         _start_mgr(mgr, dry_run)
+    return 0
 
 
 commands = {
@@ -211,6 +230,9 @@ def main():
                                  default_log_level="WARNING")
     parser.add_option("-r", "--resource-file", dest="resource_file", default=None,
                       help="Name of resource file (defaults to <deployment_home>/config/installed_resources.json)")
+    parser.add_option("--force", dest='force', default=False,
+                      action="store_true",
+                      help="If stop or restart, try to force everything to stop")
     parser.add_option("--dry-run", dest="dry_run", default=False,
                       action="store_true",
                       help="If specified, just print what would be done")
@@ -248,16 +270,24 @@ def main():
         parser.print_help()
         sys.exit(1)
 
+    if options.force and command not in ['stop', 'restart']:
+        sys.stderr.write("Error: --force option not valid for command %s\n" % command)
+        parser.print_help()
+        sys.exit(1)
 
     command_args = args[1:]
     cmd_fn = commands[command]
     try:
-        cmd_fn(command, command_args, mgr_pkg_list, resource_map, logger,
-               options.dry_run)
+        if command in ['stop', 'restart']:
+            rc = cmd_fn(command, command_args, mgr_pkg_list, resource_map, logger,
+                   options.dry_run, force=options.force)
+        else:
+            rc = cmd_fn(command, command_args, mgr_pkg_list, resource_map, logger,
+                        options.dry_run)
     except CommandError, msg:
         sys.stderr.write("Error: %s\n" % msg)
         sys.exit(1)
 
-    sys.exit(0)
+    sys.exit(rc)
     
 if __name__ == "__main__": main()

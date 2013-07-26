@@ -32,12 +32,15 @@ class Manager(resource_manager.Manager):
 
     def force_stop(self):
         """The default implementation of force_stop() is to
-        call stop() and swallow any exceptions.
+        call stop() and swallow any exceptions. All implementations
+        should return True if successful, False otherwise.
         """
         try:
             self.stop()
+            return True
         except Exception, e:
             get_logger().error("Force stop of resource %s did not succeed: %s" % (self.id, e))
+            return False
             
     def is_running(self):
         return False # need to override
