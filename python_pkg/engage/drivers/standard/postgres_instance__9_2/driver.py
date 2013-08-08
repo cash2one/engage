@@ -132,7 +132,7 @@ class Manager(service_manager.Manager):
         r = self.ctx.r
         if get_platform().startswith('linux'):
             self.ctx.logger.info("Disabling startup of default postgres instance")
-            r(sudo_run_program, ['usr/sbin/update-rc.d', 'postgresql', 'disable'],
+            r(sudo_run_program, ['/usr/sbin/update-rc.d', 'postgresql', 'disable'],
               cwd='/etc/init.d')
             r(sudo_run_program, ['/etc/init.d/postgresql', 'stop'],
               cwd='/etc/init.d')
@@ -141,7 +141,7 @@ class Manager(service_manager.Manager):
             if not os.path.exists('/var/run/postgresql'):
                 self.ctx.r_su(mkdir, '/var/run/postgresql')
             r(sudo_run_program, ['/bin/chown', p.output_ports.postgres_inst.user,
-                                 '/var/run/postgrsql'],
+                                 '/var/run/postgresql'],
               cwd='/')
         r(mkdir, p.config_port.database_dir)
         r(run_program,
