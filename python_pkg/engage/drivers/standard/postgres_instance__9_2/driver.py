@@ -1,5 +1,13 @@
 
-"""Resource manager for postgres-instance 9.2 
+"""Resource manager for postgres-instance 9.2.
+
+Note that this driver runs the database instance under a specified user (not
+necessarily postgres). On Linux, installing the apt package creates
+a database instance at /var/lib/postgresql/9.2/main and adds the database
+instance to system startup/shutdown. Unfortunately, this causes problems
+for us, as we cannot run two instances on the same machine with the default
+port. As a workaround, we disable the automatic startup of postgresql on
+linux as a part of this driver's install() method.
 """
 
 # Common stdlib imports
@@ -22,6 +30,8 @@ import engage.drivers.utils
 # Drivers compose *actions* to implement their methods.
 from engage.drivers.action import *
 from engage.drivers.action import _check_poll
+
+from engage_utils.system_info import get_platform
 
 # setup errors
 from engage.utils.user_error import UserError, EngageErrInf
@@ -120,6 +130,19 @@ class Manager(service_manager.Manager):
         # the installation must be running as the db user (checked in validate_pre_install())
         p = self.ctx.props
         r = self.ctx.r
+        if get_platform().startswith('linux'):
+            self.ctx.logger.info("Disabling startup of default postgres instance")
+            r(sudo_run_program, ['usr/sbin/update-rc.d', 'postgresql', 'disable'],
+              cwd='/etc/init.d')
+            r(sudo_run_program, ['/etc/init.d/postgresql', 'stop'],
+              cwd='/etc/init.d')
+            # we need to make sure the lock directory exists and is
+            # writable by our postgres user
+            if not os.path.exists('/var/run/postgresql'):
+                self.ctx.r_su(mkdir, '/var/run/postgresql')
+            r(sudo_run_program, ['/bin/chown', p.output_ports.postgres_inst.user,
+                                 '/var/run/postgrsql'],
+              cwd='/')
         r(mkdir, p.config_port.database_dir)
         r(run_program,
           [p.input_ports.postgres.initdb_exe, '-D', p.config_port.database_dir],
