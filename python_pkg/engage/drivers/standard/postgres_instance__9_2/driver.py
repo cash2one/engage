@@ -182,12 +182,14 @@ class Manager(service_manager.Manager):
 
     def force_stop(self):
         p = self.ctx.props
-        r = self.ctx.r
-        logger.info("Doing a force-stop of postgres...")
-        db_dir = p.output_ports.postgres_inst.database_dir
-        r(run_program, [p.input_ports.postgres.pg_ctl_exe, '-D',
-                        db_dir, 'stop', '-m', 'fast'],
-          cwd=db_dir)
+        logger.info("Doing a force-stop of postgres via SIGKILL...")
+        self.ctx.r(stop_server, p.output_ports.postgres_inst.pid_file, force_stop=True)
+        ## r = self.ctx.r
+        ## logger.info("Doing a force-stop of postgres...")
+        ## db_dir = p.output_ports.postgres_inst.database_dir
+        ## r(run_program, [p.input_ports.postgres.pg_ctl_exe, '-D',
+        ##                 db_dir, 'stop', '-m', 'fast'],
+        ##   cwd=db_dir)
         return True
 
     def get_pid_file_path(self):

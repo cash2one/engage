@@ -54,10 +54,10 @@ def get_packages_filename():
     return engage.drivers.utils.get_packages_filename(__file__)
 
 @make_value_action
-def is_database_installed(self, psql_exe, database_name):
+def is_database_installed(self, psql_exe, database_name, database_user):
     _check_file_exists(psql_exe, self)
     rc = procutils.run_and_log_program([psql_exe, '-d', database_name,
-                                        '-c', r'\d'], None,
+                                        '-U', database_user, '-c', r'\d'], None,
                                        self.ctx.logger, os.path.dirname(psql_exe))
     return rc==0
 
@@ -121,7 +121,8 @@ class Manager(resource_manager.Manager):
     def is_installed(self):
         p = self.ctx.props
         return self.ctx.rv(is_database_installed, p.input_ports.postgres.psql_exe,
-                           p.config_port.database_name)
+                           p.config_port.database_name,
+                           p.input_ports.postgres_inst.user)
                            
 
     def install(self, package):
