@@ -160,6 +160,15 @@ class Manager(service_manager.Manager):
 
     def start(self):
         p = self.ctx.props
+        r = self.ctx.r
+        if get_platform().startswith('linux'):
+            # we need to make sure the lock directory exists and is
+            # writable by our postgres user
+            if not os.path.exists('/var/run/postgresql'):
+                self.ctx.r_su(mkdir, '/var/run/postgresql')
+            r(sudo_run_program, ['/bin/chown', p.output_ports.postgres_inst.user,
+                                 '/var/run/postgresql'],
+              cwd='/')
         self.ctx.r(start_server_as_user,
                    p.output_ports.postgres_inst.user,
                    [p.input_ports.postgres.pg_ctl_exe,
