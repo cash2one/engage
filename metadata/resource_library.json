@@ -1117,6 +1117,24 @@
        {"type":"Reference", "package_class":"DummyPackage",
         "location":""}
      ]
-   }
+   },
+   { "key":{"name":"boto", "version":"2.12"},
+      "mgr_module_name":"engage.drivers.genforma.pip",
+      "packages": [
+        { "type": "Reference",
+          "package_class": "PipLink",
+          "location": "boto>=2.12"
+        }
+      ]
+    },
+   { "key":{"name":"paramiko", "version":"1.11"},
+      "mgr_module_name":"engage.drivers.genforma.pip",
+      "packages": [
+        { "type": "Reference",
+          "package_class": "PipLink",
+          "location": "paramiko>=1.11"
+        }
+      ]
+    }
   ]
 }

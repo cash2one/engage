@@ -5431,6 +5431,81 @@
              "port_mapping":{"add_rep_exe_info":"exe_info"}}
           ]
       }
+    },
+    { "key":{"name":"paramiko", "version":"1.11"},
+      "display_name": "paramiko ssh library",
+      "input_ports" : {
+         "python": {
+              "home" : "string"
+            }, 
+         "pip" : {
+            "pipbin" : "string"
+         }
+      },
+      "output_ports": {
+        "pkg_info": {
+          "provides_pkg": { "type": "string", "fixed-value": "paramiko"},
+          "test_module": { "type": "string", "fixed-value": "paramiko.transport" },
+          "version_property":{"type":"string", "fixed-value":"paramiko.__version__"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}}},
+          { "key": {"name": "ubuntu-linux", "version":"11.10"}},
+          { "key": {"name": "ubuntu-linux", "version":"12.04"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"pip", "version":"any"},
+            "port_mapping": { "pip": "pip" }
+          },
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.6"}},
+            "port_mapping": {"python":"python"}},
+          {"key": {"name":"pycrypto",
+                   "version":{"greater-than-or-equal":"2.3"}}}
+
+        ]
+      }
+    },
+    { "key":{"name":"boto", "version":"2.12"},
+      "display_name": "Boto AWS client library",
+      "input_ports" : {
+         "python": {
+              "home" : "string"
+            }, 
+         "pip" : {
+            "pipbin" : "string"
+         }
+      },
+      "output_ports": {
+        "pkg_info": {
+          "provides_pkg": { "type": "string", "fixed-value": "boto"},
+          "test_module": { "type": "string", "fixed-value": "boto.s3" },
+          "version_property":{"type":"string", "fixed-value":"boto.__version__"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}}},
+          { "key": {"name": "ubuntu-linux", "version":"11.10"}},
+          { "key": {"name": "ubuntu-linux", "version":"12.04"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"pip", "version":"any"},
+            "port_mapping": { "pip": "pip" }
+          },
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.6"}},
+            "port_mapping": {"python":"python"}}
+        ]
+      }
     }
   ]
 }
