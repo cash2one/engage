@@ -5153,6 +5153,45 @@
         ]
       }
     },
+    { "key":{"name":"python-dateutil", "version":"2.2"},
+      "display_name": "dateutil (python package)",
+      "input_ports" : {
+         "python": {
+              "home" : "string"
+            }, 
+         "pip" : {
+            "pipbin" : "string"
+         }
+      },
+      "output_ports": {
+        "pkg_info": {
+          "provides_pkg": { "type": "string", "fixed-value": "dateutil"},
+          "test_module": { "type": "string", "fixed-value": "dateutil" },
+          "version_property":{"type":"string", "fixed-value":"dateutil.__version__"}
+        }
+      },
+      "inside": {
+        "one-of": [
+          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
+                                                 "less-than":"10.7"}}},
+          { "key": {"name": "ubuntu-linux", "version":"11.10"}},
+          { "key": {"name": "ubuntu-linux", "version":"12.04"}}
+          ]
+      },
+      "environment": {
+        "all-of": [
+          { "key": {"name":"pip", "version":"any"},
+            "port_mapping": { "pip": "pip" }
+          },
+          { "key": {"name":"python",
+                    "version":{"greater-than-or-equal":"2.6"}},
+            "port_mapping": {"python":"python"}
+          },
+          { "key": {"name":"six",
+                    "version":{"greater-than-or-equal":"1.3"}}}
+        ]
+      }
+    },
     { "key":{"name":"django_transaction_signals", "version":"1.0"},
       "display_name": "Django Transaction Signals",
       "input_ports" : {
