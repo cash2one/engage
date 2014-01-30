@@ -132,6 +132,12 @@ let parse_resource_inst (json:json_value) :resource_inst =
             if SymbolMap.mem "peers" resource
             then parse_resource_ref_list (SymbolMap.find "peers" resource)
             else []
+          and user_data =
+            if SymbolMap.mem "user_data" resource
+            then 
+                let udata = SymbolMap.find "user_data" resource in
+                do_cast cast_to_map udata "user_data" 
+            else SymbolMap.empty
           in
             last_good_resource_id := Some id;
             current_resource_id := None;
@@ -139,7 +145,8 @@ let parse_resource_inst (json:json_value) :resource_inst =
              config_port=config_port;
              input_ports=input_ports; output_ports=output_ports;
              inside_ref=inside_ref; environment_refs=environment_refs;
-             peer_refs=peer_refs;}
+             peer_refs=peer_refs;
+             user_data=user_data;}
       end
     | _ -> raise_error ("Expecting map for resource, got " ^
                           (type_of_json_value json))

@@ -59,6 +59,13 @@ let scalar_leq v v' =
   | _ -> false
 
 
+(** Representation of json values. We parse resource instances into this format
+    and then convert them to resource_inst records *)
+type json_value =
+    JsonScalar of scalar_val
+  | JsonMap of json_map
+  | JsonList of json_value list
+and json_map = json_value SymbolMap.t
 
 type port_reference =
   ConfigPortRef of symbol list (* property name *)
@@ -132,15 +139,9 @@ type resource_def = {
   inside : choice_constraint option;
   environment: compound_constraint option;
   peers: compound_constraint option;
+  user_data_def : json_map; (* additional user data gets stuck in here *)
 }
 
-(** Representation of json values. We parse resource instances into this format
-    and then convert them to resource_inst records *)
-type json_value =
-    JsonScalar of scalar_val
-  | JsonMap of json_map
-  | JsonList of json_value list
-and json_map = json_value SymbolMap.t
 
 type resource_ref = {
   ref_id : symbol;
@@ -162,6 +163,7 @@ type resource_inst = {
   inside_ref: resource_ref option;
   environment_refs: resource_ref list;
   peer_refs: resource_ref list;
+  user_data : json_map;
 }
 
 
@@ -199,6 +201,27 @@ module Keywords = struct
   let one_of = "one-of"
   let all_of = "all-of"
   let port_mapping = "port_mapping"
+
+  let to_list () = 
+    [
+      resource_def_version ;
+      resource_definitions ;
+      key ;
+      display_name ;
+      config_port ;
+      input_ports ;
+      output_ports ;
+      inside ;
+      environment ;
+      peers ;
+      prop_type ;
+      property_display_name ;
+      property_help ;
+      fixed_value ;
+      default ;
+      includes ;
+      source 
+    ]
 end;;
 
 (** This is used by the parsers and pretty-printers *)

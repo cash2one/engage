@@ -125,6 +125,17 @@ let rec pp_json (json_value:json_value) (pp_state:pp_state) :unit =
         pp_multiline_list (fun jv -> pp_json jv pp_state)
           List.iter lst pp_state
 
+let rec pp_json_value (value:json_value) (pp_state:pp_state) :unit =
+    match value with
+        JsonScalar s -> pp_state.output_fn (string_of_scalar_val s)
+      | JsonList l ->
+          pp_multiline_list (fun jv -> pp_json_value jv pp_state)
+            List.iter l pp_state
+      | JsonMap m -> pp_json_map m pp_state
+and pp_json_map (map:json_map) (pp_state:pp_state) :unit =
+  pp_multiline_map ~quote_keys:true
+    (fun jv -> pp_json_value jv pp_state) symmap_iter_fn map pp_state
+
 let pp_key ?(quote_property_names=true)
            (key_def:(symbol*scalar_val) list) (pp_state:pp_state) :unit=
   pp_state.output_fn "{";
@@ -300,12 +311,32 @@ let pp_compound_constraint (cp:compound_constraint) (pp_state:pp_state) :unit =
         pp_state.output_fn ("\n" ^ (indent_str pp_state) ^ "] }")
       end
 
+let pp_user_data ?(quote_keys = true) (value_prt_fn:'v->unit)
+                     (iter_fn:((symbol*'v)->unit)->'c->unit)
+                     (collection:'c) (pp_state:pp_state)
+                     :unit =
+  let first = ref true in
+    begin
+      let body_indent = indent_str pp_state in
+      iter_fn (fun (key, value) ->
+                 if not !first then pp_state.output_fn (",\n"^body_indent)
+                 else (first := false; pp_state.output_fn ("\n"^body_indent));
+                 if quote_keys then pp_state.output_fn ("\"" ^ key ^ "\": ")
+                 else pp_state.output_fn (key ^ ": ");
+                 (value_prt_fn value)) collection;
+      ()
+    end
+
 (** Pretty print a resource definition *)
 let pp_resource_def (rdef:resource_def) (pp_state:pp_state) :unit =
   pp_state.output_fn ((indent_str pp_state) ^ "{\n");
   let body_indent = indent_in pp_state in begin
       pp_state.output_fn (body_indent ^ (quote_prop Keywords.key));
       pp_key rdef.key pp_state;
+      pp_state.output_fn ",\n";
+      if rdef.user_data_def <> SymbolMap.empty then begin
+          pp_user_data ~quote_keys:true (fun jv -> pp_json_value jv pp_state) symmap_iter_fn rdef.user_data_def pp_state
+      end ;
       pp_state.output_fn (",\n" ^ body_indent ^
                             (quote_prop Keywords.config_port));
       pp_port_def rdef.config_port_def ConfigPort pp_state;
@@ -358,17 +389,6 @@ let pp_resource_library (rdef_list:resource_def list) (pp_state:pp_state) :unit=
     indent_out pp_state;
     pp_state.output_fn ((indent_str pp_state) ^ "}\n")
 
-let rec pp_json_value (value:json_value) (pp_state:pp_state) :unit =
-    match value with
-        JsonScalar s -> pp_state.output_fn (string_of_scalar_val s)
-      | JsonList l ->
-          pp_multiline_list (fun jv -> pp_json_value jv pp_state)
-            List.iter l pp_state
-      | JsonMap m -> pp_json_map m pp_state
-and pp_json_map (map:json_map) (pp_state:pp_state) :unit =
-  pp_multiline_map ~quote_keys:true
-    (fun jv -> pp_json_value jv pp_state) symmap_iter_fn map pp_state
-
 let pp_resource_port (port:json_map) (pp_state:pp_state) :unit =
   pp_multiline_map ~quote_keys:true (fun value -> pp_json_value value pp_state)
     symmap_iter_fn port pp_state
@@ -406,6 +426,10 @@ let pp_resource_inst (rinst:resource_inst) (pp_state:pp_state) :unit =
              pp_json_map json_map pp_state
            end
          | None -> ());
+      if rinst.user_data <> SymbolMap.empty then begin
+        pp_state.output_fn (",\n" ^ body_indent);
+        pp_user_data ~quote_keys:true (fun jv -> pp_json_value jv pp_state) symmap_iter_fn rinst.user_data pp_state
+      end;
       if rinst.config_port <> SymbolMap.empty then begin
         pp_state.output_fn (",\n" ^ body_indent ^ "\"config_port\": ");
         pp_resource_port rinst.config_port pp_state
