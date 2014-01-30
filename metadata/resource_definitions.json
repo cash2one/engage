@@ -1807,6 +1807,17 @@
             "port_mapping": { "pip": "pip" }
           }
           ]
+      },
+      "driver_module_name": "engage.drivers.genforma.pip",
+      "package": {
+        "filename": "Django-1.4.10.tar.gz",
+        "pkg_type":"pip",
+        "package_name": "django==1.4.10",
+        "license": {"name":"BSD 3-Clause",
+                    "url":"https://github.com/django/django/blob/master/LICENSE"},
+        "patch_version":"1.4.10",
+        "md5sum": "d324aecc37ce5430f548653b8b1509b6",
+        "cksum": "1774032669"
       }
     },
     {"key" : { "name" : "Django-App", "version" : "1.0" },

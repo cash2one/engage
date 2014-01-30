@@ -117,20 +117,25 @@ def get_mgrs_and_pkgs(file_layout, deployment_home, options,
     import engage.engine.password
     pw_database = engage.engine.password.get_password_db(file_layout, options)
     import install_context
-    install_context.setup_context(file_layout.get_password_file_directory(),
-                                  options.subproc, l, pw_database)
+    install_context.setup_context(file_layout, options.subproc, l, pw_database)
 
     if not resource_file:
         resource_file = file_layout.get_installed_resources_file(deployment_home)
 
     def get_manager_and_pkg(resource):
-        entry = l.get_entry(resource)
-        assert entry, "Unable to find entry for resource %s in library file %s" % (resource.id, file_layout.get_software_library_file())
-        resource_manager_class = entry.get_manager_class()
+        if resource.package!=None:
+            # new style packags are on the resource
+            package = resource.package
+            resource_manager_class = resource.get_resource_manager_class()
+        else:
+            entry = l.get_entry(resource)
+            assert entry, "Unable to find entry for resource %s in library file %s" % (resource.id, file_layout.get_software_library_file())
+            resource_manager_class = entry.get_manager_class()
+            package = entry.get_package()
         mgr = resource_manager_class(resource)
         import install_context
         mgr.install_context = install_context
-        return (mgr, entry.get_package())
+        return (mgr, package)
         
     with open(resource_file, "rb") as f:
         resource_list_json = json.load(f)

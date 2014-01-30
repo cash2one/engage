@@ -74,8 +74,7 @@ class TestRequest(object):
         else:
             pw_database = None # setup_context() will read the db
         import install_context
-        install_context.setup_context(os.path.join(self.deployment_home,
-                                                   "config"),
+        install_context.setup_context(self.file_layout,
                                       False, library, pw_database)
         with open(self.install_script_file, "rb") as f:
             resource_list_json = json.load(f)

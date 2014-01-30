@@ -14,6 +14,7 @@ password_repository = None
 config_dir = None
 cipher_file = None
 salt_file = None
+engage_file_layout = None
 
 # we save the package library in a global so that resource managers can load
 # additional packages (e.g. patches) during the install
@@ -21,7 +22,7 @@ package_library = None
 
 
 
-def setup_context(config_dir_, subprocess_mode, package_library_, pw_database):
+def setup_context(engage_file_layout_, subprocess_mode, package_library_, pw_database):
     """Setup some global state.
     
     Load the password repository and set the password_repository module variable.
@@ -32,23 +33,24 @@ def setup_context(config_dir_, subprocess_mode, package_library_, pw_database):
     In the event that we already have a password database, we just use that.
     """
     global password_repository, config_dir, cipher_file, salt_file, \
-           package_library
-    config_dir = config_dir_
+           package_library, engage_file_layout
+    config_dir = engage_file_layout_.get_password_file_directory()
     package_library = package_library_
+    engage_file_layout = engage_file_layout_
     if pw_database:
         #If we already have an in-memory password database,
         # us that and don't try to read from the file.
         password_repository = pw_database
-        return
-    cipher_file = os.path.join(config_dir, pwr.REPOSITORY_FILE_NAME)
-    salt_file = os.path.join(config_dir, pwr.SALT_FILE_NAME)
-    if subprocess_mode:
-        user_key = sys.stdin.read().rstrip()
     else:
-        user_key = getpass.getpass()
-    password_repository = pwr.PasswordRepository.load_from_file(cipher_file,
-                                                                salt_file,
-                                                                user_key)
+        cipher_file = os.path.join(config_dir, pwr.REPOSITORY_FILE_NAME)
+        salt_file = os.path.join(config_dir, pwr.SALT_FILE_NAME)
+        if subprocess_mode:
+            user_key = sys.stdin.read().rstrip()
+        else:
+            user_key = getpass.getpass()
+        password_repository = pwr.PasswordRepository.load_from_file(cipher_file,
+                                                                    salt_file,
+                                                                    user_key)
 
 def get_sudo_password(username=None):
     """Return the sudo password entry. If no entry is present,
