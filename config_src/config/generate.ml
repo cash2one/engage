@@ -206,7 +206,8 @@ let make_new_tmp_inst key rdef (mk,mid) =
     R.output_ports = R.SymbolMap.empty ;
     R.inside_ref = None ; (* inside_ref ; *)
     R.environment_refs = [] ;
-    R.peer_refs = []
+    R.peer_refs = [] ;
+    R.user_data = R.SymbolMap.empty ;
   }
   in
   add_inst inst ;
@@ -1224,6 +1225,18 @@ let fill_in_config_ports rdef rinst =
   List.iter do_one_property_def rdef.R.config_port_def ;
   !local_symmap_ref
 
+let fill_in_user_data rdef rinst = 
+  (* merge user data from the resource def and the resource inst, giving priotiry to the data from the instance *)
+  L.log_info L.ConsGen "PRINTING RESOURCE USER DATA";
+  R.SymbolMap.iter (fun k v -> L.log_info L.ConsGen k; R_pp.pp_json_value v (R_pp.make_pp_state L.system_print_string)) rdef.R.user_data_def; 
+  L.log_info L.ConsGen "PRINTING RESOURCE USER DATA";
+  R.SymbolMap.iter (fun k v -> L.log_info L.ConsGen k; R_pp.pp_json_value v (R_pp.make_pp_state L.system_print_string)) rinst.R.user_data; 
+  let jmap = R.SymbolMap.fold (fun k v m -> if R.SymbolMap.mem k m then m else R.SymbolMap.add k v m) rdef.R.user_data_def rinst.R.user_data 
+  in
+  L.log_info L.ConsGen "PRINTING USER DATA";
+  R.SymbolMap.iter (fun k v -> L.log_info L.ConsGen k; R_pp.pp_json_value v (R_pp.make_pp_state L.system_print_string)) jmap; 
+  jmap 
+
 
 let set_includes_ports rd ri (key, rinst, map_resource_key, map_resource_id, map_property_name, p) =
   L.log_debug L.ConsGen ("set includes port called with "  ^ p.R.property_name);
@@ -1278,7 +1291,8 @@ let print_model pmodel node_id_tbl id_node_tbl =
         let rinst = lookup_inst (k,i) in
         let rdef = lookup_rdef k in
         let new_cp = fill_in_config_ports rdef rinst in
-        let rinst_1 = { rinst with R.config_port = new_cp } in
+        let udata = fill_in_user_data rdef rinst in
+        let rinst_1 = { rinst with R.config_port = new_cp ; R.user_data = udata } in
         L.log_debug L.ConsGen "config ports filled" ;
         let inside = find_inside_ref n pmodel rinst_1 (id_node_tbl, node_id_tbl) in
         let rinst_2 = { rinst_1 with R.inside_ref = inside } in
@@ -1629,7 +1643,8 @@ class config_engine_factory
     let (rdef, rinst) = (lookup_rdef key_of_jval, lookup_inst (key_of_jval, jid) ) in
     let machine = get_machine rinst in
     let mid = machine.R.resource_key, machine.R.id in
-    let rinst_5 = rinst in
+    let udata = fill_in_user_data rdef rinst in
+    let rinst_5 = { rinst with R.user_data = udata } in
     let new_op = map_output_ports rdef rinst_5 in
     let rinst_6 = { rinst_5 with R.output_ports = new_op } in
     L.log_debug L.ConsGen ("Includes list has size " ^(string_of_int (List.length (debug_get_includes_list())))) ;

@@ -146,7 +146,6 @@ let rec parse_property_value (json:json_value) (prop_type:type_decl) err_ctx
                      | JsonMap m' -> MapInitialVal (compute_val m')
                      | JsonScalar sv -> ScalarInitialVal sv
                      | JsonList l -> assert false 
-                     | _ -> assert false
             in
             (k,v') :: sofar) m []
         in
@@ -453,11 +452,21 @@ let parse_rdef (json:json_value) :resource_def =
                     err_ctx)
         else None
       end
+  and user_data = (* additional information that a user might stick into a resource def. Copy these along. *)
+      begin 
+        let err_ctx = err_ctx ^ " user data " in
+        let keywords = Keywords.to_list() in 
+        let ud = 
+          SymbolMap.fold (fun k v ud -> 
+            if List.mem k keywords then ud else SymbolMap.add k v ud ) rdef_json SymbolMap.empty 
+        in
+        ud 
+      end
   in rdef_no := !rdef_no + 1;
     {key=key; display_name = display_name ; config_port_def=config_port;
      input_port_defs=input_port_defs;
      output_port_defs=output_port_defs;
-      inside=inside; environment=environment; peers=peers;}
+      inside=inside; environment=environment; peers=peers; user_data_def=user_data; }
 
 let parse_rdef_library (json:json_value) : resource_def list =
     let library = do_cast cast_to_map json "resource library definition" in
