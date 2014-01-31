@@ -121,8 +121,7 @@ class InstallEngine(object):
             # if no password file is being used, created a dummy password
             # object
             self.pw_database = pw_repository.PasswordRepository("")
-        ctx.setup_context(efl.get_password_file_directory(),
-                          self.options.subproc, library, self.pw_database)
+        ctx.setup_context(efl, self.options.subproc, library, self.pw_database)
         if self.options.dry_run:
             self.logger.info("Dry run complete.")
             return

@@ -172,6 +172,8 @@ def generate_pw_file_if_necessary(engage_file_layout,
     requires_root_access = False
     always_requires_pw_file = False
     for inst_md in parsed_install_solution:
+        if inst_md.package!=None:
+            continue # new-style packages cannot have this password mess
         entry = library.get_entry(inst_md)
         if entry==None:
             raise Exception("Unable to find resource library entry for resource %s" % inst_md.key.__repr__())

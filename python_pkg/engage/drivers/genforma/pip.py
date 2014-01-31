@@ -19,6 +19,7 @@ import engage.utils.path as path
 import engage_utils.process as iuproc
 import engage.utils.log_setup as iulog_setup
 from engage_utils.versions import compare_versions
+import engage_utils.pkgmgr
 
 from engage.utils.user_error import UserError, ScriptErrInf
 import gettext
@@ -160,24 +161,31 @@ class Manager(resource_manager.Manager):
                 if not self.ctx.dry_run:
                     os.makedirs(self.script_dir)
         req_file = None
-        if package.type == library.Package.REFERENCE_TYPE:
-            # reference package type should be used for package names (e.g. Django)
-            # or URL's
-            if "==" in package.location or ">=" in package.location:
-                # this is a entry for a requirements file
-                req_file = tempfile.NamedTemporaryFile(delete=False)
-                req_file.write(package.location + "\n")
-                req_file.close()
-                logger.debug("Pip requirements file contents: %s" %
-                             package.location)
-                cmd.extend(["-r", req_file.name])
-            else: # just a package name, can use command line directly
-                cmd.append(package.location)
-        else:
-            # if a file or archive, then we get the local location and pass that
-            # to pip 
-            filepath = package.get_file()
-            cmd.append(filepath)
+        if isinstance(package, engage_utils.pkgmgr.Package):
+            # new style package
+            logger.info("Making sure we have the package for %s" % self.package_name)
+            local_repository = self.install_context.engage_file_layout.get_cache_directory()
+            package_path = package.download([], local_repository, dry_run=self.ctx.dry_run)
+            cmd.append(package_path)
+        else: # old style packages
+            if package.type == library.Package.REFERENCE_TYPE:
+                # reference package type should be used for package names (e.g. Django)
+                # or URL's
+                if "==" in package.location or ">=" in package.location:
+                    # this is a entry for a requirements file
+                    req_file = tempfile.NamedTemporaryFile(delete=False)
+                    req_file.write(package.location + "\n")
+                    req_file.close()
+                    logger.debug("Pip requirements file contents: %s" %
+                                 package.location)
+                    cmd.extend(["-r", req_file.name])
+                else: # just a package name, can use command line directly
+                    cmd.append(package.location)
+            else:
+                # if a file or archive, then we get the local location and pass that
+                # to pip 
+                filepath = package.get_file()
+                cmd.append(filepath)
         try:
             self.ctx.r(run_program, cmd)
         finally:

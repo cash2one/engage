@@ -50,11 +50,17 @@ define_error(ERR_NO_INSTALL_TARGET_RESOURCE,
 
 
 def get_manager_and_package(instance_md, library):
-    entry = library.get_entry(instance_md)
-    if entry==None:
-        raise UserError(errors[ERR_NO_ENTRY_FOR_RESOURCE_INST],
-                        {"inst": instance_md.id})
-    resource_manager_class = entry.get_manager_class()
+    if instance_md.package!=None:
+        # new style packages are on the resource.
+        package = instance_md.package
+        resource_manager_class = instance_md.get_resource_manager_class()
+    else:
+        entry = library.get_entry(instance_md)
+        if entry==None:
+            raise UserError(errors[ERR_NO_ENTRY_FOR_RESOURCE_INST],
+                            {"inst": instance_md.id})
+        package = entry.get_package()
+        resource_manager_class = entry.get_manager_class()
     resource_manager = resource_manager_class(instance_md)
     resource_manager.install_context = install_context
     ## JF 2011-07-8: We previously were checking whether the
@@ -68,20 +74,6 @@ def get_manager_and_package(instance_md, library):
     ## package here and defer the installation check until run_install()
     ## below. If, for some reason, getting the package manager for an installed
     ## resource causes a problem, then we'll have to revisit.
-    ##
-    ## if resource_manager.is_installed():
-    ##     ## resource_manager.validate_post_install()
-    ##     package = None
-    ## else:
-    ##     resource_manager.validate_pre_install()
-    if True:
-        package = entry.get_package()
-        ## It is ok if we don't have a package at this point. If we
-        ## find that the resource is NOT installed, then we need
-        ## to have a package.
-        ## if package == None:
-        ##     raise UserError(errors[ERR_NO_PACKAGE_FOR_RESOURCE_INST],
-        ##                     {"inst": instance_md.id})
     return (resource_manager, package)
 
 

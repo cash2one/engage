@@ -3,6 +3,11 @@
 #
 import json
 import sys
+    
+from engage.extensions import installed_extensions
+
+import logging
+logger = logging.getLogger(__name__)
 
 class ResourceParseError(Exception):
     pass
@@ -259,6 +264,15 @@ class Config:
     def __str__(self): return _serialized_json(self._to_json())
 
 
+def convert_resource_key_to_driver_module_names(key, prefix="engage.drivers."):
+    candidates = []
+    for submodule in (["standard",] + installed_extensions):
+        candidates.append(prefix + submodule + "." + fileutils.mangle_resource_key(key) + ".driver")
+        ## # also convert the resource name to all lowercase
+        ## candidates.append(prefix + submodule + "." + (fileutils.mangle_resource_key(key)).lower() + ".driver")
+    return candidates
+
+
 class ResourceRef:
     """Object representation of a resource reference"""
     def __init__(self, id, key, port_mapping=None):
@@ -280,7 +294,9 @@ class ResourceMD:
     """Object representation of resource instance metadata"""
     def __init__(self, id, key, properties=None, config_port=None,
                  input_ports=None, output_ports=None,
-                 inside=None, environment=None, peers=None):
+                 inside=None, environment=None, peers=None,
+                 driver_module_name=None,
+                 package=None):
         self.id = id
         self.key = key
         self.properties = _default_init_val(properties, {})
@@ -290,6 +306,14 @@ class ResourceMD:
         self.inside = inside # default is None
         self.environment = _default_init_val(environment, [])
         self.peers = _default_init_val(peers, [])
+        # For new-style packages, we can optionally specify the
+        # resource manager module here. Otherwise, it will guess the
+        # module name based on the resource name and version.
+        self.driver_module_name = driver_module_name
+        self.package = package # the new-style package, if available
+        if self.driver_module_name!=None and self.package==None:
+            raise Exception("%s %s : For old-style packages, you need to specify the class in the resource library!" %
+                            (self.key['name'], self.key['version']))
 
     def to_json(self):
         """Returns an in-memory json representation of resource"""
@@ -302,6 +326,10 @@ class ResourceMD:
                     u"output_ports":self.output_ports,
                     u"environment":environment,
                     u"peers":peers}
+        if self.driver_module_name:
+            resource[u'driver_module_name'] = self.driver_module_name
+        if self.package:
+            resource[u'package'] = self.package.to_json()
         if self.inside:
             resource["inside"] = self.inside.to_json()
         return resource
@@ -328,6 +356,36 @@ class ResourceMD:
                     "input_ports":self.input_ports,
                     "output_ports":self.output_ports}
         return constructor(props_in, types, *args)
+    
+    def get_resource_manager_class(self):
+        """Return the class (constructor function) for the manager class
+        associated with this resource. This only works with the new-style
+        packages, where the driver name is either explictly specified in
+        the resource definition, or we use a key to infer a driver name.
+        """
+        if self.driver_module_name:
+            # the easy case - we are given the class, so we can import it directly
+            logger.debug("Attempting to import %s" % self.driver_module_name)
+            mod = __import__(self.driver_module_name)
+            components = self.driver_module_name.split('.')
+            for comp in components[1:]:
+                mod = getattr(mod, comp)
+            return getattr(mod, 'Manager')
+        else:
+            # harder - using a key to infer a driver name.
+            driver_module_names = convert_resource_key_to_driver_module_names(self.key)
+            mod = None
+            for driver_module_name in driver_module_names:
+                try:
+                    logger.debug("Attempting to import %s" % driver_module_name)
+                    mod = __import__(driver_module_name, globals(), locals(), ['Manager',], -1)
+                    break
+                except ImportError, e:
+                    logger.debug("Could not import %s: %s" % (driver_module_name, str(e)))
+            if mod==None:
+                raise Exception("Did not find driver for resource type %s %s, tried module names %s" %
+                                (self.key['name'], self.key['version'], ', '.join(driver_module_names)))
+            return getattr(mod, 'Manager')
 
 def _check_port_type(port_json_repr, port_name):
     """Check that the specified port is defined correctly. The port itself
@@ -424,6 +482,7 @@ def parse_resource_from_json(json_repr):
     }
     >>>
     """
+    import engage_utils.pkgmgr
     if not json_repr.has_key(u"id"):
         raise ResourceParseError, "Resource missing 'id' property"
     id = json_repr[u"id"]
@@ -463,8 +522,32 @@ def parse_resource_from_json(json_repr):
                  for json_ref in json_repr[u"peers"]]
     else:
         peers = None
+    if json_repr.has_key(u"driver_module_name"):
+        driver_module_name = json_repr[u"driver_module_name"]
+    else:
+        driver_module_name = None
+    if json_repr.has_key(u"package") and json_repr[u'package']!=None:
+        # check for a new-style package
+        package_json = json_repr[u"package"]
+        if not package_json.has_key(u'name'):
+            # Package entries must have the name and version, as they can
+            # exist outside the resource. For packages inside a resource
+            # definition, we let you leave the name and version out and then
+            # put them in before parsing the package.
+            package_json[u'name'] = key[u'name']
+            package_json[u'version'] = key[u'version']
+        else:
+            if package_json[u'name']!=key[u'name'] or \
+               package_json[u'version']!=key[u'version']:
+                raise Exception("Package definition within resource %s %s has different name and/or version" %
+                                (key[u'name'], key[u'version']))
+        package = engage_utils.pkgmgr.Package.from_json(package_json)
+    else:
+        package = None # new-style packages are optional. Otherwise the package is in the library.
+    
     return ResourceMD(id, key, properties, config_port, input_ports,
-                      output_ports, inside, environment, peers)
+                      output_ports, inside, environment, peers,
+                      driver_module_name, package)
     
 
 def parse_install_soln(install_soln_filename):

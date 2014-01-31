@@ -1007,19 +1007,6 @@
         }
       ]
     },
-    { "key":{"name":"Django", "version":"1.4"},
-      "mgr_module_name":"engage.drivers.genforma.pip",
-      "packages": [
-        { "type": "Archive",
-          "package_class": "GzippedTarArchive",
-          "location": "Django-1.4.tar.gz"
-        },
-        { "type": "Reference",
-          "package_class": "PipLink",
-          "location": "django-celery>=3.0"
-        }
-      ]
-    },
     { "key":{"name":"django-tables2", "version":"0.13"},
       "mgr_module_name":"engage.drivers.genforma.pip",
       "packages": [
