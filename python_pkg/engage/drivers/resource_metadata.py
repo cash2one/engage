@@ -3,7 +3,7 @@
 #
 import json
 import sys
-import engage_utils.pkgmgr
+    
 from engage.extensions import installed_extensions
 
 import logging
@@ -482,6 +482,7 @@ def parse_resource_from_json(json_repr):
     }
     >>>
     """
+    import engage_utils.pkgmgr
     if not json_repr.has_key(u"id"):
         raise ResourceParseError, "Resource missing 'id' property"
     id = json_repr[u"id"]
@@ -536,7 +537,7 @@ def parse_resource_from_json(json_repr):
             package_json[u'name'] = key[u'name']
             package_json[u'version'] = key[u'version']
         else:
-            if package_json[u'name']!=key[u'uname'] or \
+            if package_json[u'name']!=key[u'name'] or \
                package_json[u'version']!=key[u'version']:
                 raise Exception("Package definition within resource %s %s has different name and/or version" %
                                 (key[u'name'], key[u'version']))
