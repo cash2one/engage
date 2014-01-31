@@ -133,11 +133,10 @@ let parse_resource_inst (json:json_value) :resource_inst =
             then parse_resource_ref_list (SymbolMap.find "peers" resource)
             else []
           and user_data =
-            if SymbolMap.mem "user_data" resource
-            then 
-                let udata = SymbolMap.find "user_data" resource in
-                do_cast cast_to_map udata "user_data" 
-            else SymbolMap.empty
+            begin
+              let keywords = [ "id"; "key"; "properties"; "config_port"; "input_ports"; "output_ports"; "inside"; "environment"; "peers" ] in
+              SymbolMap.fold (fun k v m -> if List.mem k keywords then m else SymbolMap.add k v m) resource SymbolMap.empty
+            end 
           in
             last_good_resource_id := Some id;
             current_resource_id := None;
