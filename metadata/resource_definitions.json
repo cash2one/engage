@@ -4932,44 +4932,6 @@
         ]
       }
     },
-    { "key":{"name":"celery", "version":"3.0"},
-      "display_name": "Celery library",
-      "comment": "Python-based queuing API",
-      "input_ports" : {
-         "python": {
-              "home" : "string"
-            }, 
-         "pip" : {
-            "pipbin" : "string"
-         }
-      },
-      "output_ports": {
-        "pkg_info": {
-          "provides_pkg": { "type": "string", "fixed-value": "celery"},
-          "test_module": { "type": "string", "fixed-value": "celery" },
-          "version_property":{"type":"string", "fixed-value":"celery.__version__"}
-        }
-      },
-      "inside": {
-        "one-of": [
-          { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
-                                                 "less-than":"10.7"}}},
-          { "key": {"name": "ubuntu-linux", "version":"11.10"}},
-          { "key": {"name": "ubuntu-linux", "version":"12.04"}}
-          ]
-      },
-      "environment": {
-        "all-of": [
-          { "key": {"name":"pip", "version":"any"},
-            "port_mapping": { "pip": "pip" }
-          },
-          { "key": {"name":"python",
-                    "version":{"greater-than-or-equal":"2.6"}},
-            "port_mapping": {"python":"python"}
-          }
-        ]
-      }
-    },
     { "key":{"name":"django-tables2", "version":"0.13"},
       "display_name": "Django Tables 2",
       "comment": "See https://pypi.python.org/pypi/django-tables2",

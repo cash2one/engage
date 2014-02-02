@@ -989,15 +989,6 @@
         }
       ]
     },
-    { "key":{"name":"celery", "version":"3.0"},
-      "mgr_module_name":"engage.drivers.genforma.pip",
-      "packages": [
-        { "type": "Reference",
-          "package_class": "PipLink",
-          "location": "celery>=3.0"
-        }
-      ]
-    },
     { "key":{"name":"pytz", "version":"2013"},
       "mgr_module_name":"engage.drivers.genforma.pip",
       "packages": [

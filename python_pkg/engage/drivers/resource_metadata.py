@@ -265,9 +265,10 @@ class Config:
 
 
 def convert_resource_key_to_driver_module_names(key, prefix="engage.drivers."):
+    import engage.utils.file
     candidates = []
     for submodule in (["standard",] + installed_extensions):
-        candidates.append(prefix + submodule + "." + fileutils.mangle_resource_key(key) + ".driver")
+        candidates.append(prefix + submodule + "." + engage.utils.file.mangle_resource_key(key) + ".driver")
         ## # also convert the resource name to all lowercase
         ## candidates.append(prefix + submodule + "." + (fileutils.mangle_resource_key(key)).lower() + ".driver")
     return candidates

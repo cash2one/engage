@@ -14,6 +14,7 @@ import engage.utils.log_setup
 from engage.drivers.password_repo_mixin import PasswordRepoMixin
 from engage.drivers.action import Action, _check_file_exists, make_value_action, make_action
 from engage.utils.file import NamedTempFile
+import engage_utils.pkgmgr
 logger = engage.utils.log_setup.setup_script_logger(__name__)
 
 from engage.utils.user_error import ScriptErrInf, UserError, convert_exc_to_user_error
@@ -34,6 +35,9 @@ ERR_APT_GET_INSTALL         = 2
 ERR_DPKG_QUERY_NOT_FOUND    = 3
 ERR_INSTALL_PKG_QUERY       = 4
 ERR_PKG_NOT_INSTALLED       = 5
+ERR_DPKG_NOT_FOUND          = 6
+ERR_PKG_FILE_NOT_FOUND      = 7
+ERR_DPKG_INSTALL            = 8
 
 define_error(ERR_APT_GET_NOT_FOUND,
              _("apt-get executable not found at %(path)s"))
@@ -45,10 +49,17 @@ define_error(ERR_INSTALL_PKG_QUERY,
              _("dpkg-query for installed package %(pkg)s failed."))
 define_error(ERR_PKG_NOT_INSTALLED,
              _("aptget package %(pkg)s not found after install in resource %(id)s"))
+define_error(ERR_DPKG_NOT_FOUND,
+             _("dpkg executable not found at %(path)s"))
+define_error(ERR_PKG_FILE_NOT_FOUND,
+             _("package file not found at %(path)s"))
+define_error(ERR_DPKG_INSTALL,
+             _("dpkg install failed for package file %(path)s"))
 
 
 APT_GET_PATH = "/usr/bin/apt-get"
 DPKG_QUERY_PATH = "/usr/bin/dpkg-query"
+DPKG_PATH = "/usr/bin/dpkg"
 
 def _get_env_for_aptget():
     """The apt-get utility may in some cases require that the PATH environment
@@ -78,6 +89,29 @@ def apt_get_install(package_list, sudo_password):
         sys.exc_clear()
         raise convert_exc_to_user_error(exc_info, errors[ERR_APT_GET_INSTALL],
                                         msg_args={"pkgs":package_list.__repr__()},
+                                        nested_exc_info=e.get_nested_exc_info())
+
+def dpkg_install(package_file, sudo_password):
+    """Given a package's .deb file, install using dpkg.
+    """
+    env = _get_env_for_aptget()
+    if not os.path.exists(DPKG_PATH):
+        raise UserError(errors[ERR_DPKG_NOT_FOUND],
+                        msg_args={"path":DPKG_PATH})
+    if not os.path.exists(package_file):
+        raise UserError(errors[ERR_PKG_FILE_NOT_FOUND],
+                        msg_args={"path":package_file})
+    
+    try:
+        iuprocess.run_sudo_program([APT_GET_PATH, "-q", "-y", "update"], sudo_password,
+                                   logger, env=env)
+        iuprocess.run_sudo_program([DPKG_PATH, "-i", package_file], sudo_password,
+                                   logger, env=env)
+    except iuprocess.SudoError, e:
+        exc_info = sys.exc_info()
+        sys.exc_clear()
+        raise convert_exc_to_user_error(exc_info, errors[ERR_DPKG_INSTALL],
+                                        msg_args={"path":package_file},
                                         nested_exc_info=e.get_nested_exc_info())
 
 class install(Action):
@@ -197,8 +231,13 @@ class Manager(resource_manager.Manager, PasswordRepoMixin):
         return is_installed(self.config.output_ports.apt_cfg.package_name)
 
     def install(self, package):
-        apt_get_install([self.config.output_ports.apt_cfg.package_name],
-                         self._get_sudo_password())
+        if instance(package, engage_utils.pkgmgr.Package):
+            local_repository = self.install_context.engage_file_layout.get_cache_directory()
+            package_path = package.download([], local_repository, dry_run=self.ctx.dry_run)
+            dpkg_install(package_path, self._get_sudo_password())
+        else:
+            apt_get_install([self.config.output_ports.apt_cfg.package_name],
+                            self._get_sudo_password())
         self.validate_post_install()
 
     def validate_post_install(self):
