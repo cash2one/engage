@@ -1,5 +1,9 @@
 #!/usr/bin/env python
-"""Resource definition parsing and representation functions.
+"""Resource definition parsing, validation, and graph printing functions.
+
+Unlike engage_utils.resource_utils, this does detailed parsing and
+validation of constraints. TODO: make the classes in this module
+inherit from those in the resource_utils module.
 
 If run as a script, will parse and validate the specified file.
 """
@@ -11,7 +15,17 @@ import re
 import copy
 import os.path
 
-            
+try:
+    import engage_utils.resource_utils as ru
+except ImportError:
+    engage_utils_path = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                                     "../../../../engage-utils"))
+    if not os.path.isdir(engage_utils_path):
+        raise Exception("Cound not import engage_utils.resource_utils, tried to find engage_utils at %s" %
+                        engage_utils_path)
+    sys.path.append(engage_utils_path)
+    import engage_utils.resource_utils as ru
+        
             
 RESOURCE_DEFINITIONS_PROP = u"resource_definitions"
 RESOURCE_DEF_VERSION_PROP = u"resource_def_version"
@@ -837,15 +851,29 @@ class ResourceGraph(object):
             if r.peer_constraint:
                 remove_candidates(r.peer_constraint)
         return candidates
-    
+
+    def iter_resources(self):
+        """Generator that iterates through all the resources, in sorted key order.
+        """
+        keys = sorted(self.res_map.keys())
+        for key in keys:
+            yield self.res_map[key]
+
     def write_to_file(self, filename):
-        keys = self.res_map.keys()
-        keys.sort()
-        json_list = [(self.res_map[key]).json_dict for key in keys]
+        json_list = [r.json_dict for r in self.iter_resources()]
+        # TODO: we should integrate the resource_utils classes more tightly
+        ru_resource_list = [ru.ResourceDef.from_json(r) for r in json_list]
         with open(filename, "wb") as f:
-            json.dump({RESOURCE_DEF_VERSION_PROP: RESOURCE_DEF_VERSION,
-                       RESOURCE_DEFINITIONS_PROP: json_list}, f, indent=2)
-            
+            f.write(ru.pp_resource_defs(ru_resource_list, RESOURCE_DEF_VERSION))
+            f.write("\n")
+
+    def write_to_graph_file(self, filename):
+        with open(filename, 'w') as gf:
+            gf.write("digraph G {\n")
+            for r in self.iter_resources():
+                r.write_to_graph_file(gf, self.res_by_name)
+            gf.write("}\n")
+
 
 def create_resource_graph(resource_json):
     """Create resource objects and return a resource graph. The input can be either
@@ -878,6 +906,9 @@ def create_opt_parser():
     parser.add_option("-w", "--write-res-file", dest="write_res_file",
                       default=None,
                       help="If specified, write resources to the requested file")
+    parser.add_option("-g", "--write-graph-file", dest="write_graph_file",
+                      default=None,
+                      help="If specified, write resource graph to the requested file in DOT format")
     return parser
 
 def parse_resource_keys_option(keys_opt_val, parser):
@@ -938,7 +969,9 @@ def main(argv):
     if output_file:
         rg.write_to_file(output_file)
         print "Wrote resources to %s" % output_file
-        
+    if options.write_graph_file:
+        rg.write_to_graph_file(options.write_graph_file)
+        print "Wrote resource graph to %s" % options.write_graph_file
     (errors, warnings) = rg.validate()
     if errors==0 and warnings==0:
         print "Validation of resource definition file %s ok" % filename

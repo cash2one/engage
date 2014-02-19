@@ -21,6 +21,8 @@ from engage.utils.file import mangle_resource_key
 
 from engage.utils.user_error import UserError, EngageErrInf, convert_exc_to_user_error
 
+import engage_utils.resource_utils as ru
+
 errors = { }
 
 def define_error(error_code, msg):
@@ -118,10 +120,11 @@ def preprocess_resource_file(primary_resource_file, extension_resource_files,
         for f in os.listdir(group_path):
             add_resources_in_file(os.path.join(os.path.join(group_path, f),
                                                "resources.json"))
-    new_resource_file = {"resource_def_version":resource_file['resource_def_version'],
-                         "resource_definitions":resources}
+
     with open(target_resource_file, "wb") as trf:
-        json.dump(new_resource_file, trf, indent=2)
+        trf.write(ru.pp_resource_defs([ru.ResourceDef.from_json(r) for r in resources],
+                                      resource_file['resource_def_version']))
+        trf.write("\n")
                                   
 
 def parse_raw_install_spec_file(filename):
@@ -471,6 +474,7 @@ def create_install_spec(master_node_resource, install_spec_template_file,
     _add_preinstalled_resource_to_spec("python", PYTHON_VERSION,
                                        all_hosts, logger,
                                        spec, fixup_resources)
+    # JF 2014-02-18 TODO: change setuptools handling to support more recent versions
     _add_preinstalled_resource_to_spec("setuptools", SETUPTOOLS_VERSION,
                                        all_hosts, logger,
                                        spec, fixup_resources)
