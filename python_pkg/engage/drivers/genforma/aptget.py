@@ -197,8 +197,13 @@ class Manager(resource_manager.Manager, PasswordRepoMixin):
         return is_installed(self.config.output_ports.apt_cfg.package_name)
 
     def install(self, package):
-        apt_get_install([self.config.output_ports.apt_cfg.package_name],
-                         self._get_sudo_password())
+        if isinstance(package, engage_utils.pkgmgr.Package):
+            local_repository = self.install_context.engage_file_layout.get_cache_directory()
+            package_path = package.download([], local_repository, dry_run=self.ctx.dry_run)
+            dpkg_install(package_path, self._get_sudo_password())
+        else:
+            apt_get_install([self.config.output_ports.apt_cfg.package_name],
+                            self._get_sudo_password())
         self.validate_post_install()
 
     def validate_post_install(self):
