@@ -41,7 +41,7 @@
       "description": "Monit compiled distribution for MacOSX",
       "checksum": "899670771 2646044 monit-5.5-macosx-universal.tar.gz",
       "platform": "macosx64",
-      "groups": ["Engage"]
+      "groups": ["Obsolete"]
     },
     { "filename": "monit-5.5-linux-x64.tar.gz",
       "location": "http://mmonit.com/monit/dist/binary/5.5/monit-5.5-linux-x64.tar.gz",
@@ -49,7 +49,7 @@
       "description": "Monit compiled distribution for 64-bit Linux",
       "checksum": "2875840085 974731 monit-5.5-linux-x64.tar.gz",
       "platform": "linux64",
-      "groups": ["Engage"]
+      "groups": ["Obsolete"]
     },
     { "filename": "monit-5.5.tar.gz",
       "location": "http://mmonit.com/monit/dist/monit-5.5.tar.gz",
@@ -57,7 +57,7 @@
       "description": "Monit source distribution",
       "checksum": "2679966487 1197459 monit-5.5.tar.gz",
       "platform": "macosx",
-      "groups": ["Engage"]
+      "groups": ["Obsolete"]
     },
      { "filename": "gunicorn-0.17.2.tar.gz",
       "location": "https://pypi.python.org/packages/source/g/gunicorn/gunicorn-0.17.2.tar.gz",
