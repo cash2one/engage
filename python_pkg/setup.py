@@ -18,6 +18,7 @@ setup(
             'deployer = engage.engine.deploy_spec:call_from_console_script',
             'create-distribution = engage.engine.create_distribution:call_from_console_script',
             'password_manager = engage.engine.password:main',
+            'package_report = engage.engine.package_report:main'
             ]},
     install_requires=[],
     license='Apache V2.0',
