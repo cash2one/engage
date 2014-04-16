@@ -60,16 +60,23 @@ def _get_env_for_aptget():
         env["PATH"] = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
     return env
 
+# We track whether this execution of Engage has run the apt-get update command.
+# If so, we don't run it for any subsequent requests. The update command is
+# slow and frequently fails due to server availability issues.
+update_run_this_execution = False
 
 def apt_get_install(package_list, sudo_password):
+    global update_run_this_execution
     env = _get_env_for_aptget()
     if not os.path.exists(APT_GET_PATH):
         raise UserError(errors[ERR_APT_GET_NOT_FOUND],
                         msg_args={"path":APT_GET_PATH})
     
     try:
-        iuprocess.run_sudo_program([APT_GET_PATH, "-q", "-y", "update"], sudo_password,
-                                   logger, env=env)
+        if not update_run_this_execution:
+            iuprocess.run_sudo_program([APT_GET_PATH, "-q", "-y", "update"], sudo_password,
+                                       logger, env=env)
+            update_run_this_execution = True
         iuprocess.run_sudo_program([APT_GET_PATH, "-q", "-y", "install"]+package_list, sudo_password,
                                    logger,
                                    env=env)
@@ -78,6 +85,32 @@ def apt_get_install(package_list, sudo_password):
         sys.exc_clear()
         raise convert_exc_to_user_error(exc_info, errors[ERR_APT_GET_INSTALL],
                                         msg_args={"pkgs":package_list.__repr__()},
+                                        nested_exc_info=e.get_nested_exc_info())
+
+def dpkg_install(package_file, sudo_password):
+    """Given a package's .deb file, install using dpkg.
+    """
+    global update_run_this_execution
+    env = _get_env_for_aptget()
+    if not os.path.exists(DPKG_PATH):
+        raise UserError(errors[ERR_DPKG_NOT_FOUND],
+                        msg_args={"path":DPKG_PATH})
+    if not os.path.exists(package_file):
+        raise UserError(errors[ERR_PKG_FILE_NOT_FOUND],
+                        msg_args={"path":package_file})
+    
+    try:
+        if not update_run_this_execution:
+            iuprocess.run_sudo_program([APT_GET_PATH, "-q", "-y", "update"], sudo_password,
+                                       logger, env=env)
+            update_run_this_execution = True
+        iuprocess.run_sudo_program([DPKG_PATH, "-i", package_file], sudo_password,
+                                   logger, env=env)
+    except iuprocess.SudoError, e:
+        exc_info = sys.exc_info()
+        sys.exc_clear()
+        raise convert_exc_to_user_error(exc_info, errors[ERR_DPKG_INSTALL],
+                                        msg_args={"path":package_file},
                                         nested_exc_info=e.get_nested_exc_info())
 
 class install(Action):
@@ -118,9 +151,13 @@ def update(self):
     """ACTION: Run the apt-get update command to update the list of available
     packages.
     """
-    iuprocess.run_sudo_program([APT_GET_PATH, "-q", "-y", "update"],
-                               self.ctx._get_sudo_password(self),
-                               self.ctx.logger)
+    global update_run_this_execution
+    if not update_run_this_execution:
+        iuprocess.run_sudo_program([APT_GET_PATH, "-q", "-y", "update"],
+                                   self.ctx._get_sudo_password(self),
+                                   self.ctx.logger)
+    else:
+        self.ctx.logger.info("ignoring request for apt-get update, as update was already run")
 
 
 def is_installed(package):
