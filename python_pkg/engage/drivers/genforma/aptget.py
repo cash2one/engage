@@ -65,18 +65,22 @@ def _get_env_for_aptget():
 # slow and frequently fails due to server availability issues.
 update_run_this_execution = False
 
-def apt_get_install(package_list, sudo_password):
+def run_update_if_not_already_run(sudo_password, env):
     global update_run_this_execution
+    if not update_run_this_execution:
+        logger.info("Running apt-get update...")
+        iuprocess.run_sudo_program([APT_GET_PATH, "-q", "-y", "update"], sudo_password,
+                                   logger, env=env)
+        update_run_this_execution=True
+
+def apt_get_install(package_list, sudo_password):
     env = _get_env_for_aptget()
     if not os.path.exists(APT_GET_PATH):
         raise UserError(errors[ERR_APT_GET_NOT_FOUND],
                         msg_args={"path":APT_GET_PATH})
     
     try:
-        if not update_run_this_execution:
-            iuprocess.run_sudo_program([APT_GET_PATH, "-q", "-y", "update"], sudo_password,
-                                       logger, env=env)
-            update_run_this_execution = True
+        run_update_if_not_already_run(sudo_password, env)
         iuprocess.run_sudo_program([APT_GET_PATH, "-q", "-y", "install"]+package_list, sudo_password,
                                    logger,
                                    env=env)
@@ -90,7 +94,6 @@ def apt_get_install(package_list, sudo_password):
 def dpkg_install(package_file, sudo_password):
     """Given a package's .deb file, install using dpkg.
     """
-    global update_run_this_execution
     env = _get_env_for_aptget()
     if not os.path.exists(DPKG_PATH):
         raise UserError(errors[ERR_DPKG_NOT_FOUND],
@@ -100,10 +103,7 @@ def dpkg_install(package_file, sudo_password):
                         msg_args={"path":package_file})
     
     try:
-        if not update_run_this_execution:
-            iuprocess.run_sudo_program([APT_GET_PATH, "-q", "-y", "update"], sudo_password,
-                                       logger, env=env)
-            update_run_this_execution = True
+        run_update_if_not_already_run(sudo_password, env)
         iuprocess.run_sudo_program([DPKG_PATH, "-i", package_file], sudo_password,
                                    logger, env=env)
     except iuprocess.SudoError, e:
@@ -147,15 +147,21 @@ class debconf_set_selections(Action):
         return "%s <selection_lines>" % self.NAME
 
 @make_action
-def update(self):
+def update(self, always_run=True):
     """ACTION: Run the apt-get update command to update the list of available
-    packages.
+    packages. By default always run the update command, even if it was already
+    run, as it is assumed that an explicit call readlly needs the update. This
+    is the case for add_apt_repository, where subsequent packages won't
+    even be visible.
     """
     global update_run_this_execution
-    if not update_run_this_execution:
+    if always_run or (not update_run_this_execution):
+        self.ctx.logger.info("Running apt-get update...")
         iuprocess.run_sudo_program([APT_GET_PATH, "-q", "-y", "update"],
                                    self.ctx._get_sudo_password(self),
-                                   self.ctx.logger)
+                                   self.ctx.logger,
+                                   env=_get_environment_for_aptget())
+        update_run_this_execution = True
     else:
         self.ctx.logger.info("ignoring request for apt-get update, as update was already run")
 
