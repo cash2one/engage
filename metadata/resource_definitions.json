@@ -5390,7 +5390,8 @@
       },
       "output_ports": {
         "repository": {
-          "repo_name": {"type":"string", "fixed-value":"ppa:pitti/postgresql"}
+          "repo_name": {"type":"string", "fixed-value":"ppa:pitti/postgresql"},
+          "repo_url": {"type":"string", "fixed-value":"http://ppa.launchpad.net/pitti/postgresql/ubuntu"}
         }
       },
       "inside": {

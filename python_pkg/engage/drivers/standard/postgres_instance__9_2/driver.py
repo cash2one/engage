@@ -176,7 +176,7 @@ class Manager(service_manager.Manager):
                    os.path.join(p.input_ports.host.log_directory,
                                 'postgres.log'),
                    cwd=p.config_port.database_dir)
-        self.ctx.check_poll(10, 2.0, lambda v:v,
+        self.ctx.check_poll(12, 5.0, lambda v:v,
                             get_server_status, p.output_ports.postgres_inst.pid_file)
         
 

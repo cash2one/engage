@@ -7,7 +7,9 @@
 import sys
 import os
 import os.path
-## import commands
+
+import re
+import glob
 
 # fix path if necessary (if running from source or running as test)
 try:
@@ -73,6 +75,10 @@ def make_context(resource_json, sudo_password_fn, dry_run=False):
                   add_apt_repository_exe=unicode)
     ctx.check_port('output_ports.repository',
                   repo_name=unicode)
+    if hasattr(ctx.props.output_ports.repository, 'repo_url'):
+        ctx.add('repo_url', ctx.props.output_ports.repository.repo_url)
+    else:
+        ctx.add('repo_url', None)
 
     # add any extra computed properties here using the ctx.add() method.
     return ctx
@@ -85,6 +91,28 @@ def run_add_apt_repository(self, repository_name):
                                self.ctx._get_sudo_password(self),
                                self.ctx.logger)
 
+def search_for_repository(repo_url):
+    """Look in the all the repository files for the specified
+    repository url. If it is found, then we have already added the
+    repository.
+    """
+    r = re.compile(re.escape('deb %s ' % repo_url) + r'\w+\ \w+')
+    def find_url_in_file(fname):
+        if not os.path.exists(fname):
+            return False
+        with open(fname) as f:
+            for line in f:
+                line = line.rstrip()
+                if r.match(line)!=None:
+                    return True
+        return False
+    filelist = glob.glob('/etc/apt/sources.list.d/*.list')
+    filelist.append('/etc/apt/sources.list')
+    for fpath in filelist:
+        if find_url_in_file(fpath):
+            return True # found it
+    return False # didn't find repo in any of the files
+            
 #
 # Now, define the main resource manager class for the driver.
 # If this driver is a service, inherit from service_manager.Manager.
@@ -101,15 +129,19 @@ class Manager(resource_manager.Manager, PasswordRepoMixin):
         self.ctx = make_context(metadata.to_json(),
                                 self._get_sudo_password,
                                 dry_run=dry_run)
-        # TODO: should have a better way to tell if a repository has been added.
-        # Should be harmless to add it multiple times.
-        self._is_installed = False
+        self._is_installed = False # fallback on this flag if repo_url isn't specified
 
     def validate_pre_install(self):
         pass
 
 
     def is_installed(self):
+        p = self.ctx.props
+        if p.repo_url and (not self._is_installed):
+            self._is_installed = search_for_repository(p.repo_url)
+            if self._is_installed:
+                logger.info("Repository %s already installed" %
+                            p.output_ports.repository.repo_name)
         return self._is_installed
 
     def install(self, package):
