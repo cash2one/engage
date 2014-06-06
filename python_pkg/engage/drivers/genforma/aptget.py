@@ -171,7 +171,7 @@ def update(self, always_run=True):
         iuprocess.run_sudo_program([APT_GET_PATH, "-q", "-y", "update"],
                                    self.ctx._get_sudo_password(self),
                                    self.ctx.logger,
-                                   env=_get_environment_for_aptget())
+                                   env=_get_env_for_aptget())
         update_run_this_execution = True
     else:
         self.ctx.logger.info("ignoring request for apt-get update, as update was already run")
