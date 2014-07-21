@@ -187,7 +187,12 @@ class Manager(service_manager.Manager):
 
     def stop(self):
         p = self.ctx.props
-        self.ctx.r(stop_server, p.output_ports.postgres_inst.pid_file)
+        ## self.ctx.r(stop_server, p.output_ports.postgres_inst.pid_file)
+        logger.info("Doing a fast-stop of postgres...")
+        db_dir = p.output_ports.postgres_inst.database_dir
+        self.ctx.r(run_program, [p.input_ports.postgres.pg_ctl_exe, '-D',
+                                 db_dir, 'stop', '-m', 'fast'],
+                   cwd=db_dir)
 
     def force_stop(self):
         p = self.ctx.props
