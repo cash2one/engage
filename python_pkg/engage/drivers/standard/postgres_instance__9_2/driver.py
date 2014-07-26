@@ -190,7 +190,7 @@ class Manager(service_manager.Manager):
         ## self.ctx.r(stop_server, p.output_ports.postgres_inst.pid_file)
         logger.info("Doing a fast-stop of postgres...")
         db_dir = p.output_ports.postgres_inst.database_dir
-        self.ctx.r(run_program, [p.input_ports.postgres.pg_ctl_exe, '-D',
+        self.ctx.r(run_program, ['/usr/bin/sudo', '-u', p.output_ports.postgres_inst.user, p.input_ports.postgres.pg_ctl_exe, '-D',
                                  db_dir, 'stop', '-m', 'fast'],
                    cwd=db_dir)
 
