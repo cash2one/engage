@@ -1016,15 +1016,6 @@
         }
       ]
     },
-    { "key":{"name":"six", "version":"1.3"},
-      "mgr_module_name":"engage.drivers.genforma.pip",
-      "packages": [
-        { "type": "Reference",
-          "package_class": "PipLink",
-          "location": "six"
-        }
-      ]
-    },
     { "key":{"name":"python-dateutil", "version":"2.2"},
       "mgr_module_name":"engage.drivers.genforma.pip",
       "packages": [
