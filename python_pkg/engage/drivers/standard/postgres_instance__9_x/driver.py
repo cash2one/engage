@@ -1,5 +1,5 @@
 
-"""Resource manager for postgres-instance 9.2.
+"""Resource manager for postgres-instance 9.x.
 
 Note that this driver runs the database instance under a specified user (not
 necessarily postgres). On Linux, installing the apt package creates

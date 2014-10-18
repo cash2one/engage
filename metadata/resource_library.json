@@ -161,6 +161,9 @@
     { "key": { "name": "ubuntu-linux", "version": "12.04"},
       "mgr_module_name": "engage.drivers.install_target_resource"
     },
+    { "key": { "name": "ubuntu-linux", "version": "14.04"},
+      "mgr_module_name": "engage.drivers.install_target_resource"
+    },
     { "key": { "name": "apache-mac", "version": "2.2"},
       "mgr_module_name": "engage.drivers.genforma.dummy_service_manager"
     },
@@ -1062,6 +1065,13 @@
        "location":"postgresql-9.2"}
     ]
    },
+   {"key": {"name":"postgres-server-apt", "version":"9.3"},
+    "mgr_module_name": "engage.drivers.genforma.aptget",
+    "packages": [
+      {"type":"Reference", "package_class":"AptGet",
+       "location":"postgresql-9.3"}
+    ]
+   },
    { "key": { "name": "psycopg2-abstract", "version":"2.4"},
      "mgr_module_name": "engage.drivers.genforma.dummy_resource_manager",
      "packages": [
@@ -1071,7 +1081,7 @@
        }
      ]
    },
-   { "key": { "name": "postgres-server-abstract", "version":"9.2"},
+   { "key": { "name": "postgres-server-abstract", "version":"9.x"},
      "mgr_module_name": "engage.drivers.genforma.dummy_resource_manager",
      "packages": [
        { "type": "Reference",

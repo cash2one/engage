@@ -122,6 +122,31 @@
       }
     },
     {
+      "key": {"name": "ubuntu-linux", "version": "14.04"},
+      "display_name": "Ubuntu Linux 14.04 LTS (Trusty Tahr)",
+      "config_port": {
+        "cpu_arch": {"default": "i386", "type": "string"},
+        "genforma_home": {"default": "/home/${config_port.os_user_name}/apps", "type": "path"},
+        "hostname": {"default": "localhost", "type": "hostname"},
+        "log_directory": {"default": "${config_port.genforma_home}/log", "type": "path"},
+        "os_user_name": "string",
+        "private_ip": {"default": null, "type": "string"},
+        "sudo_password": {"type": "string"}
+      },
+      "output_ports": {
+        "host": {
+          "cpu_arch": {"source": "config_port.cpu_arch", "type": "string"},
+          "genforma_home": {"source": "config_port.genforma_home", "type": "path"},
+          "hostname": {"source": "config_port.hostname", "type": "hostname"},
+          "log_directory": {"source": "config_port.log_directory", "type": "path"},
+          "os_type": {"type": "string", "fixed-value": "linux"},
+          "os_user_name": {"source": "config_port.os_user_name", "type": "string"},
+          "private_ip": {"source": "config_port.private_ip", "type": "string"},
+          "sudo_password": {"source": "config_port.sudo_password", "type": "password"}
+        }
+      }
+    },
+    {
       "key": {"name": "nginx-linux", "version": "0.8"},
       "display_name": "nginx (Linux)",
       "config_port": {
@@ -147,7 +172,7 @@
         }
       },
       "inside": { "one-of": [
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -180,7 +205,7 @@
         }
       },
       "inside": { "one-of": [
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -249,7 +274,7 @@
         }
       },
       "inside": { "one-of": [
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -323,7 +348,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -348,7 +373,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -376,7 +401,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -411,7 +436,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -446,7 +471,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -481,7 +506,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -516,7 +541,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -546,7 +571,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -576,7 +601,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -606,7 +631,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -641,7 +666,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -676,7 +701,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -718,7 +743,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -754,7 +779,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -790,7 +815,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -846,7 +871,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"less-than": "10.7", "greater-than": "10.5"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -931,7 +956,7 @@
         }
       },
       "inside": { "one-of": [
-          {"key": {"name":"ubuntu-linux", "version":{"greater-than-or-equal": "11.10"}},
+          {"key": {"name":"ubuntu-linux", "version":{"greater-than-or-equal": "14.04"}},
            "port_mapping": {"host": "host"}}
         ]}
     },
@@ -976,7 +1001,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"less-than": "10.7", "greater-than": "10.5"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -1013,7 +1038,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -1048,7 +1073,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -1107,7 +1132,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -1134,7 +1159,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -1172,7 +1197,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -1218,7 +1243,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -1305,7 +1330,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -1404,7 +1429,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -1458,7 +1483,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -1528,7 +1553,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -1564,7 +1589,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -1600,7 +1625,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -1704,7 +1729,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -1761,7 +1786,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -1790,7 +1815,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -1819,7 +1844,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -1862,7 +1887,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -1915,7 +1940,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -1955,7 +1980,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -1977,7 +2002,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -2020,7 +2045,7 @@
         }
       },
       "inside": { "one-of": [
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}},
@@ -2073,7 +2098,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -2100,7 +2125,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -2127,7 +2152,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -2168,7 +2193,7 @@
 
       },
       "inside": { "one-of": [
-          {"key": {"name":"ubuntu-linux", "version":"11.10"}},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"}}
         ]}
     },
@@ -2181,7 +2206,7 @@
       },
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"}},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"}}
         ]},
       "environment": { "one-of": [
@@ -2206,7 +2231,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -2241,7 +2266,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -2276,7 +2301,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -2330,7 +2355,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -2364,7 +2389,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -2393,7 +2418,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -2422,7 +2447,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -2452,7 +2477,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -2481,7 +2506,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -2510,7 +2535,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -2539,7 +2564,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -2568,7 +2593,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -2597,7 +2622,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -2629,7 +2654,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -2663,7 +2688,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -2697,7 +2722,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -2731,7 +2756,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -2765,7 +2790,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -2805,7 +2830,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -2831,7 +2856,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -2879,7 +2904,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -2915,7 +2940,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -2941,7 +2966,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -2987,7 +3012,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -3016,7 +3041,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -3056,7 +3081,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -3085,7 +3110,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -3120,7 +3145,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -3150,7 +3175,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -3187,7 +3212,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -3225,7 +3250,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -3269,7 +3294,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -3308,7 +3333,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -3365,7 +3390,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -3407,7 +3432,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -3441,7 +3466,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -3480,7 +3505,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -3520,7 +3545,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -3578,7 +3603,7 @@
       },
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"}},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"}}
         ]},
       "environment": { "one-of": [
@@ -3624,7 +3649,7 @@
         }
       },
       "inside": { "one-of": [
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -3707,7 +3732,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -3743,7 +3768,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -3838,7 +3863,7 @@
         }
       },
       "inside": { "one-of": [
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -3873,7 +3898,7 @@
         }
       },
       "inside": { "one-of": [
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -3914,7 +3939,7 @@
         }
       },
       "inside": { "one-of": [
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -4011,7 +4036,7 @@
         }
       },
       "inside": { "one-of": [
-          {"key": {"name":"ubuntu-linux", "version":"11.10"}},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"}},
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}}}
         ]},
@@ -4043,7 +4068,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -4077,7 +4102,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -4105,7 +4130,7 @@
       "inside": { "one-of": [
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}}
         ]}
     },
@@ -4143,7 +4168,7 @@
       "comment": "pulls in either the ubuntu package or the pip package",
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"}},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"}}
         ]},
       "environment": { "one-of": [
@@ -4170,7 +4195,7 @@
       },
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"}},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"}}
         ]},
       "environment": { "all-of": [
@@ -4202,7 +4227,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -4229,7 +4254,7 @@
         }
       },
       "inside": { "one-of": [
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -4242,7 +4267,7 @@
     {
       "key": {"name": "libzmq1-apt", "version": "2.1"},
       "display_name": "libzmq1 (apt package)",
-      "comment": "Ubuntu 11.10 default repository includes libzmq1 package",
+      "comment": "Ubuntu 14.04 default repository includes libzmq1 package",
       "input_ports": {
         "host": {
           "sudo_password": "password"
@@ -4254,7 +4279,7 @@
         }
       },
       "inside": { "one-of": [
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -4263,7 +4288,7 @@
     {
       "key": {"name": "libzmq-dev-apt", "version": "2.1"},
       "display_name": "libzmq-dev (apt package)",
-      "comment": "Ubuntu 11.10 default repository includes libzmq-dev package",
+      "comment": "Ubuntu 14.04 default repository includes libzmq-dev package",
       "input_ports": {
         "host": {
           "sudo_password": "password"
@@ -4275,7 +4300,7 @@
         }
       },
       "inside": { "one-of": [
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -4301,7 +4326,7 @@
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}},
            "port_mapping": {"host": "host"}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -4326,7 +4351,7 @@
       },
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"}},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"}}
         ]},
       "environment": { "all-of": [
@@ -4356,7 +4381,7 @@
       },
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"}},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"}}
         ]},
       "environment": { "all-of": [
@@ -4385,7 +4410,7 @@
       },
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"}},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"}}
         ]},
       "environment": { "all-of": [
@@ -4415,7 +4440,7 @@
       },
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"}},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"}}
         ]},
       "environment": { "all-of": [
@@ -4446,7 +4471,7 @@
       },
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"}},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"}}
         ]},
       "environment": { "all-of": [
@@ -4479,7 +4504,7 @@
       },
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"}},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"}}
         ]},
       "environment": { "all-of": [
@@ -4523,7 +4548,7 @@
       },
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"}},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"}}
         ]},
       "environment": { "all-of": [
@@ -4552,7 +4577,7 @@
       },
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"}},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"}}
         ]},
       "environment": { "all-of": [
@@ -4602,7 +4627,7 @@
         }
       },
       "inside": { "one-of": [
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -4616,7 +4641,7 @@
       "display_name": "psycopg2 python package, pulls in platform-specific version",
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"}},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"}}
         ]},
       "environment": { "one-of": [
@@ -4681,8 +4706,6 @@
         }
       },
       "inside": { "one-of": [
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
-           "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
         ]},
@@ -4691,7 +4714,34 @@
         ]}
     },
     {
-      "key": {"name": "postgres-server-abstract", "version": "9.2"},
+      "key": {"name": "postgres-server-apt", "version": "9.3"},
+      "display_name": "PostgreSQL database server, Linux apt version",
+      "input_ports": {
+        "host": {
+          "sudo_password": {"type": "password"}
+        }
+      },
+      "output_ports": {
+        "apt_cfg": {
+          "package_name": {"type": "string", "fixed-value": "postgresql-9.3"}
+        },
+        "postgres": {
+          "createdb_exe": {"type": "path", "fixed-value": "/usr/lib/postgresql/9.3/bin/createdb"},
+          "createuser_exe": {"type": "path", "fixed-value": "/usr/lib/postgresql/9.3/bin/createuser"},
+          "initdb_exe": {"type": "path", "fixed-value": "/usr/lib/postgresql/9.3/bin/initdb"},
+          "pg_ctl_exe": {"type": "path", "fixed-value": "/usr/lib/postgresql/9.3/bin/pg_ctl"},
+          "pg_dump_exe": {"type": "path", "fixed-value": "/usr/lib/postgresql/9.3/bin/pg_dump"},
+          "pg_restore_exe": {"type": "path", "fixed-value": "/usr/lib/postgresql/9.3/bin/pg_restore"},
+          "psql_exe": {"type": "path", "fixed-value": "/usr/lib/postgresql/9.3/bin/psql"}
+        }
+      },
+      "inside": { "one-of": [
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
+           "port_mapping": {"host": "host"}}
+        ]}
+    },
+    {
+      "key": {"name": "postgres-server-abstract", "version": "9.x"},
       "display_name": "PostgreSQL database server, pulls in platform-specific version",
       "input_ports": {
         "postgres": {
@@ -4717,13 +4767,15 @@
       },
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"}},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"}}
         ]},
       "environment": { "one-of": [
           {"key": {"name":"postgres-server-macports", "version":"9.2"},
            "port_mapping": {"postgres": "postgres"}},
           {"key": {"name":"postgres-server-apt", "version":"9.2"},
+           "port_mapping": {"postgres": "postgres"}},
+          {"key": {"name":"postgres-server-apt", "version":"9.3"},
            "port_mapping": {"postgres": "postgres"}}
         ]}
     },
@@ -4745,7 +4797,7 @@
         }
       },
       "inside": { "one-of": [
-          {"key": {"name":"ubuntu-linux", "version":"11.10"},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
            "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"},
            "port_mapping": {"host": "host"}}
@@ -4775,7 +4827,7 @@
       },
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"}},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"}}
         ]},
       "environment": { "all-of": [
@@ -4806,7 +4858,7 @@
       },
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}}},
-          {"key": {"name":"ubuntu-linux", "version":"11.10"}},
+          {"key": {"name":"ubuntu-linux", "version":"14.04"}},
           {"key": {"name":"ubuntu-linux", "version":"12.04"}}
         ]},
       "environment": { "all-of": [

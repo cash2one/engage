@@ -1,5 +1,5 @@
 [
-    { "key": {"name": "postgres-database", "version":"9.2"},
+    { "key": {"name": "postgres-database", "version":"9.x"},
       "display_name": "PostgreSQL database (inside of an instance)",
       "config_port": {
         "database_name": {"type":"string"},
@@ -19,12 +19,12 @@
         }
       },
       "inside": {
-         "key": {"name":"postgres-instance", "version":"9.2"},
+         "key": {"name":"postgres-instance", "version":"9.x"},
          "port_mapping": {"postgres_inst":"postgres_inst"}
       },
       "environment": {
           "all-of": [
-            {"key":{"name":"postgres-server-abstract", "version":"9.2"},
+            {"key":{"name":"postgres-server-abstract", "version":"9.x"},
              "port_mapping":{"postgres":"postgres"}}
           ]
       }

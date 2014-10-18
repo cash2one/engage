@@ -1,5 +1,5 @@
 
-"""Resource manager for postgres-database 9.2 
+"""Resource manager for postgres-database 9.x 
 """
 
 # Common stdlib imports

@@ -1,5 +1,5 @@
 [
-    { "key": {"name": "postgres-instance", "version":"9.2"},
+    { "key": {"name": "postgres-instance", "version":"9.x"},
       "display_name": "PostgreSQL database instance",
       "config_port": {
         "database_dir":{"type":"path", "default":"${input_ports.host.genforma_home}/postgres"}
@@ -31,7 +31,7 @@
           { "key": {"name":"mac-osx", "version":{"greater-than-or-equal":"10.5",
                                                  "less-than":"10.7"}},
             "port_mapping":{"host":"host"}},
-          { "key": {"name": "ubuntu-linux", "version":"11.10"},
+          { "key": {"name": "ubuntu-linux", "version":"14.04"},
             "port_mapping":{"host":"host"}},
           { "key": {"name": "ubuntu-linux", "version":"12.04"},
             "port_mapping":{"host":"host"}}
@@ -39,7 +39,7 @@
       },
       "environment": {
           "all-of": [
-            {"key":{"name":"postgres-server-abstract", "version":"9.2"},
+            {"key":{"name":"postgres-server-abstract", "version":"9.x"},
              "port_mapping":{"postgres":"postgres"}}
           ]
       }

@@ -114,6 +114,13 @@ def copy_tree(src, dest, logger):
     shutil.copytree(src, dest)
 
 
+def run_apt_install(package_name, logger):
+    rc = system("/usr/bin/sudo /usr/bin/apt-get install -y -q %s", logger)
+    if rc != 0:
+        raise Exception("apt-get install for %s failed" % package_name)
+    logger.info("apt-get install for %s successful" % package_name)
+
+
 def run_install(engage_bin_dir, sw_packages_dir, package_file_list,
                 logger, alternative_package_name=None,
                 never_download=False):
@@ -266,13 +273,16 @@ def main(argv):
     copy_tree(sw_packages_src_loc, sw_packages_dst_loc, logger)
 
     if not is_package_installed(engage_bin_dir, "Crypto.Cipher.AES", logger):
-        # Pycrypto may be preinstalled on the machine.
-        # If so, we don't install our local copy, as installation
-        # can be expensive (involves a g++ compile).
-        run_install(engage_bin_dir, sw_packages_src_loc,
-                    ["pycrypto-2.3-%s.tar.gz" % platform, "pycrypto-2.3.tar.gz"],
-                    logger, "pycrypto",
-                    never_download=options.never_download)
+        if get_platform()=="linux64" and (not options.never_download):
+            run_apt_install("python-crypto", logger)
+        else:
+            # Pycrypto may be preinstalled on the machine.
+            # If so, we don't install our local copy, as installation
+            # can be expensive (involves a g++ compile).
+            run_install(engage_bin_dir, sw_packages_src_loc,
+                        ["pycrypto-2.3-%s.tar.gz" % platform, "pycrypto-2.3.tar.gz"],
+                        logger, "pycrypto",
+                        never_download=options.never_download)
 
     bootstrap_packages = [# JF 2012-05-11: Don't install provision and its
                           # dependencies - moving down to DJM level.
