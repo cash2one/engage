@@ -188,16 +188,19 @@ class Manager(service_manager.Manager):
     def stop(self):
         p = self.ctx.props
         ## self.ctx.r(stop_server, p.output_ports.postgres_inst.pid_file)
-        logger.info("Doing a fast-stop of postgres...")
-        db_dir = p.output_ports.postgres_inst.database_dir
+        # We do a normal stop, and, if that fails to work, a fast stop.
+        # We tried doing it in the other order but this caused intermittent
+        # problems in startup (see issue quaddra/si#173).
+        logger.info("Doing a normal-stop of postgres...")
         try:
+            self.ctx.r(stop_server, p.output_ports.postgres_inst.pid_file, force_stop=False)
+        except Exception, e:
+            logger.warn("Normal stop of postgres failed, will try to do a fast-stop. Error was '%s'", unicode(e))
+            db_dir = p.output_ports.postgres_inst.database_dir
             self.ctx.r(run_program,
                        ['/usr/bin/sudo', '-u', p.output_ports.postgres_inst.user, p.input_ports.postgres.pg_ctl_exe, '-D',
                         db_dir, 'stop', '-m', 'fast'],
                        cwd=db_dir)
-        except Exception, e:
-            logger.warn("Fast-stop of postgres failed, will try SIGTERM. Error was '%s'" % unicode(e))
-            self.ctx.r(stop_server, p.output_ports.postgres_inst.pid_file, force_stop=False)
 
     def force_stop(self):
         p = self.ctx.props
