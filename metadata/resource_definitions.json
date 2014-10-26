@@ -956,6 +956,8 @@
         }
       },
       "inside": { "one-of": [
+          {"key": {"name":"ubuntu-linux", "version":{"greater-than-or-equal": "12.04"}},
+           "port_mapping": {"host": "host"}},
           {"key": {"name":"ubuntu-linux", "version":{"greater-than-or-equal": "14.04"}},
            "port_mapping": {"host": "host"}}
         ]}
