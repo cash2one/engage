@@ -210,12 +210,13 @@ The following actions are defined by this module:
  * move_old_file_version <file_path> {backup_name=None} {leave_old_backup_file=False}
  * start_server <cmd_and_args> <log_file> <pid_file> {cwd="/"} {environment={}} {timeout_tries=10} {time_between_tries=2.0}
  * stop_server <pid_file> {timeout_tries=10} {force_stop=False}
+ * sudo_stop_server <pid_file> {timeout_tries=10} {force_stop=False}
  * subst_in_file <filename> <pattern_list> {subst_in_place=False}
  * subst_in_file_and_check_count <filename> <pattern_list> <num_expected_changes> {subst_in_place=False}
  * sudo_add_config_file_line <config-file> <line>
  * sudo_copy <copy_args>
  * sudo_mkdir <path> {create_intermediate_dirs=False}
- * sudo_run_program <program_and_args> {cwd=None}
+ * sudo_run_program <program_and_args> {cwd=None} {env={}}
  * sudo_start_server <cmd_and_args> <log_file> {cwd=None} {environment={}}
  * sudo_set_file_permissions <path> <user-id> <group-id> <mode-bits>
  * sudo_set_file_perms_by_name <path> <mode_bits> {user_name=effective_user} {group_name=effective_group}
@@ -1476,6 +1477,24 @@ def stop_server(self, pid_file, timeout_tries=20, force_stop=False):
                                   "id":self.ctx.props.id, "pid":e.pid,
                                   "timeout":e.timeout_in_secs})
 
+@make_action
+def sudo_stop_server(self, pid_file, timeout_tries=20, force_stop=False):
+    """Action: stop a server process started using sudo_start_server. Waits for
+    process to exit. timeout_tries is the number of times to poll the process
+    after sending the signal, with one second between each try.
+    """
+    try:
+        procutils.sudo_stop_server_process(pid_file, self.ctx.logger,
+                                           self.ctx.props.id,
+                                           self.ctx._get_sudo_password(self),
+                                           timeout_tries,
+                                           force_stop)
+    except procutils.ServerStopTimeout, e:
+        raise UserError(errors[ERR_SERVER_STOP_TIMEOUT],
+                        msg_args={"action":self.NAME,
+                                  "id":self.ctx.props.id, "pid":e.pid,
+                                  "timeout":e.timeout_in_secs})
+
 
 class get_server_status(SudoValueAction):
     """SudoValueAction: check whether a server process is alive by grabbing its
@@ -1541,12 +1560,15 @@ def start_server_as_user(self, user, cmd_and_args, log_file, cwd=None, environme
                                  cwd)
 
 @make_action
-def sudo_run_program(self, program_and_args, cwd=None):
-    """Action: Run the specified program as a super user"""
+def sudo_run_program(self, program_and_args, cwd=None, env={}):
+    """Action: Run the specified program as a super user. Note that
+       the default for env is the empty environment, meaning no
+       environment variables are passed to the subprocess."""
     procutils.run_sudo_program(program_and_args,
                                self.ctx._get_sudo_password(self),
                                self.ctx.logger,
-                               cwd=cwd)
+                               cwd=cwd,
+                               env=env)
 
 
 class sudo_run_program_and_scan_results(ValueAction):
