@@ -102,8 +102,13 @@ def apt_get_install(package_list, sudo_password):
                                         msg_args={"pkgs":package_list.__repr__()},
                                         nested_exc_info=e.get_nested_exc_info())
 
-def dpkg_install(package_file, sudo_password):
-    """Given a package's .deb file, install using dpkg.
+def dpkg_install(package_file, sudo_password, may_have_dependencies=True):
+    """Given a package's .deb file, install using dpkg. may_have_dependencies should
+    be left at True if it is possible that the .deb package has dependencies that aren't
+    being managed by Engage. In this case, it will run an apt-get update to make
+    sure the package database is up-to-date. If you know that you don't have dependencies,
+    set this to False to suppress the apt-get update call, which can fail due
+    to remote servers being temporarily unavailable.
     """
     env = _get_env_for_aptget()
     if not os.path.exists(DPKG_PATH):
@@ -114,7 +119,8 @@ def dpkg_install(package_file, sudo_password):
                         msg_args={"path":package_file})
     
     try:
-        run_update_if_not_already_run(sudo_password, env)
+        if may_have_dependencies:
+            run_update_if_not_already_run(sudo_password, env)
         iuprocess.run_sudo_program([DPKG_PATH, "-i", package_file], sudo_password,
                                    logger, env=env)
     except iuprocess.SudoError, e:

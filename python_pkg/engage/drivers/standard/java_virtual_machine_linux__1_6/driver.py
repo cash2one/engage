@@ -22,6 +22,8 @@ import engage.drivers.utils
 import engage.drivers.genforma.jvm_preinstalled as jvm_preinstalled
 import engage.drivers.genforma.aptget as aptget
 from engage.utils.system_info import get_platform
+from engage.utils.user_error import UserError
+
 
 # this is used by the package manager to locate the packages.json
 # file associated with the driver
@@ -47,5 +49,13 @@ class Manager(jvm_preinstalled.Manager):
     def validate_pre_install(self):
         pass
 
+    def is_installed(self):
+        return check_linux_java_1_6_installed()
+
     def install(self, package):
         self.ctx.r(aptget.install, [JVM_APT_PACKAGE,])
+
+    def validate_post_install(self):
+        if not os.access(self.ctx.props.output_ports.jvm.java_exe, os.X_OK):
+            raise UserError(jvm_preinstalled.errors[jvm_preinstalled.ERR_JAVA_NOT_FOUND],
+                            msg_args={"java":self.ctx.props.output_ports.jvm.java_exe})
