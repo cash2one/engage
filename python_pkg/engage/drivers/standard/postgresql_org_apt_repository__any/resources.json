@@ -1,0 +1,17 @@
+[
+    {
+      "key": {"name": "postgresql-org-apt-repository", "version": "any"},
+      "display_name": "apt repository with more recent postgres builds for ubuntu",
+      "input_ports": {
+        "host": {
+          "sudo_password": "password"
+        }
+      },
+      "inside": { "one-of": [
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
+           "port_mapping": {"host": "host"}},
+          {"key": {"name":"ubuntu-linux", "version":"12.04"},
+           "port_mapping": {"host": "host"}}
+        ]}
+    }
+]

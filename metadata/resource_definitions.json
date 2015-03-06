@@ -4741,6 +4741,37 @@
         ]}
     },
     {
+      "key": {"name": "postgres-server-apt", "version": "9.4"},
+      "display_name": "PostgreSQL database server, Linux apt version",
+      "input_ports": {
+        "host": {
+          "sudo_password": {"type": "password"},
+          "host": {"type":"hostname"}
+        }
+      },
+      "output_ports": {
+        "apt_cfg": {
+          "package_name": {"type": "string", "fixed-value": "postgresql-9.4"}
+        },
+        "postgres": {
+          "createdb_exe": {"type": "path", "fixed-value": "/usr/lib/postgresql/9.4/bin/createdb"},
+          "createuser_exe": {"type": "path", "fixed-value": "/usr/lib/postgresql/9.4/bin/createuser"},
+          "initdb_exe": {"type": "path", "fixed-value": "/usr/lib/postgresql/9.4/bin/initdb"},
+          "pg_ctl_exe": {"type": "path", "fixed-value": "/usr/lib/postgresql/9.4/bin/pg_ctl"},
+          "pg_dump_exe": {"type": "path", "fixed-value": "/usr/lib/postgresql/9.4/bin/pg_dump"},
+          "pg_restore_exe": {"type": "path", "fixed-value": "/usr/lib/postgresql/9.4/bin/pg_restore"},
+          "psql_exe": {"type": "path", "fixed-value": "/usr/lib/postgresql/9.4/bin/psql"}
+        }
+      },
+      "inside": { "one-of": [
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
+           "port_mapping": {"host": "host"}}
+        ]},
+      "environment": { "all-of": [
+        {"key":{"name":"postgresql-org-apt-repository", "version":"any"}}
+      ]}
+    },
+    {
       "key": {"name": "postgres-server-abstract", "version": "9.x"},
       "display_name": "PostgreSQL database server, pulls in platform-specific version",
       "input_ports": {
@@ -4775,7 +4806,7 @@
            "port_mapping": {"postgres": "postgres"}},
           {"key": {"name":"postgres-server-apt", "version":"9.2"},
            "port_mapping": {"postgres": "postgres"}},
-          {"key": {"name":"postgres-server-apt", "version":"9.3"},
+          {"key": {"name":"postgres-server-apt", "version":"9.4"},
            "port_mapping": {"postgres": "postgres"}}
         ]}
     },
@@ -4806,6 +4837,28 @@
           {"key": {"name":"python-software-properties", "version":"any"},
            "port_mapping": {"add_rep_exe_info": "exe_info"}}
         ]}
+    },
+    {
+      "key": {"name": "postgresql-contrib", "version": "9.4"},
+      "display_name": "PostgreSQL contributed packages",
+      "input_ports": {
+        "host": {
+          "sudo_password": "password"
+        }
+      },
+      "output_ports": {
+        "apt_cfg": {
+          "package_name": {"type": "string", "fixed-value": "postgresql-contrib-9.4"}
+        }
+      },
+      "inside": { "one-of": [
+          {"key": {"name":"ubuntu-linux", "version":"14.04"},
+           "port_mapping": {"host":"host"}}
+        ]},
+      "environment": { "all-of": [
+        {"key":{"name":"postgres-server-apt", "version":"9.4"}},
+        {"key":{"name":"postgresql-org-apt-repository", "version":"any"}}
+      ]}
     },
     {
       "key": {"name": "paramiko", "version": "1.11"},

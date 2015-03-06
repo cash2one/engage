@@ -1072,6 +1072,20 @@
        "location":"postgresql-9.3"}
     ]
    },
+   {"key": {"name":"postgres-server-apt", "version":"9.4"},
+    "mgr_module_name": "engage.drivers.genforma.aptget",
+    "packages": [
+      {"type":"Reference", "package_class":"AptGet",
+       "location":"postgresql-9.4"}
+    ]
+   },
+   {"key": {"name":"postgresql-contrib", "version":"9.4"},
+    "mgr_module_name": "engage.drivers.genforma.aptget",
+    "packages": [
+      {"type":"Reference", "package_class":"AptGet",
+       "location":"postgresql-contrib-9.4"}
+    ]
+   },
    { "key": { "name": "psycopg2-abstract", "version":"2.4"},
      "mgr_module_name": "engage.drivers.genforma.dummy_resource_manager",
      "packages": [
