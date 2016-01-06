@@ -4392,9 +4392,9 @@
         ]}
     },
     {
-      "key": {"name": "django-tables2", "version": "0.13"},
+      "key": {"name": "django-tables2", "version": "1.0.4"},
       "display_name": "Django Tables 2",
-      "comment": "See https://pypi.python.org/pypi/django-tables2",
+      "comment": "Last version that supports Django 1.4/1.5",
       "input_ports": {
         "pip": {
           "pipbin": "string"
@@ -4407,6 +4407,17 @@
         "pkg_info": {
           "provides_pkg": {"type": "string", "fixed-value": "django_tables2"}
         }
+      },
+      "driver_module_name": "engage.drivers.genforma.pip",
+      "package": {
+        "filename": "django-tables2-1.0.4.tar.gz",
+        "pkg_type": "pip",
+        "license": {
+          "name": "BSD 2-Clause",
+          "url": "https://github.com/bradleyayers/django-tables2/blob/master/LICENSE"
+        },
+        "package_name": "django-tables2==1.0.4",
+        "md5sum": "5ae7992ac161485a9d2546346e61c284"
       },
       "inside": { "one-of": [
           {"key": {"name":"mac-osx", "version":{"greater-than-or-equal": "10.5", "less-than": "10.7"}}},

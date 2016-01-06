@@ -1001,15 +1001,6 @@
         }
       ]
     },
-    { "key":{"name":"django-tables2", "version":"0.13"},
-      "mgr_module_name":"engage.drivers.genforma.pip",
-      "packages": [
-        { "type": "Reference",
-          "package_class": "PipLink",
-          "location": "django_tables2>=0.13"
-        }
-      ]
-    },
     { "key":{"name":"django-celery", "version":"3.0"},
       "mgr_module_name":"engage.drivers.genforma.pip",
       "packages": [
